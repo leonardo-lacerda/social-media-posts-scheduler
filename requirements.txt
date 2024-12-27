@@ -1,0 +1,12 @@
+Django==5.1
+django-cleanup==8.1.0
+django-browser-reload==1.13.0
+python-dotenv==1.0.1
+requests==2.32.3
+requests-cache==1.2.1
+requests-oauthlib==2.0.0
+waitress==3.0.0
+whitenoise==6.7.0
+pandas==2.2.3
+openpyxl==3.1.5
+loguru==0.7.2

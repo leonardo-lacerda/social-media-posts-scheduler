@@ -1,0 +1,468 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page-title %} Timeline {% endblock %}
+
+
+{% block body %}
+
+<style>
+    article {
+        min-width: fit-content;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+</style>
+
+<hgroup class="title-description container">
+    <h1 style="display: flex; align-items: center; gap: 1rem;">
+        <span>🗓️ Calendar</span>
+
+        <select x-data="{
+            getYearPosts: function(event){
+                document.location.href = `?year=${event.target.value}`;
+            }
+        }" @change="getYearPosts" class="mb-2" style="margin: 0; width: fit-content;">
+            {% for year in select_years %}
+            <option value="{{ year }}" {% if selected_year == year %} selected {% endif %}>
+                {{ year }}
+            </option>
+            {% endfor %}
+        </select>
+
+    </h1>
+    <p>
+        Here you have a high level overview of the whole year scheduled posts.
+        Next to each social platform icon you have the number of posts scheduled on that day.
+        It's recommended to have 1-2 quality posts per day.
+        More than that will make you annoying and will get you unfollowed.
+        Try to give value and make posts less "addsy".
+        Search on the web for
+        <a target="_blank" href="https://www.charlesmiller.me/blog/best-content-writing-formulas">
+            "content writting formulas"
+        </a>
+        to get some template ideas for your posts/videos.
+
+        <a href="{% url 'schedule_form' isodate=isotoday %}">
+            Click here to post from today.
+        </a>
+    </p>
+</hgroup>
+
+
+<div class="mt-4">
+
+    <div id="months-container" style="display: flex; gap: 1rem; max-width: 100%; overflow-x: scroll;">
+
+        <article class="pico-background-{{ timeline_data.january.article_background }}">
+            <h3 class="pico-color-{{ timeline_data.january.text_color }}">
+                January
+                {% if timeline_data.january.current_month %}
+                <sup id="now-month" class="pico-color-blue-150">now</sup>
+                {% endif %}
+            </h3>
+            <ul class="no-style">
+                {% for i in timeline_data.january.days %}
+                <li>
+                    <a class="pico-color-{{ timeline_data.january.text_color }} no-decoration"
+                        href="{% url 'schedule_form' isodate=i.isodate %}">
+                        <span style="display: block; padding-right: .5rem;">
+                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
+                            <sup class="pico-color-{{ timeline_data.january.text_color }}">
+                                {{ i.posts_count }} total posts
+                            </sup>
+                        </span>
+                        <p class="pico-color-{{ timeline_data.january.text_color }}">
+                            <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
+                            <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
+                            <i class="bi bi-threads"></i> <sup>{{ i.threads_count }}</sup>
+                            <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
+                            <i class="bi bi-twitter"></i> <sup>{{ i.twitter_count }}</sup>
+                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
+                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
+                        </p>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+
+
+        <article class="pico-background-{{ timeline_data.february.article_background }}">
+            <h3 class="pico-color-{{ timeline_data.february.text_color }}">
+                February
+                {% if timeline_data.february.current_month %}
+                <sup id="now-month" class="pico-color-blue-150">now</sup>
+                {% endif %}
+            </h3>
+            <ul class="no-style">
+                {% for i in timeline_data.february.days %}
+                <li>
+                    <a class="pico-color-{{ timeline_data.february.text_color }} no-decoration"
+                        href="{% url 'schedule_form' isodate=i.isodate %}">
+                        <span style="display: block; padding-right: .5rem;">
+                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
+                            <sup class="pico-color-{{ timeline_data.february.text_color }}">
+                                {{ i.posts_count }} total posts
+                            </sup>
+                        </span>
+                        <p class="pico-color-{{ timeline_data.february.text_color }}">
+                            <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
+                            <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
+                            <i class="bi bi-threads"></i> <sup>{{ i.threads_count }}</sup>
+                            <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
+                            <i class="bi bi-twitter"></i> <sup>{{ i.twitter_count }}</sup>
+                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
+                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
+                        </p>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+
+        <article class="pico-background-{{ timeline_data.march.article_background }}">
+            <h3 class="pico-color-{{ timeline_data.march.text_color }}">
+                March
+                {% if timeline_data.march.current_month %}
+                <sup id="now-month" class="pico-color-blue-150">now</sup>
+                {% endif %}
+            </h3>
+            <ul class="no-style">
+                {% for i in timeline_data.march.days %}
+                <li>
+                    <a class="pico-color-{{ timeline_data.march.text_color }} no-decoration"
+                        href="{% url 'schedule_form' isodate=i.isodate %}">
+                        <span style="display: block; padding-right: .5rem;">
+                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
+                            <sup class="pico-color-{{ timeline_data.march.text_color }}">
+                                {{ i.posts_count }} total posts
+                            </sup>
+                        </span>
+                        <p class="pico-color-{{ timeline_data.march.text_color }}">
+                            <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
+                            <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
+                            <i class="bi bi-threads"></i> <sup>{{ i.threads_count }}</sup>
+                            <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
+                            <i class="bi bi-twitter"></i> <sup>{{ i.twitter_count }}</sup>
+                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
+                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
+                        </p>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+
+
+        <article class="pico-background-{{ timeline_data.april.article_background }}">
+            <h3 class="pico-color-{{ timeline_data.april.text_color }}">
+                April
+                {% if timeline_data.april.current_month %}
+                <sup id="now-month" class="pico-color-blue-150">now</sup>
+                {% endif %}
+            </h3>
+            <ul class="no-style">
+                {% for i in timeline_data.april.days %}
+                <li>
+                    <a class="pico-color-{{ timeline_data.april.text_color }} no-decoration"
+                        href="{% url 'schedule_form' isodate=i.isodate %}">
+                        <span style="display: block; padding-right: .5rem;">
+                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
+                            <sup class="pico-color-{{ timeline_data.april.text_color }}">
+                                {{ i.posts_count }} total posts
+                            </sup>
+                        </span>
+                        <p class="pico-color-{{ timeline_data.april.text_color }}">
+                            <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
+                            <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
+                            <i class="bi bi-threads"></i> <sup>{{ i.threads_count }}</sup>
+                            <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
+                            <i class="bi bi-twitter"></i> <sup>{{ i.twitter_count }}</sup>
+                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
+                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
+                        </p>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+
+        <article class="pico-background-{{ timeline_data.may.article_background }}">
+            <h3 class="pico-color-{{ timeline_data.may.text_color }}">
+                May
+                {% if timeline_data.may.current_month %}
+                <sup id="now-month" class="pico-color-blue-150">now</sup>
+                {% endif %}
+            </h3>
+            <ul class="no-style">
+                {% for i in timeline_data.may.days %}
+                <li>
+                    <a class="pico-color-{{ timeline_data.may.text_color }} no-decoration"
+                        href="{% url 'schedule_form' isodate=i.isodate %}">
+                        <span style="display: block; padding-right: .5rem;">
+                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
+                            <sup class="pico-color-{{ timeline_data.may.text_color }}">
+                                {{ i.posts_count }} total posts
+                            </sup>
+                        </span>
+                        <p class="pico-color-{{ timeline_data.may.text_color }}">
+                            <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
+                            <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
+                            <i class="bi bi-threads"></i> <sup>{{ i.threads_count }}</sup>
+                            <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
+                            <i class="bi bi-twitter"></i> <sup>{{ i.twitter_count }}</sup>
+                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
+                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
+                        </p>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+
+        <article class="pico-background-{{ timeline_data.june.article_background }}">
+            <h3 class="pico-color-{{ timeline_data.june.text_color }}">
+                June
+                {% if timeline_data.june.current_month %}
+                <sup id="now-month" class="pico-color-blue-150">now</sup>
+                {% endif %}
+            </h3>
+            <ul class="no-style">
+                {% for i in timeline_data.june.days %}
+                <li>
+                    <a class="pico-color-{{ timeline_data.june.text_color }} no-decoration"
+                        href="{% url 'schedule_form' isodate=i.isodate %}">
+                        <span style="display: block; padding-right: .5rem;">
+                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
+                            <sup class="pico-color-{{ timeline_data.june.text_color }}">
+                                {{ i.posts_count }} total posts
+                            </sup>
+                        </span>
+                        <p class="pico-color-{{ timeline_data.june.text_color }}">
+                            <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
+                            <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
+                            <i class="bi bi-threads"></i> <sup>{{ i.threads_count }}</sup>
+                            <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
+                            <i class="bi bi-twitter"></i> <sup>{{ i.twitter_count }}</sup>
+                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
+                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
+                        </p>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+
+        <article class="pico-background-{{ timeline_data.july.article_background }}">
+            <h3 class="pico-color-{{ timeline_data.july.text_color }}">
+                July
+                {% if timeline_data.july.current_month %}
+                <sup id="now-month" class="pico-color-blue-150">now</sup>
+                {% endif %}
+            </h3>
+            <ul class="no-style">
+                {% for i in timeline_data.july.days %}
+                <li>
+                    <a class="pico-color-{{ timeline_data.july.text_color }} no-decoration"
+                        href="{% url 'schedule_form' isodate=i.isodate %}">
+                        <span style="display: block; padding-right: .5rem;">
+                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
+                            <sup class="pico-color-{{ timeline_data.july.text_color }}">
+                                {{ i.posts_count }} total posts
+                            </sup>
+                        </span>
+                        <p class="pico-color-{{ timeline_data.july.text_color }}">
+                            <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
+                            <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
+                            <i class="bi bi-threads"></i> <sup>{{ i.threads_count }}</sup>
+                            <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
+                            <i class="bi bi-twitter"></i> <sup>{{ i.twitter_count }}</sup>
+                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
+                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
+                        </p>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+
+
+        <article class="pico-background-{{ timeline_data.august.article_background }}">
+            <h3 class="pico-color-{{ timeline_data.august.text_color }}">
+                August
+                {% if timeline_data.august.current_month %}
+                <sup id="now-month" class="pico-color-blue-150">now</sup>
+                {% endif %}
+            </h3>
+            <ul class="no-style">
+                {% for i in timeline_data.august.days %}
+                <li>
+                    <a class="pico-color-{{ timeline_data.august.text_color }} no-decoration"
+                        href="{% url 'schedule_form' isodate=i.isodate %}">
+                        <span style="display: block; padding-right: .5rem;">
+                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
+                            <sup class="pico-color-{{ timeline_data.august.text_color }}">
+                                {{ i.posts_count }} total posts
+                            </sup>
+                        </span>
+                        <p class="pico-color-{{ timeline_data.august.text_color }}">
+                            <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
+                            <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
+                            <i class="bi bi-threads"></i> <sup>{{ i.threads_count }}</sup>
+                            <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
+                            <i class="bi bi-twitter"></i> <sup>{{ i.twitter_count }}</sup>
+                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
+                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
+                        </p>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+
+        <article class="pico-background-{{ timeline_data.september.article_background }}">
+            <h3 class="pico-color-{{ timeline_data.september.text_color }}">
+                September
+                {% if timeline_data.september.current_month %}
+                <sup id="now-month" class="pico-color-blue-150">now</sup>
+                {% endif %}
+            </h3>
+            <ul class="no-style">
+                {% for i in timeline_data.september.days %}
+                <li>
+                    <a class="pico-color-{{ timeline_data.september.text_color }} no-decoration"
+                        href="{% url 'schedule_form' isodate=i.isodate %}">
+                        <span style="display: block; padding-right: .5rem;">
+                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
+                            <sup class="pico-color-{{ timeline_data.september.text_color }}">
+                                {{ i.posts_count }} total posts
+                            </sup>
+                        </span>
+                        <p class="pico-color-{{ timeline_data.september.text_color }}">
+                            <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
+                            <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
+                            <i class="bi bi-threads"></i> <sup>{{ i.threads_count }}</sup>
+                            <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
+                            <i class="bi bi-twitter"></i> <sup>{{ i.twitter_count }}</sup>
+                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
+                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
+                        </p>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+        <article class="pico-background-{{ timeline_data.octomber.article_background }}">
+            <h3 class="pico-color-{{ timeline_data.octomber.text_color }}">
+                Octomber
+                {% if timeline_data.octomber.current_month %}
+                <sup id="now-month" class="pico-color-blue-150">now</sup>
+                {% endif %}
+            </h3>
+            <ul class="no-style">
+                {% for i in timeline_data.octomber.days %}
+                <li>
+                    <a class="pico-color-{{ timeline_data.octomber.text_color }} no-decoration"
+                        href="{% url 'schedule_form' isodate=i.isodate %}">
+                        <span style="display: block; padding-right: .5rem;">
+                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
+                            <sup class="pico-color-{{ timeline_data.octomber.text_color }}">
+                                {{ i.posts_count }} total posts
+                            </sup>
+                        </span>
+                        <p class="pico-color-{{ timeline_data.octomber.text_color }}">
+                            <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
+                            <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
+                            <i class="bi bi-threads"></i> <sup>{{ i.threads_count }}</sup>
+                            <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
+                            <i class="bi bi-twitter"></i> <sup>{{ i.twitter_count }}</sup>
+                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
+                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
+                        </p>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+
+        <article class="pico-background-{{ timeline_data.november.article_background }}">
+            <h3 class="pico-color-{{ timeline_data.november.text_color }}">
+                November
+                {% if timeline_data.november.current_month %}
+                <sup id="now-month" class="pico-color-blue-150">now</sup>
+                {% endif %}
+            </h3>
+            <ul class="no-style">
+                {% for i in timeline_data.november.days %}
+                <li>
+                    <a class="pico-color-{{ timeline_data.november.text_color }} no-decoration"
+                        href="{% url 'schedule_form' isodate=i.isodate %}">
+                        <span style="display: block; padding-right: .5rem;">
+                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
+                            <sup class="pico-color-{{ timeline_data.november.text_color }}">
+                                {{ i.posts_count }} total posts
+                            </sup>
+                        </span>
+                        <p class="pico-color-{{ timeline_data.november.text_color }}">
+                            <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
+                            <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
+                            <i class="bi bi-threads"></i> <sup>{{ i.threads_count }}</sup>
+                            <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
+                            <i class="bi bi-twitter"></i> <sup>{{ i.twitter_count }}</sup>
+                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
+                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
+                        </p>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+
+        <article class="pico-background-{{ timeline_data.december.article_background }}">
+            <h3 class="pico-color-{{ timeline_data.december.text_color }}">
+                December
+                {% if timeline_data.december.current_month %}
+                <sup id="now-month" class="pico-color-blue-150">now</sup>
+                {% endif %}
+            </h3>
+            <ul class="no-style">
+                {% for i in timeline_data.december.days %}
+                <li>
+                    <a class="pico-color-{{ timeline_data.december.text_color }} no-decoration"
+                        href="{% url 'schedule_form' isodate=i.isodate %}">
+                        <span style="display: block; padding-right: .5rem;">
+                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
+                            <sup class="pico-color-{{ timeline_data.december.text_color }}">
+                                {{ i.posts_count }} total posts
+                            </sup>
+                        </span>
+                        <p class="pico-color-{{ timeline_data.december.text_color }}">
+                            <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
+                            <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
+                            <i class="bi bi-threads"></i> <sup>{{ i.threads_count }}</sup>
+                            <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
+                            <i class="bi bi-twitter"></i> <sup>{{ i.twitter_count }}</sup>
+                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
+                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
+                        </p>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const has_current_month_element = document.getElementById("now-month");
+        if (has_current_month_element) {
+            has_current_month_element.scrollIntoView({ block: 'nearest' });
+        }
+    });
+</script>
+
+{% endblock %}

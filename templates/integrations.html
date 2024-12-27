@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page-title %} Integrations {% endblock %}
+
+
+{% block body %}
+
+
+<hgroup class="title-description container">
+  <h1>🔑 Integrations</h1>
+  <p>
+    Here you need to add all the OAuth2 keys and secrets
+    needed to use the social media platforms API's to post your content thru this app.
+  </p>
+</hgroup>
+
+
+<div class="container mt-4">
+
+  <article>
+    <h4><i class="bi bi-linkedin"></i> LinkedIn</h4>
+    
+    {% if linkedin_ok %}
+      <p>All good to post.</p>
+    {% else %}
+
+    <p>Redirect url you need to put in the app:</p>
+
+    <div style="display: flex;" x-data="{ url: '{{linkedin_redirect_url}}', copied: false }">
+      <pre style="padding: 1rem;" x-text="url"></pre>
+      <i style="cursor: pointer; margin-top: .7rem;" @click="
+            navigator.clipboard.writeText(url).then(() => {
+                copied = true;
+                setTimeout(() => copied = false, 3000);
+            })
+        " class="bi bi-clipboard">
+        <span x-text="copied ? 'Copied!' : 'Copy'"></span>
+      </i>
+    </div>
+
+    {% endif %}
+
+    <div style="display: flex; justify-content: end;">
+      <div style="display: flex; gap: 1rem;">
+
+        {% if linkedin_ok %}
+        <a href="{% url 'linkedin_uninstall' %}" role="button" class="outline">
+          Deauthorize
+        </a>
+        {% endif %}
+
+        <a href="{% url 'linkedin_login' %}" role="button" {% if linkedin_ok == False %} class="pico-background-red-600" {% endif %}>
+          Authorize
+        </a>
+      </div>
+    </div>
+  </article>
+
+
+  <article>
+    <h4><i class="bi bi-twitter"></i> X/Twitter</h4>
+    {% if x_ok %}
+      <p>All good to post.</p>
+    {% else %}
+
+    <p>Redirect url you need to put in the app:</p>
+
+    <div style="display: flex;" x-data="{ url: '{{x_redirect_url}}', copied: false }">
+      <pre style="padding: 1rem;" x-text="url"></pre>
+      <i style="cursor: pointer; margin-top: .7rem;" @click="
+            navigator.clipboard.writeText(url).then(() => {
+                copied = true;
+                setTimeout(() => copied = false, 3000);
+            })
+        " class="bi bi-clipboard">
+        <span x-text="copied ? 'Copied!' : 'Copy'"></span>
+      </i>
+    </div>
+
+    {% endif %}
+    <div style="display: flex; justify-content: end;">
+      <div style="display: flex; gap: 1rem;">
+        {% if x_ok %}
+        <a href="{% url 'x_uninstall' %}" role="button" class="outline">
+          Deauthorize
+        </a>
+        {% endif %}
+        <a href="{% url 'x_login' %}" role="button" {% if x_ok == False %} class="pico-background-red-600" {% endif %}>
+          Authorize
+        </a>
+      </div>
+    </div>
+  </article>
+
+
+  <article>
+    <h4><i class="bi bi-threads"></i> Threads</h4>
+    {% if threads_ok %}
+      <p>All good to post.</p>
+    
+    {% else %}
+    
+     <p>Urls to put in your facebook threads app.</p>
+
+    <p>Redirect url:</p>
+    <div style="display: flex;" x-data="{ url: '{{threads_redirect_url}}', copied: false }">
+      <pre style="padding: 1rem;" x-text="url"></pre>
+      <i style="cursor: pointer; margin-top: .7rem;" @click="
+              navigator.clipboard.writeText(url).then(() => {
+                  copied = true;
+                  setTimeout(() => copied = false, 3000);
+              })
+          " class="bi bi-clipboard">
+        <span x-text="copied ? 'Copied!' : 'Copy'"></span>
+      </i>
+    </div>
+
+    <p>The uninstall url:</p>
+
+    <div style="display: flex;" x-data="{ url: '{{threads_uninstall_url}}', copied: false }">
+      <pre style="padding: 1rem;" x-text="url"></pre>
+      <i style="cursor: pointer; margin-top: .7rem;" @click="
+            navigator.clipboard.writeText(url).then(() => {
+                copied = true;
+                setTimeout(() => copied = false, 3000);
+            })
+        " class="bi bi-clipboard">
+        <span x-text="copied ? 'Copied!' : 'Copy'"></span>
+      </i>
+    </div>
+
+    <p>The delete url:</p>
+    <div style="display: flex;" x-data="{ url: '{{threads_delete_url}}', copied: false }">
+      <pre style="padding: 1rem;" x-text="url"></pre>
+      <i style="cursor: pointer; margin-top: .7rem;" @click="
+            navigator.clipboard.writeText(url).then(() => {
+                copied = true;
+                setTimeout(() => copied = false, 3000);
+            })
+        " class="bi bi-clipboard">
+        <span x-text="copied ? 'Copied!' : 'Copy'"></span>
+      </i>
+    </div>
+
+    {% endif %}
+
+    <div style="display: flex; justify-content: end;">
+      <div style="display: flex; gap: 1rem;">
+        {% if threads_ok %}
+        <a href="{% url 'threads_uninstall' %}" role="button" class="outline">
+          Deauthorize
+        </a>
+        {% endif %}
+        <a href="{% url 'threads_login' %}" role="button" {% if threads_ok == False %} class="pico-background-red-600" {% endif %}>
+          Authorize
+        </a>
+      </div>
+    </div>
+  </article>
+
+
+  <article>
+    <h4>
+      <i class="bi bi-facebook"></i> Facebook
+      /
+      <i class="bi bi-instagram"></i> Instagram
+    </h4>
+    <p>
+      {% if facebook_ok %}
+      All good to post.
+      {% else %}
+
+    <p>Urls to put in your facebook/instagram app. Same app can be used to post on both Facebook and Instagram.</p>
+
+    <p>Redirect url:</p>
+    <div style="display: flex;" x-data="{ url: '{{facebook_redirect_url}}', copied: false }">
+      <pre style="padding: 1rem;" x-text="url"></pre>
+      <i style="cursor: pointer; margin-top: .7rem;" @click="
+            navigator.clipboard.writeText(url).then(() => {
+                copied = true;
+                setTimeout(() => copied = false, 3000);
+            })
+        " class="bi bi-clipboard">
+        <span x-text="copied ? 'Copied!' : 'Copy'"></span>
+      </i>
+    </div>
+
+    <p>The uninstall url:</p>
+    <div style="display: flex;" x-data="{ url: '{{facebook_uninstall_url}}', copied: false }">
+      <pre style="padding: 1rem;" x-text="url"></pre>
+      <i style="cursor: pointer; margin-top: .7rem;" @click="
+            navigator.clipboard.writeText(url).then(() => {
+                copied = true;
+                setTimeout(() => copied = false, 3000);
+            })
+        " class="bi bi-clipboard">
+        <span x-text="copied ? 'Copied!' : 'Copy'"></span>
+      </i>
+    </div>
+
+    <p>The delete url:</p>
+    <div style="display: flex;" x-data="{ url: '{{facebook_delete_url}}', copied: false }">
+      <pre style="padding: 1rem;" x-text="url"></pre>
+      <i style="cursor: pointer; margin-top: .7rem;" @click="
+            navigator.clipboard.writeText(url).then(() => {
+                copied = true;
+                setTimeout(() => copied = false, 3000);
+            })
+        " class="bi bi-clipboard">
+        <span x-text="copied ? 'Copied!' : 'Copy'"></span>
+      </i>
+    </div>
+
+    {% endif %}
+    </p>
+
+    <div style="display: flex; justify-content: end;">
+      <div style="display: flex; gap: 1rem;">
+        {% if facebook_ok %}
+        <a href="{% url 'facebook_uninstall' %}" role="button" class="outline">
+          Deauthorize
+        </a>
+        {% endif %}
+        <a href="{% url 'facebook_login' %}" role="button" {% if facebook_ok == False %} class="pico-background-red-600"
+          {% endif %}>
+          Authorize
+        </a>
+      </div>
+    </div>
+  </article>
+
+</div>
+
+{% endblock %}

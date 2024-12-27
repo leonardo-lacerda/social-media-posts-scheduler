@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page-title %} Settings {% endblock %}
+
+
+{% block body %}
+
+
+<hgroup class="title-description container">
+    <h1>⚙️ Bulk Operations</h1>
+    <p>
+      Here you can make bulk operations like exporting, importing and deleting data.  
+      You can also outsource the creation of scheduled posts to other freelancers and import them in the app.
+      First download the excel template which the freelancer (or you) can fill with the posts 
+      by clicking 'Download excel template for scheduled posts' button.
+      The excel file will contain the following columns: 
+        "Post at YYYY-MM-DD at HH:MM" (here you have to put the date like "2024-01-23 at 17:20"), 
+        "Title",
+        "Description",
+        "File Name" (here you have to put the filename from the folder 'files'),
+        "X",
+        "Threads",
+        "Instagram",
+        "Facebook",
+        "Tiktok",
+        "Linkedin",
+        "Youtube" (put 'yes'/'y' or 'no'/'n' so the app knows where to post it),
+      Next to that excel file you need to create a folder named 'files' in which you put the related files.
+      Now you can select the folder and the excel file and make a zip from them which can be imported in the app 
+      by clicking 'Import .zip file with scheduled posts'.  
+      If dates are in the past - the posts will be automatically moved in the future.
+    </p>
+</hgroup>
+
+
+<div class="container mt-4">
+
+    <div>
+
+        <a href="{% url 'download_excel_template' %}" role="button" class="secondary" download>
+            <i class="bi bi-file-arrow-down"></i>
+            Download excel template for scheduled posts
+        </a>
+    
+        <div style="margin-bottom: 4rem; margin-top: 2rem;">
+    
+            <form style="display: flex; max-width: fit-content;" action="{% url 'import_zip' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="zip">
+                    Upload zip:
+                    <input type="file" id="zip" name="zip">
+                </label>
+                <button type="submit" class="secondary">
+                    <i class="bi bi-file-arrow-up"></i>
+                    Import .zip file with scheduled posts
+                </button>
+            </form>
+    
+        </div>
+
+    </div>
+
+    <div role="group">
+        
+        <a href="{% url 'export_posted_posts' %}" role="button" class="pico-background-blue-650" download>
+            <i class="bi bi-file-arrow-down"></i>
+            Export posted posts 
+        </a>
+    
+        <a href="{% url 'delete_old_data' %}" role="button" class="pico-background-purple-650">
+            <i class="bi bi-trash"></i>
+            Delete OLD posts
+        </a>
+    
+        <a href="{% url 'delete_all_data' %}" role="button" class="pico-background-red-650">
+            <i class="bi bi-trash"></i>
+            Delete ALL posts
+        </a>
+    </div>
+
+</div>
+
+
+
+{% endblock %}

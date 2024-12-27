@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page-title %} Schedule posts {% endblock %}
+
+
+{% block body %}
+
+
+<div class="container" style="display: flex; justify-content: space-between;">
+
+    <a href="{% url 'timeline' %}?year={{ year }}">
+        <i class="bi bi-arrow-left"></i>
+        Back to calendar
+    </a>
+
+    <div>
+
+        <a href="{% url 'schedule_form' isodate=prev_date %}" style="margin-right: 1rem;">
+            <i class="bi bi-chevron-left"></i>
+            Prev
+        </a>
+        <a href="{% url 'schedule_form' isodate=next_date %}">
+            Next
+            <i class="bi bi-chevron-right"></i>
+        </a>
+
+    </div>
+</div>
+
+
+<p style="text-align: center; font-weight: bold;">{{ current_date }} <sup>{{ posts|length }} posts</sup></p>
+
+
+{% if show_form %}
+
+<article class="article-form mt-4 container">
+
+    <form x-data="formData"
+        action="{% url 'schedule_save' isodate=scheduled_on_date %}?modify_post_id={{ modify_post_id }}" method="POST"
+        enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        <div style="display: flex; align-items: center; gap: 2rem;">
+
+            <div style="width: fit-content;">
+                <label for="{{ post_form.scheduled_on_time.id_for_label }}">
+                    Time for {{timezone}} at:
+                    {{ post_form.scheduled_on_time }}
+                    {{ post_form.scheduled_on_time.errors }}
+                </label>
+            </div>
+
+            <div style="display: flex; gap: .5rem;">
+
+                <label for="{{ post_form.post_on_x.id_for_label }}">
+                    <i class="bi bi-twitter"></i>
+                    {{ post_form.post_on_x }}
+                    {{ post_form.post_on_x.errors }}
+                </label>
+
+                <label for="{{ post_form.post_on_threads.id_for_label }}">
+                    <i class="bi bi-threads"></i>
+                    {{ post_form.post_on_threads }}
+                    {{ post_form.post_on_threads.errors }}
+                </label>
+
+                <label for="{{ post_form.post_on_instagram.id_for_label }}">
+                    <i class="bi bi-instagram"></i>
+                    {{ post_form.post_on_instagram }}
+                    {{ post_form.post_on_instagram.errors }}
+                </label>
+
+
+                <label for="{{ post_form.post_on_facebook.id_for_label }}">
+                    <i class="bi bi-facebook"></i>
+                    {{ post_form.post_on_facebook }}
+                    {{ post_form.post_on_facebook.errors }}
+                </label>
+
+                <label for="{{ post_form.post_on_linkedin.id_for_label }}">
+                    <i class="bi bi-linkedin"></i>
+                    {{ post_form.post_on_linkedin }}
+                    {{ post_form.post_on_linkedin.errors }}
+                </label>
+
+                <label for="{{ post_form.post_on_tiktok.id_for_label }}">
+                    <i class="bi bi-tiktok"></i>
+                    {{ post_form.post_on_tiktok }}
+                    {{ post_form.post_on_tiktok.errors }}
+                </label>
+
+                <label for="{{ post_form.post_on_youtube.id_for_label }}">
+                    <i class="bi bi-youtube"></i>
+                    {{ post_form.post_on_youtube }}
+                    {{ post_form.post_on_youtube.errors }}
+                </label>
+            </div>
+
+
+            <label for="{{ post_form.scheduled_on_date.id_for_label }}">
+                <span class="pico-color-slate-450">Date selected:</span>
+                <input class="pico-color-slate-450" type="date" name="{{ post_form.scheduled_on_date.name }}"
+                    id="{{ post_form.scheduled_on_date.id_for_label }}"
+                    value="{{ post_form.scheduled_on_date.value|date:'Y-m-d' }}" readonly>
+                {{ post_form.scheduled_on_date.errors }}
+            </label>
+
+
+        </div>
+
+
+        <label for="{{ post_form.title.id_for_label }}" style="max-width: 665px;">
+            Title (Only needed for YouTube):
+            {{ post_form.title }}
+            {{ post_form.title.errors }}
+        </label>
+
+        <label for="{{ post_form.description.id_for_label }}">
+            Post/Description:
+            <textarea x-data x-grow @input="countLength" name="{{ post_form.description.name }}" cols="40" rows="5"
+                maxlength="63207" required
+                id="{{ post_form.description.id_for_label }}">{% if post_form.description.value %}{{ post_form.description.value }}{% endif %}</textarea>
+            {{ post_form.description.errors }}
+            <div style="display: flex; justify-content: end; margin-top: -18px;">
+                <small class="pico-color-slate-450" x-text="postLength"></small>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+                <small x-text="xfreelenerr" class="pico-color-amber-400"></small>
+                <small x-text="threadslenerr" class="pico-color-amber-400"></small>
+                <small x-text="instagramlenerr" class="pico-color-amber-400"></small>
+                <small x-text="tiktoklenerr" class="pico-color-amber-400"></small>
+                <small x-text="linkedinlenerr" class="pico-color-amber-400"></small>
+                <small x-text="xbluelenerr" class="pico-color-amber-400"></small>
+                <small x-text="youtubelenerr" class="pico-color-amber-400"></small>
+                <small x-text="facebooklenerr" class="pico-color-amber-400"></small>
+            </div>
+        </label>
+
+
+        <label for="{{ post_form.media_file.id_for_label }}" class="mt-2">
+            Image or video (jpg, png, mp4):
+            {{ post_form.media_file }}
+            {{ post_form.media_file.errors }}
+        </label>
+
+        <div class="mt-2">
+            <button type="submit">
+                <i class="bi bi-save"></i>
+                Schedule post
+            </button>
+        </div>
+
+    </form>
+</article>
+
+
+{% endif %}
+
+<div class="mt-4"></div>
+<div style="max-width: 900px; margin: 0 auto;">
+
+    {% for post in posts %}
+    <article>
+        <div style="display: flex; justify-content: end;">
+            <small class="pico-color-slate-450">{{ post.scheduled_on }}</small>
+        </div>
+
+        {% if post.title %}
+        <h4>{{ post.title }}</h4>
+        {% endif %}
+        <p>{{ post.description }}</p>
+
+        {% if post.media_file %}
+        {% if post.video_file %}
+        <div x-data="{fullScreen: false}" style="display: flex; justify-content: center;">
+            <div x-show="!fullScreen">
+                <div class="video-container">
+                    <video controls>
+                        <source src="{{ post.media_file.url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <dialog :open="fullScreen" @click="fullScreen = false">
+                <div class="video-container">
+                    <video controls>
+                        <source src="{{ post.media_file.url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </dialog>
+        </div>
+        {% else %}
+        <div x-data="{fullScreen: false}" style="display: flex; justify-content: center;">
+            <div x-show="!fullScreen">
+                <img @click="fullScreen = true" src="{{ post.media_file.url }}" alt="Media file"
+                    style="max-width: 100%; height: 350px; object-fit: contain; margin-bottom: 1rem; margin-top: 1rem; border-radius: 5px;">
+            </div>
+
+            <dialog :open="fullScreen" @click="fullScreen = false">
+                <img src="{{ post.media_file.url }}" alt="Media file"
+                    style="max-width: 100%; height: 100%; object-fit: contain; margin-bottom: 1rem; margin-top: 1rem; border-radius: 5px;">
+            </dialog>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        {% if post.posted %}
+        <div class="mt-1">
+
+            <p class="pico-color-slate-450">Posted links:</p>
+
+            <div style="display: flex; align-items: center; gap: 1rem; margin-top: -15px;">
+
+                {% if post.link_x %}
+                <a target="_blank" href="{{ post.link_x }}"><i class="bi bi-twitter"></i></a>
+                {% endif %}
+
+                {% if post.link_threads %}
+                <a target="_blank" href="{{ post.link_threads }}"><i class="bi bi-threads"></i></a>
+                {% endif %}
+
+                {% if post.link_instagram %}
+                <a target="_blank" href="{{ post.link_instagram }}"><i class="bi bi-instagram"></i></a>
+                {% endif %}
+
+                {% if post.link_facebook %}
+                <a target="_blank" href="{{ post.link_facebook }}"><i class="bi bi-facebook"></i></a>
+                {% endif %}
+
+                {% if post.link_linkedin %}
+                <a target="_blank" href="{{ post.link_linkedin }}"><i class="bi bi-linkedin"></i></a>
+                {% endif %}
+
+                {% if post.link_tiktok %}
+                <a target="_blank" href="{{ post.link_tiktok }}"><i class="bi bi-tiktok"></i></a>
+                {% endif %}
+
+                {% if post.link_youtube %}
+                <a target="_blank" href="{{ post.link_youtube }}"><i class="bi bi-youtube"></i></a>
+                {% endif %}
+
+            </div>
+
+        </div>
+        {% else %}
+        <p class="pico-color-slate-450">Will be posted on:</p>
+
+        <div style="display: flex; align-items: center; gap: 1rem; margin-top: -15px;">
+            {% if post.post_on_x %}
+            <i class="bi bi-twitter"></i>
+            {% endif %}
+
+            {% if post.post_on_threads %}
+            <i class="bi bi-threads"></i>
+            {% endif %}
+
+            {% if post.post_on_instagram %}
+            <i class="bi bi-instagram"></i>
+            {% endif %}
+
+            {% if post.post_on_facebook %}
+            <i class="bi bi-facebook"></i>
+            {% endif %}
+
+            {% if post.post_on_linkedin %}
+            <i class="bi bi-linkedin"></i>
+            {% endif %}
+
+            {% if post.post_on_tiktok %}
+            <i class="bi bi-tiktok"></i>
+            {% endif %}
+
+            {% if post.post_on_youtube %}
+            <i class="bi bi-youtube"></i>
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+
+        <div style="display: flex; gap: 1rem; justify-content: end;">
+            {% if not modify_post_id %}
+            <a href="{% url 'schedule_modify' post_id=post.id %}" class="pico-color-green-500">
+                <i class="bi bi-pencil-square"></i> Modify
+            </a>
+            {% endif %}
+            <a href="{% url 'schedule_delete' post_id=post.id %}" class="pico-color-red-500">
+                <i class="bi bi-trash"></i> Delete
+            </a>
+        </div>
+
+
+    </article>
+    {% endfor %}
+
+</div>
+
+<script>
+
+    function formData() {
+
+        const text_max_length = {
+            "X_free": 280,
+            "X_blue": 4000,
+            "threads": 500,
+            "instagram": 2200,
+            "tiktok": 2200,
+            "facebook": 63206,
+            "linkedin": 3000,
+            "youtube_description": 5000,
+        }
+
+        const xcheck = document.getElementById("id_post_on_x");
+        const threadscheck = document.getElementById("id_post_on_threads");
+        const instagramcheck = document.getElementById("id_post_on_instagram");
+        const facebookcheck = document.getElementById("id_post_on_facebook");
+        const linkedincheck = document.getElementById("id_post_on_linkedin");
+        const tiktokcheck = document.getElementById("id_post_on_tiktok");
+        const youtubecheck = document.getElementById("id_post_on_youtube");
+
+        return {
+            postLength: 0,
+            xfreelenerr: "",
+            xbluelenerr: "",
+            threadslenerr: "",
+            instagramlenerr: "",
+            facebooklenerr: "",
+            linkedinlenerr: "",
+            tiktoklenerr: "",
+            youtubelenerr: "",
+            countLength: function (event) {
+                this.postLength = event.target.value.length;
+
+                if (this.postLength >= text_max_length.X_free) {
+                    this.xfreelenerr = `X Free ${text_max_length.X_free} allowed characters reached`;
+                } else {
+                    this.xfreelenerr = "";
+                }
+
+                xcheck.checked = !(this.postLength > text_max_length.X_blue);
+                if (this.postLength >= text_max_length.X_blue) {
+                    this.xbluelenerr = `X Blue ${text_max_length.X_blue} allowed characters reached`;
+                } else {
+                    this.xbluelenerr = "";
+                }
+
+                threadscheck.checked = !(this.postLength > text_max_length.threads);
+                if (this.postLength >= text_max_length.threads) {
+                    this.threadslenerr = `Threads ${text_max_length.threads} allowed characters reached`;
+                } else {
+                    this.threadslenerr = "";
+                }
+
+                instagramcheck.checked = !(this.postLength > text_max_length.instagram);
+                if (this.postLength >= text_max_length.instagram) {
+                    this.instagramlenerr = `Instagram ${text_max_length.instagram} allowed characters reached`;
+                } else {
+                    this.instagramlenerr = "";
+                }
+
+                facebookcheck.checked = !(this.postLength > text_max_length.facebook);
+                if (this.postLength >= text_max_length.facebook) {
+                    this.facebooklenerr = `Facebook ${text_max_length.facebook} allowed characters reached`;
+                } else {
+                    this.facebooklenerr = "";
+                }
+
+                linkedincheck.checked = !(this.postLength > text_max_length.linkedin);
+                if (this.postLength >= text_max_length.linkedin) {
+                    this.linkedinlenerr = `Linkedin ${text_max_length.linkedin} allowed characters reached`;
+                } else {
+                    this.linkedinlenerr = "";
+                }
+
+                tiktokcheck.checked = !(this.postLength > text_max_length.tiktok);
+                if (this.postLength >= text_max_length.tiktok) {
+                    this.tiktoklenerr = `TikTok video description ${text_max_length.tiktok} allowed characters reached`;
+                } else {
+                    this.tiktoklenerr = "";
+                }
+
+                youtubecheck.checked = !(this.postLength > text_max_length.youtube_description);
+                if (this.postLength >= text_max_length.youtube_description) {
+                    this.youtubelenerr = `Youtube video description ${text_max_length.youtube_description} allowed characters reached`;
+                } else {
+                    this.youtubelenerr = "";
+                }
+
+            }
+        }
+    }
+
+</script>
+
+
+
+{% endblock %}
