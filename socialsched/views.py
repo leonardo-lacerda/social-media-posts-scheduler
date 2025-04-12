@@ -398,6 +398,7 @@ def schedule_delete(request, post_id):
     return redirect(f"/schedule/{isodate}/")
 
 
+# TODO - add login with Google
 def login_user(request):
     if request.method == "GET":
         return render(request, "login.html")
