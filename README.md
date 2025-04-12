@@ -41,18 +41,3 @@ Click `Next` to go to the next day and post.
 Externalize writing posts via an excel file which you can import. Delete all posts or old posts to free up disk space.
 
 ![bulk](pics/bulk.png)
-
-## Observations
-
-Currently you can post on: Linkedin, X, Threads, Facebook (public page) (Not ready: Instagram, Tiktok, Youtube).
-You can post text with an optional image. The app is open to PRs (see issues) but not actively maintained.
-
-Why I Stopped Working on This App:
-
-1. All platforms have their own post schedulers (a bit rudimentary for some, but they work). It's a minor inconvenience to copy and paste content on all platforms and schedule it (this app is a "vitamin" not a "painkiller").
-
-2. Posting the same content on all platforms doesn't yield expected results. Each platform has its own users and their expectations. On TikTok, you expect one type of content; on LinkedIn, another.
-
-3. APIs need to be maintained. After dealing with the Facebook API, I got tired of it (I mistakenly deleted the main account linked to a business portfolio and can't reverse that).
-
-4. Videos are large and require AWS S3. I wanted to sell this as a one-time service setup for small businesses with the offer of "Cheap online presence on all platforms for $5 per month." It can be cheap if posts are deleted from the VPS/S3 after they are published, but I can't guarantee $5 per month anymore. Maybe this app should be moved to Firebase?

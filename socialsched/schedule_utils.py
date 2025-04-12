@@ -43,7 +43,6 @@ def save_row_on_post(row: dict, scheduled_on: datetime, export_path: str):
         scheduled_on_time=scheduled_on.time(),
         scheduled_on=scheduled_on, 
         post_on_x=has_yes(row["X"]),
-        post_on_threads=has_yes(row["Threads"]),
         post_on_instagram=has_yes(row["Instagram"]),
         post_on_facebook=has_yes(row["Facebook"]),
         post_on_tiktok=has_yes(row["Tiktok"]),
@@ -105,7 +104,6 @@ def get_initial_month_placeholder(today, d):
 def get_day_data(posts, d):
     posts_count = 0
     post_on_x = 0
-    post_on_threads = 0
     post_on_instagram = 0
     post_on_facebook = 0
     post_on_tiktok = 0
@@ -117,7 +115,6 @@ def get_day_data(posts, d):
             continue
 
         post_on_x += 1 if post["post_on_x"] else 0
-        post_on_threads += 1 if post["post_on_threads"] else 0
         post_on_instagram += 1 if post["post_on_instagram"] else 0
         post_on_facebook += 1 if post["post_on_facebook"] else 0
         post_on_tiktok += 1 if post["post_on_tiktok"] else 0
@@ -128,7 +125,6 @@ def get_day_data(posts, d):
             if any(
                 [
                     post["post_on_x"],
-                    post["post_on_threads"],
                     post["post_on_instagram"],
                     post["post_on_facebook"],
                     post["post_on_tiktok"],
@@ -145,7 +141,6 @@ def get_day_data(posts, d):
         "posts_count": posts_count,
         "instagram_count": post_on_instagram,
         "facebook_count": post_on_facebook,
-        "threads_count": post_on_threads,
         "linkedin_count": post_on_linkedin,
         "twitter_count": post_on_x,
         "tiktok_count": post_on_tiktok,

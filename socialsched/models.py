@@ -9,7 +9,6 @@ from enum import IntEnum
 class TextMaxLength(IntEnum):
     X_FREE = 280
     X_BLUE = 4000
-    THREADS = 500
     INSTAGRAM = 2200
     TIKTOK = 2200
     FACEBOOK = 63206
@@ -37,15 +36,13 @@ class PostModel(models.Model):
 
     video_file = models.BooleanField(blank=True, null=True, default=False)
     post_on_x = models.BooleanField(blank=True, null=True, default=True)
-    post_on_threads = models.BooleanField(blank=True, null=True, default=True)
     post_on_instagram = models.BooleanField(blank=True, null=True, default=True)
     post_on_facebook = models.BooleanField(blank=True, null=True, default=True)
-    post_on_tiktok = models.BooleanField(blank=True, null=True, default=True)
     post_on_linkedin = models.BooleanField(blank=True, null=True, default=True)
     post_on_youtube = models.BooleanField(blank=True, null=True, default=True)
+    post_on_tiktok = models.BooleanField(blank=True, null=True, default=True)
 
     link_x = models.CharField(max_length=50000, blank=True, null=True)
-    link_threads = models.CharField(max_length=50000, blank=True, null=True)
     link_instagram = models.CharField(max_length=50000, blank=True, null=True)
     link_facebook = models.CharField(max_length=50000, blank=True, null=True)
     link_tiktok = models.CharField(max_length=50000, blank=True, null=True)
@@ -88,9 +85,6 @@ class PostModel(models.Model):
 
         if postlen > TextMaxLength.X_BLUE and self.post_on_x:
             raise ValueError(f"Maximum length of a X post is {TextMaxLength.X_BLUE}")
-
-        if postlen > TextMaxLength.THREADS and self.post_on_threads:
-            raise ValueError(f"Maximum length of a Threads post is {TextMaxLength.THREADS}")
 
         if postlen > TextMaxLength.INSTAGRAM and self.post_on_instagram:
             raise ValueError(f"Maximum length of a Instagram post is {TextMaxLength.INSTAGRAM}")

@@ -122,7 +122,6 @@
             </div>
             <div style="display: flex; flex-direction: column;">
                 <small x-text="xfreelenerr" class="pico-color-amber-400"></small>
-                <small x-text="threadslenerr" class="pico-color-amber-400"></small>
                 <small x-text="instagramlenerr" class="pico-color-amber-400"></small>
                 <small x-text="tiktoklenerr" class="pico-color-amber-400"></small>
                 <small x-text="linkedinlenerr" class="pico-color-amber-400"></small>
@@ -209,24 +208,12 @@
 
             <div style="display: flex; align-items: center; gap: 1rem; margin-top: -15px;">
 
-                {% if post.link_x %}
-                <a target="_blank" href="{{ post.link_x }}"><i class="bi bi-twitter"></i></a>
-                {% endif %}
-
-                {% if post.link_threads %}
-                <a target="_blank" href="{{ post.link_threads }}"><i class="bi bi-threads"></i></a>
-                {% endif %}
-
                 {% if post.link_instagram %}
                 <a target="_blank" href="{{ post.link_instagram }}"><i class="bi bi-instagram"></i></a>
                 {% endif %}
 
                 {% if post.link_facebook %}
                 <a target="_blank" href="{{ post.link_facebook }}"><i class="bi bi-facebook"></i></a>
-                {% endif %}
-
-                {% if post.link_linkedin %}
-                <a target="_blank" href="{{ post.link_linkedin }}"><i class="bi bi-linkedin"></i></a>
                 {% endif %}
 
                 {% if post.link_tiktok %}
@@ -237,6 +224,14 @@
                 <a target="_blank" href="{{ post.link_youtube }}"><i class="bi bi-youtube"></i></a>
                 {% endif %}
 
+                {% if post.link_x %}
+                <a target="_blank" href="{{ post.link_x }}"><i class="bi bi-twitter-x"></i></a>
+                {% endif %}
+
+                {% if post.link_linkedin %}
+                <a target="_blank" href="{{ post.link_linkedin }}"><i class="bi bi-linkedin"></i></a>
+                {% endif %}
+
             </div>
 
         </div>
@@ -244,13 +239,6 @@
         <p class="pico-color-slate-450">Will be posted on:</p>
 
         <div style="display: flex; align-items: center; gap: 1rem; margin-top: -15px;">
-            {% if post.post_on_x %}
-            <i class="bi bi-twitter"></i>
-            {% endif %}
-
-            {% if post.post_on_threads %}
-            <i class="bi bi-threads"></i>
-            {% endif %}
 
             {% if post.post_on_instagram %}
             <i class="bi bi-instagram"></i>
@@ -259,6 +247,11 @@
             {% if post.post_on_facebook %}
             <i class="bi bi-facebook"></i>
             {% endif %}
+
+            {% if post.post_on_x %}
+            <i class="bi bi-twitter-x"></i>
+            {% endif %}
+
 
             {% if post.post_on_linkedin %}
             <i class="bi bi-linkedin"></i>
@@ -301,7 +294,6 @@
         const text_max_length = {
             "X_free": 280,
             "X_blue": 4000,
-            "threads": 500,
             "instagram": 2200,
             "tiktok": 2200,
             "facebook": 63206,
@@ -310,7 +302,6 @@
         }
 
         const xcheck = document.getElementById("id_post_on_x");
-        const threadscheck = document.getElementById("id_post_on_threads");
         const instagramcheck = document.getElementById("id_post_on_instagram");
         const facebookcheck = document.getElementById("id_post_on_facebook");
         const linkedincheck = document.getElementById("id_post_on_linkedin");
@@ -321,7 +312,6 @@
             postLength: 0,
             xfreelenerr: "",
             xbluelenerr: "",
-            threadslenerr: "",
             instagramlenerr: "",
             facebooklenerr: "",
             linkedinlenerr: "",
@@ -341,13 +331,6 @@
                     this.xbluelenerr = `X Blue ${text_max_length.X_blue} allowed characters reached`;
                 } else {
                     this.xbluelenerr = "";
-                }
-
-                threadscheck.checked = !(this.postLength > text_max_length.threads);
-                if (this.postLength >= text_max_length.threads) {
-                    this.threadslenerr = `Threads ${text_max_length.threads} allowed characters reached`;
-                } else {
-                    this.threadslenerr = "";
                 }
 
                 instagramcheck.checked = !(this.postLength > text_max_length.instagram);

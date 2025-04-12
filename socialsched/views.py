@@ -76,7 +76,6 @@ def download_excel_template(request):
         "Description",
         "File Name",
         "X",
-        "Threads",
         "Instagram",
         "Facebook",
         "Linkedin",
@@ -184,7 +183,6 @@ def timeline(request):
     posts = PostModel.objects.filter(scheduled_on_date__year=selected_year).values(
         "scheduled_on",
         "post_on_x",
-        "post_on_threads",
         "post_on_instagram",
         "post_on_facebook",
         "post_on_tiktok",
