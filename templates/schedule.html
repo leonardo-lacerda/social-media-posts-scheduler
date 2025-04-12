@@ -126,13 +126,13 @@
                     <small class="pico-color-slate-450" x-text="postLength"></small>
                 </div>
                 <div style="display: flex; flex-direction: column;">
-                    <small x-text="xfreelenerr" class="pico-color-amber-400"></small>
-                    <small x-text="instagramlenerr" class="pico-color-amber-400"></small>
-                    <small x-text="tiktoklenerr" class="pico-color-amber-400"></small>
-                    <small x-text="linkedinlenerr" class="pico-color-amber-400"></small>
-                    <small x-text="xbluelenerr" class="pico-color-amber-400"></small>
-                    <small x-text="youtubelenerr" class="pico-color-amber-400"></small>
-                    <small x-text="facebooklenerr" class="pico-color-amber-400"></small>
+                    <small x-text="xfreelenerr" class="pico-color-amber-300"></small>
+                    <small x-text="instagramlenerr" class="pico-color-amber-300"></small>
+                    <small x-text="tiktoklenerr" class="pico-color-amber-300"></small>
+                    <small x-text="linkedinlenerr" class="pico-color-amber-300"></small>
+                    <small x-text="xbluelenerr" class="pico-color-amber-300"></small>
+                    <small x-text="youtubelenerr" class="pico-color-amber-300"></small>
+                    <small x-text="facebooklenerr" class="pico-color-amber-300"></small>
                 </div>
             </label>
 
@@ -351,13 +351,6 @@
             "youtube_description": 5000,
         }
 
-        const xcheck = document.getElementById("id_post_on_x");
-        const instagramcheck = document.getElementById("id_post_on_instagram");
-        const facebookcheck = document.getElementById("id_post_on_facebook");
-        const linkedincheck = document.getElementById("id_post_on_linkedin");
-        const tiktokcheck = document.getElementById("id_post_on_tiktok");
-        const youtubecheck = document.getElementById("id_post_on_youtube");
-
         return {
             postLength: 0,
             xfreelenerr: "",
@@ -376,42 +369,36 @@
                     this.xfreelenerr = "";
                 }
 
-                xcheck.checked = !(this.postLength > text_max_length.X_blue);
                 if (this.postLength >= text_max_length.X_blue) {
                     this.xbluelenerr = `X Blue ${text_max_length.X_blue} allowed characters reached`;
                 } else {
                     this.xbluelenerr = "";
                 }
 
-                instagramcheck.checked = !(this.postLength > text_max_length.instagram);
                 if (this.postLength >= text_max_length.instagram) {
                     this.instagramlenerr = `Instagram ${text_max_length.instagram} allowed characters reached`;
                 } else {
                     this.instagramlenerr = "";
                 }
 
-                facebookcheck.checked = !(this.postLength > text_max_length.facebook);
                 if (this.postLength >= text_max_length.facebook) {
                     this.facebooklenerr = `Facebook ${text_max_length.facebook} allowed characters reached`;
                 } else {
                     this.facebooklenerr = "";
                 }
 
-                linkedincheck.checked = !(this.postLength > text_max_length.linkedin);
                 if (this.postLength >= text_max_length.linkedin) {
                     this.linkedinlenerr = `Linkedin ${text_max_length.linkedin} allowed characters reached`;
                 } else {
                     this.linkedinlenerr = "";
                 }
 
-                tiktokcheck.checked = !(this.postLength > text_max_length.tiktok);
                 if (this.postLength >= text_max_length.tiktok) {
                     this.tiktoklenerr = `TikTok video description ${text_max_length.tiktok} allowed characters reached`;
                 } else {
                     this.tiktoklenerr = "";
                 }
 
-                youtubecheck.checked = !(this.postLength > text_max_length.youtube_description);
                 if (this.postLength >= text_max_length.youtube_description) {
                     this.youtubelenerr = `Youtube video description ${text_max_length.youtube_description} allowed characters reached`;
                 } else {
