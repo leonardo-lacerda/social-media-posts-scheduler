@@ -26,34 +26,43 @@ SECRET_KEY = os.getenv(
 APP_URL = os.getenv("APP_URL")
 BASE_REDIRECT_URL = APP_URL.replace("https://", "")
 
-true_vals = ["1", "true", "yes", "y"]
 
 # App envs
 
 LOGIN_USERNAME = os.getenv("LOGIN_USERNAME")
 LOGIN_PASSWORD = os.getenv("LOGIN_PASSWORD")
 
-LINKEDIN_CLIENT_ID = os.getenv("LINKEDIN_CLIENT_ID")
-LINKEDIN_CLIENT_SECRET = os.getenv("LINKEDIN_CLIENT_SECRET")
-LINKEDIN_POSTING_ACTIVE = os.getenv("LINKEDIN_POSTING_ACTIVE").lower() in true_vals
-LINKEDIN_REDIRECT_URI = APP_URL + "/linkedin/callback/"
-
-X_CLIENT_ID = os.getenv("X_CLIENT_ID")
-X_CLIENT_SECRET = os.getenv("X_CLIENT_SECRET")
-X_POSTING_ACTIVE = os.getenv("X_POSTING_ACTIVE").lower() in true_vals
-X_REDIRECT_URI = APP_URL + "/X/callback/"
-
-THREADS_CLIENT_ID = os.getenv("THREADS_CLIENT_ID")
-THREADS_CLIENT_SECRET = os.getenv("THREADS_CLIENT_SECRET")
-THREADS_POSTING_ACTIVE = os.getenv("THREADS_POSTING_ACTIVE").lower() in true_vals
-THREADS_REDIRECT_URI = APP_URL + "/threads/callback/"
-THREADS_UNINSTALL_URI = APP_URL + "/threads/uninstall/"
 
 FACEBOOK_CLIENT_ID = os.getenv("FACEBOOK_CLIENT_ID")
 FACEBOOK_CLIENT_SECRET = os.getenv("FACEBOOK_CLIENT_SECRET")
-FACEBOOK_POSTING_ACTIVE = os.getenv("FACEBOOK_POSTING_ACTIVE").lower() in true_vals
 FACEBOOK_REDIRECT_URI = APP_URL + "/facebook/callback/"
 FACEBOOK_UNINSTALL_URI = APP_URL + "/facebook/uninstall/"
+
+INSTAGRAM_CLIENT_ID = os.getenv("INSTAGRAM_CLIENT_ID")
+INSTAGRAM_CLIENT_SECRET = os.getenv("INSTAGRAM_CLIENT_SECRET")
+INSTAGRAM_REDIRECT_URI = APP_URL + "/instagram/callback/"
+INSTAGRAM_UNINSTALL_URI = APP_URL + "/instagram/uninstall/"
+
+TIKTOK_CLIENT_ID = os.getenv("TIKTOK_CLIENT_ID")
+TIKTOK_CLIENT_SECRET = os.getenv("TIKTOK_CLIENT_SECRET")
+TIKTOK_REDIRECT_URI = APP_URL + "/tiktok/callback/"
+TIKTOK_UNINSTALL_URI = APP_URL + "/tiktok/uninstall/"
+
+YOUTUBE_CLIENT_ID = os.getenv("YOUTUBE_CLIENT_ID")
+YOUTUBE_CLIENT_SECRET = os.getenv("YOUTUBE_CLIENT_SECRET")
+YOUTUBE_REDIRECT_URI = APP_URL + "/youtube/callback/"
+YOUTUBE_UNINSTALL_URI = APP_URL + "/youtube/uninstall/"
+
+LINKEDIN_CLIENT_ID = os.getenv("LINKEDIN_CLIENT_ID")
+LINKEDIN_CLIENT_SECRET = os.getenv("LINKEDIN_CLIENT_SECRET")
+LINKEDIN_REDIRECT_URI = APP_URL + "/linkedin/callback/"
+LINKEDIN_UNINSTALL_URI = APP_URL + "/linkedin/uninstall/"
+
+X_CLIENT_ID = os.getenv("X_CLIENT_ID")
+X_CLIENT_SECRET = os.getenv("X_CLIENT_SECRET")
+X_REDIRECT_URI = APP_URL + "/X/callback/"
+X_UNINSTALL_URI = APP_URL + "/X/uninstall/"
+
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", BASE_REDIRECT_URL]
 

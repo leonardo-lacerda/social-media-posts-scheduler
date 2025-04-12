@@ -8,7 +8,6 @@ class Platform(models.TextChoices):
     LINKEDIN = "LinkedIn", _("LinkedIn")
     FACEBOOK = "Facebook", _("Facebook")
     INSTAGRAM = "Instagram", _("Instagram")
-    THREADS = "Threads", _("Threads")
     TIKTOK = "TikTok", _("TikTok")
     YOUTUBE = "YouTube", _("YouTube")
 
@@ -24,11 +23,6 @@ class IntegrationsModel(models.Model):
     class Meta:
         app_label = "integrations"
         verbose_name_plural = "integrations"
-
-    def __str__(self):
-        return f"Linkedin: {self.linkedin_user_id}, X: {self.x_user_id}, "
-
-
 
 
 

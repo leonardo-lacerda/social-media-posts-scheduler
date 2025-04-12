@@ -11,14 +11,12 @@ from .models import IntegrationsModel, Platform
 
 @login_required
 def integrations_form(request):
+    
     linkedin_ok = bool(
         IntegrationsModel.objects.filter(platform=Platform.LINKEDIN.value).first()
     )
     x_ok = bool(
         IntegrationsModel.objects.filter(platform=Platform.X_TWITTER.value).first()
-    )
-    threads_ok = bool(
-        IntegrationsModel.objects.filter(platform=Platform.THREADS.value).first()
     )
     instagram_ok = bool(
         IntegrationsModel.objects.filter(platform=Platform.INSTAGRAM.value).first()
@@ -33,20 +31,16 @@ def integrations_form(request):
         context={
             "x_ok": x_ok,
             "linkedin_ok": linkedin_ok,
-            "threads_ok": threads_ok,
             "instagram_ok": instagram_ok and facebook_ok,
             "facebook_ok": facebook_ok and instagram_ok,
             "x_redirect_url": settings.X_REDIRECT_URI,
+            "x_uninstall_url": settings.X_UNINSTALL_URI,
             "linkedin_redirect_url": settings.LINKEDIN_REDIRECT_URI,
-            "threads_redirect_url": settings.THREADS_REDIRECT_URI,
-            "threads_uninstall_url": settings.THREADS_UNINSTALL_URI,
-            "threads_delete_url": settings.THREADS_DELETE_URI,
+            "linkedin_uninstall_url": settings.LINKEDIN_UNINSTALL_URI,
             "instagram_redirect_url": settings.INSTAGRAM_REDIRECT_URI,
             "instagram_uninstall_url": settings.INSTAGRAM_UNINSTALL_URI,
-            "instagram_delete_url": settings.INSTAGRAM_DELETE_URI,
             "facebook_redirect_url": settings.FACEBOOK_REDIRECT_URI,
             "facebook_uninstall_url": settings.FACEBOOK_UNINSTALL_URI,
-            "facebook_delete_url": settings.FACEBOOK_DELETE_URI,
         },
     )
 
@@ -222,113 +216,6 @@ def x_callback(request):
 def x_uninstall(request):
 
     IntegrationsModel.objects.filter(platform=Platform.X_TWITTER.value).delete()
-
-    messages.add_message(
-        request,
-        messages.SUCCESS,
-        "Deleted the access token.",
-        extra_tags="✅ Success!",
-    )
-
-    return redirect("/integrations/")
-
-
-@login_required
-def threads_login(request):
-    threads_auth_url = (
-        "https://threads.net/oauth/authorize"
-        "?response_type=code"
-        f"&client_id={settings.THREADS_CLIENT_ID}"
-        f"&redirect_uri={settings.THREADS_REDIRECT_URI}"
-        "&scope=threads_basic,threads_content_publish"
-    )
-    return redirect(threads_auth_url)
-
-
-@login_required
-def threads_callback(request):
-    code = request.GET.get("code")
-    if not code:
-        messages.add_message(
-            request,
-            messages.ERROR,
-            "Could not get the code from previous call. Please try again...",
-            extra_tags="🟥 Error!",
-        )
-        return redirect("/integrations/")
-
-    response = requests.post(
-        url="https://graph.threads.net/oauth/access_token",
-        data={
-            "client_id": settings.THREADS_CLIENT_ID,
-            "client_secret": settings.THREADS_CLIENT_SECRET,
-            "code": code,
-            "redirect_uri": settings.THREADS_REDIRECT_URI,
-            "grant_type": "authorization_code",
-        },
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
-    )
-
-    if response.status_code != 200:
-        log.error(f"Error fetching token: {response.content}")
-        messages.add_message(
-            request,
-            messages.ERROR,
-            "Threads client secret is outdated or incorrect!",
-            extra_tags="🟥 Error!",
-        )
-        return redirect("/integrations/")
-
-    # Get long lived token
-    short_token = response.json()
-    user_id = short_token["user_id"]
-
-    response = requests.get(
-        url="https://graph.threads.net/access_token",
-        params={
-            "grant_type": "th_exchange_token",
-            "client_secret": settings.THREADS_CLIENT_SECRET,
-            "access_token": short_token["access_token"],
-        },
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
-    )
-
-    if response.status_code != 200:
-        log.error(f"Error fetching token: {response.content}")
-        messages.add_message(
-            request,
-            messages.ERROR,
-            "Threads client secret is outdated or incorrect!",
-            extra_tags="🟥 Error!",
-        )
-        return redirect("/integrations/")
-
-    token = response.json()
-
-    IntegrationsModel.objects.update_or_create(
-        user_id=user_id,
-        platform=Platform.THREADS.value,
-        defaults={
-            "user_id": user_id,
-            "access_token": token["access_token"],
-            "platform": Platform.THREADS.value,
-        },
-    )
-
-    messages.add_message(
-        request,
-        messages.SUCCESS,
-        "Successfully logged into Threads! Now the app can make posts on your behalf.",
-        extra_tags="✅ Success!",
-    )
-
-    return redirect("/integrations/")
-
-
-@login_required
-def threads_uninstall(request):
-
-    IntegrationsModel.objects.filter(platform=Platform.THREADS.value).delete()
 
     messages.add_message(
         request,
