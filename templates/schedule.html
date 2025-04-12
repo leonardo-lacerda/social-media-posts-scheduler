@@ -7,6 +7,9 @@
 {% block body %}
 
 
+<script defer src="{% static 'emoji-mart.js' %}"></script>
+
+
 <div class="container" style="display: flex; justify-content: space-between;">
 
     <a href="{% url 'timeline' %}?year={{ year }}">
@@ -111,26 +114,40 @@
             {{ post_form.title.errors }}
         </label>
 
-        <label for="{{ post_form.description.id_for_label }}">
-            Post/Description:
-            <textarea x-data x-grow @input="countLength" name="{{ post_form.description.name }}" cols="40" rows="5"
-                maxlength="63207" required
-                id="{{ post_form.description.id_for_label }}">{% if post_form.description.value %}{{ post_form.description.value }}{% endif %}</textarea>
-            {{ post_form.description.errors }}
-            <div style="display: flex; justify-content: end; margin-top: -18px;">
-                <small class="pico-color-slate-450" x-text="postLength"></small>
-            </div>
-            <div style="display: flex; flex-direction: column;">
-                <small x-text="xfreelenerr" class="pico-color-amber-400"></small>
-                <small x-text="instagramlenerr" class="pico-color-amber-400"></small>
-                <small x-text="tiktoklenerr" class="pico-color-amber-400"></small>
-                <small x-text="linkedinlenerr" class="pico-color-amber-400"></small>
-                <small x-text="xbluelenerr" class="pico-color-amber-400"></small>
-                <small x-text="youtubelenerr" class="pico-color-amber-400"></small>
-                <small x-text="facebooklenerr" class="pico-color-amber-400"></small>
-            </div>
-        </label>
+        <div x-data="emojiPicker()">
 
+            <label for="{{ post_form.description.id_for_label }}">
+                Post/Description:
+                <textarea x-data x-grow @input="countLength" name="{{ post_form.description.name }}" cols="40" rows="5"
+                    maxlength="63207" required
+                    id="{{ post_form.description.id_for_label }}">{% if post_form.description.value %}{{ post_form.description.value }}{% endif %}</textarea>
+                {{ post_form.description.errors }}
+                <div style="display: flex; justify-content: end; margin-top: -18px;">
+                    <small class="pico-color-slate-450" x-text="postLength"></small>
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <small x-text="xfreelenerr" class="pico-color-amber-400"></small>
+                    <small x-text="instagramlenerr" class="pico-color-amber-400"></small>
+                    <small x-text="tiktoklenerr" class="pico-color-amber-400"></small>
+                    <small x-text="linkedinlenerr" class="pico-color-amber-400"></small>
+                    <small x-text="xbluelenerr" class="pico-color-amber-400"></small>
+                    <small x-text="youtubelenerr" class="pico-color-amber-400"></small>
+                    <small x-text="facebooklenerr" class="pico-color-amber-400"></small>
+                </div>
+            </label>
+
+            <div style="display: flex; justify-content: right; position: relative;">
+
+                <div style="position: absolute; top: -10rem; right: 4rem;" id="emoji" x-show="showEmojiPicker"
+                    @click.away="showEmojiPicker = false">
+                </div>
+
+                <button class="outline" type="button" @click="togglePicker">
+                    <i class="bi bi-emoji-smile"></i>
+                </button>
+            </div>
+
+        </div>
 
         <label for="{{ post_form.media_file.id_for_label }}" class="mt-2">
             Image or video (jpg, png, mp4):
@@ -252,7 +269,6 @@
             <i class="bi bi-twitter-x"></i>
             {% endif %}
 
-
             {% if post.post_on_linkedin %}
             <i class="bi bi-linkedin"></i>
             {% endif %}
@@ -288,6 +304,40 @@
 </div>
 
 <script>
+
+    function emojiPicker() {
+        let activeInput = null;
+
+        return {
+            showEmojiPicker: false,
+            togglePicker() {
+                this.showEmojiPicker = !this.showEmojiPicker;
+                if (!document.getElementById('picker')) {
+                    const pickerOptions = {
+                        theme: "dark",
+                        onEmojiSelect: (emoji) => {
+                            if (activeInput) {
+                                activeInput.value += emoji.native;
+                            }
+                        }
+                    };
+                    const picker = new EmojiMart.Picker(pickerOptions);
+                    picker.id = 'picker';
+                    const emojiEl = document.getElementById("emoji");
+                    emojiEl.appendChild(picker);
+                }
+            },
+            init() {
+                document.addEventListener('focusin', (event) => {
+                    if (event.target.tagName === 'TEXTAREA' || event.target.tagName === 'INPUT') {
+                        activeInput = event.target;
+                    } else {
+                        activeInput = document.getElementById("id_description");
+                    }
+                });
+            }
+        };
+    }
 
     function formData() {
 
