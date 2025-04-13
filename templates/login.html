@@ -1,36 +1,18 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block page-title %} Cheltuieli {% endblock %}
+{% block page-title %} Login {% endblock %}
 
 
 {% block body %}
 
-<article class="article-form mt-4 container" style="max-width: 600px;">
 
-    <form action="{% url 'login' %}" method="POST">
-        {% csrf_token %}
+<div style="display: flex; place-content: center; margin-top: 10rem;">
+    <a role="button" href="{% url "social:begin" "google-oauth2" %}?next=/">
+        <i class="bi bi-google"></i>
+        Login with Google
+    </a>
+</div>
 
-        <p class="text-bold">Login:</p>
-
-        <label for="id_username">
-            Username:
-            <input type="text" name="username" id="id_username">
-        </label>
-
-        <label for="id_password">
-            Password:
-            <input type="password" name="password" id="id_password">
-        </label>
-
-        <div class="mt-2">
-            <button type="submit">
-                <i class="bi bi-person"></i>
-                LOGIN
-            </button>
-        </div>
-
-    </form>
-</article>
 
 {% endblock %}

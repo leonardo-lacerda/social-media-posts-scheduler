@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page-title %} Account {% endblock %}
+
+
+{% block body %}
+
+
+<article class="article-form mt-4 container" style="max-width: 800px;">
+
+    <h4>Hi {{ user.username }}!</h4>
+
+    <p>You've created the account with Google for email: <strong>{{ user.email }}</strong></p>
+
+    <p>Here you can do some bulk operations with your posts and modify some settings.</p>
+
+
+    <div style="display: flex; justify-content: right;">
+        <a role="button" class="secondary" href="{% url "logout" %}">
+            <i class="bi bi-box-arrow-right"></i>
+            Logout
+        </a>
+    </div>
+
+</article>
+
+
+<div style="display: flex; justify-content: center;">
+
+    <div class="container mt-4" role="group">
+
+        <a href="{% url 'delete_old_data' %}" role="button" class="pico-background-slate-800">
+            <i class="bi bi-trash"></i>
+            Delete OLD posts
+        </a>
+
+        <a href="{% url 'delete_all_data' %}" role="button" class="pico-background-slate-800">
+            <i class="bi bi-trash"></i>
+            Delete ALL posts
+        </a>
+    </div>
+
+</div>
+
+
+{% endblock %}

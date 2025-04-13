@@ -41,3 +41,15 @@ Click `Next` to go to the next day and post.
 Externalize writing posts via an excel file which you can import. Delete all posts or old posts to free up disk space.
 
 ![bulk](pics/bulk.png)
+
+
+## Google SignIn Configuration
+
+- Go to https://console.cloud.google.com/;
+- Create a new project;
+- Configure OAuth2 consent page;
+- Setup Branding (name, support email, logo, app domain, authorized domain) - that's when app goes to prod;
+- In Clients page click `Create client` button add name set authorized JS origins (http://localhost:8000 for dev, http://localhost:8000/complete/google-oauth2/ for dev redirect uri). Change it with your domain once app is ready for prod.
+- Download secrets (you have later access to them as well);
+- In the `.env` file fill `SOCIAL_AUTH_GOOGLE_OAUTH2_KEY` and `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` with Cliend ID and Client Secret taken from previously downloaded json file with secrets;
+

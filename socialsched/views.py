@@ -1,14 +1,11 @@
 import os
 import shutil
-import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import logout
 from django.conf import settings
-from django.http import HttpResponse
 from django.utils import timezone
-from django.contrib.auth.models import User
 from django.db.models import Min, Max
 from datetime import datetime, timedelta
 from .models import PostModel
@@ -17,105 +14,7 @@ from .schedule_utils import (
     get_day_data,
     get_initial_month_placeholder,
     get_year_dates,
-    save_row_on_post,
-    get_df_from_zip,
 )
-
-
-@login_required
-def import_zip(request):
-    zip_file = request.FILES["zip"]
-    export_path = os.path.join(settings.MEDIA_ROOT, "exports")
-    df = get_df_from_zip(zip_file, export_path)
-
-    today = timezone.localtime()
-    rows_with_older_dates = []
-    for index, row in df.iterrows():
-
-        scheduled_on = timezone.make_aware(
-            row["Post at YYYY-MM-DD at HH:MM"], timezone.get_fixed_timezone(0)
-        )
-
-        if scheduled_on < today:
-            rows_with_older_dates.append(row)
-            continue
-
-        save_row_on_post(row, scheduled_on, export_path)
-
-    if len(rows_with_older_dates) == 0:
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            "Scheduled posts were imported with no issues!",
-            extra_tags="✅ Success!",
-        )
-        return redirect("/settings/")
-
-    count = 1
-    for row in rows_with_older_dates:
-        scheduled_on = today + timedelta(days=count)
-        save_row_on_post(row, scheduled_on, export_path)
-        count += 1
-
-    shutil.rmtree(export_path, ignore_errors=True)
-
-    messages.add_message(
-        request,
-        messages.SUCCESS,
-        "All good. Some dates in the past were moved in the future.",
-        extra_tags="✅ Success!",
-    )
-    return redirect("/settings/")
-
-
-@login_required
-def download_excel_template(request):
-    columns = [
-        "Post at YYYY-MM-DD at HH:MM",
-        "Title",
-        "Description",
-        "File Name",
-        "X",
-        "Instagram",
-        "Facebook",
-        "Linkedin",
-        "Tiktok",
-        "Youtube",
-    ]
-
-    df = pd.DataFrame(columns=columns)
-
-    file_path = os.path.join(settings.MEDIA_ROOT, "schedule_posts.xlsx")
-    df.to_excel(file_path, index=False)
-
-    with open(file_path, "rb") as f:
-        response = HttpResponse(
-            f.read(),
-            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        )
-        response["Content-Disposition"] = (
-            f"attachment; filename={os.path.basename(file_path)}"
-        )
-
-    return response
-
-
-@login_required
-def export_posted_posts(request):
-    posts = PostModel.objects.all().values()
-
-    df = pd.DataFrame(posts)
-
-    file_path = os.path.join(settings.MEDIA_ROOT, "posts.csv")
-    df.to_csv(file_path, index=False)
-
-    with open(file_path, "rb") as f:
-        response = HttpResponse(f.read(), content_type="text/csv")
-        response["Content-Disposition"] = (
-            f"attachment; filename={os.path.basename(file_path)}"
-        )
-
-    return response
 
 
 @login_required
@@ -130,7 +29,7 @@ def delete_old_data(request):
         "Old data was deleted!",
         extra_tags="✅ Success!",
     )
-    return redirect("/settings/")
+    return redirect("/account/")
 
 
 @login_required
@@ -147,22 +46,11 @@ def delete_all_data(request):
         "All data was deleted!",
         extra_tags="✅ Success!",
     )
-    return redirect("/settings/")
+    return redirect("/account/")
 
 
 @login_required
-def settings_form(request):
-    return render(
-        request,
-        "settings.html",
-        context={
-            "timezone": settings.TIME_ZONE,
-        },
-    )
-
-
-@login_required
-def timeline(request):
+def calendar(request):
     today = timezone.localtime()
     selected_year = today.year
     if request.GET.get("year") is not None:
@@ -192,89 +80,89 @@ def timeline(request):
 
     year_dates = get_year_dates(selected_year)
 
-    timeline_data = {}
+    calendar_data = {}
     for d in year_dates:
         if d.month == 1:
-            if "january" not in timeline_data:
-                timeline_data["january"] = get_initial_month_placeholder(today, d)
+            if "january" not in calendar_data:
+                calendar_data["january"] = get_initial_month_placeholder(today, d)
             day_data = get_day_data(posts, d)
-            timeline_data["january"]["days"].append(day_data)
+            calendar_data["january"]["days"].append(day_data)
 
         if d.month == 2:
-            if "february" not in timeline_data:
-                timeline_data["february"] = get_initial_month_placeholder(today, d)
+            if "february" not in calendar_data:
+                calendar_data["february"] = get_initial_month_placeholder(today, d)
             day_data = get_day_data(posts, d)
-            timeline_data["february"]["days"].append(day_data)
+            calendar_data["february"]["days"].append(day_data)
 
         if d.month == 3:
-            if "march" not in timeline_data:
-                timeline_data["march"] = get_initial_month_placeholder(today, d)
+            if "march" not in calendar_data:
+                calendar_data["march"] = get_initial_month_placeholder(today, d)
             day_data = get_day_data(posts, d)
-            timeline_data["march"]["days"].append(day_data)
+            calendar_data["march"]["days"].append(day_data)
 
         if d.month == 4:
-            if "april" not in timeline_data:
-                timeline_data["april"] = get_initial_month_placeholder(today, d)
+            if "april" not in calendar_data:
+                calendar_data["april"] = get_initial_month_placeholder(today, d)
             day_data = get_day_data(posts, d)
-            timeline_data["april"]["days"].append(day_data)
+            calendar_data["april"]["days"].append(day_data)
 
         if d.month == 5:
-            if "may" not in timeline_data:
-                timeline_data["may"] = get_initial_month_placeholder(today, d)
+            if "may" not in calendar_data:
+                calendar_data["may"] = get_initial_month_placeholder(today, d)
             day_data = get_day_data(posts, d)
-            timeline_data["may"]["days"].append(day_data)
+            calendar_data["may"]["days"].append(day_data)
 
         if d.month == 6:
-            if "june" not in timeline_data:
-                timeline_data["june"] = get_initial_month_placeholder(today, d)
+            if "june" not in calendar_data:
+                calendar_data["june"] = get_initial_month_placeholder(today, d)
             day_data = get_day_data(posts, d)
-            timeline_data["june"]["days"].append(day_data)
+            calendar_data["june"]["days"].append(day_data)
 
         if d.month == 7:
-            if "july" not in timeline_data:
-                timeline_data["july"] = get_initial_month_placeholder(today, d)
+            if "july" not in calendar_data:
+                calendar_data["july"] = get_initial_month_placeholder(today, d)
             day_data = get_day_data(posts, d)
-            timeline_data["july"]["days"].append(day_data)
+            calendar_data["july"]["days"].append(day_data)
 
         if d.month == 8:
-            if "august" not in timeline_data:
-                timeline_data["august"] = get_initial_month_placeholder(today, d)
+            if "august" not in calendar_data:
+                calendar_data["august"] = get_initial_month_placeholder(today, d)
             day_data = get_day_data(posts, d)
-            timeline_data["august"]["days"].append(day_data)
+            calendar_data["august"]["days"].append(day_data)
 
         if d.month == 9:
-            if "september" not in timeline_data:
-                timeline_data["september"] = get_initial_month_placeholder(today, d)
+            if "september" not in calendar_data:
+                calendar_data["september"] = get_initial_month_placeholder(today, d)
             day_data = get_day_data(posts, d)
-            timeline_data["september"]["days"].append(day_data)
+            calendar_data["september"]["days"].append(day_data)
 
         if d.month == 10:
-            if "octomber" not in timeline_data:
-                timeline_data["octomber"] = get_initial_month_placeholder(today, d)
+            if "octomber" not in calendar_data:
+                calendar_data["octomber"] = get_initial_month_placeholder(today, d)
             day_data = get_day_data(posts, d)
-            timeline_data["octomber"]["days"].append(day_data)
+            calendar_data["octomber"]["days"].append(day_data)
 
         if d.month == 11:
-            if "november" not in timeline_data:
-                timeline_data["november"] = get_initial_month_placeholder(today, d)
+            if "november" not in calendar_data:
+                calendar_data["november"] = get_initial_month_placeholder(today, d)
             day_data = get_day_data(posts, d)
-            timeline_data["november"]["days"].append(day_data)
+            calendar_data["november"]["days"].append(day_data)
 
         if d.month == 12:
-            if "december" not in timeline_data:
-                timeline_data["december"] = get_initial_month_placeholder(today, d)
+            if "december" not in calendar_data:
+                calendar_data["december"] = get_initial_month_placeholder(today, d)
             day_data = get_day_data(posts, d)
-            timeline_data["december"]["days"].append(day_data)
+            calendar_data["december"]["days"].append(day_data)
 
     return render(
         request,
-        "timeline.html",
+        "calendar.html",
         context={
             "selected_year": selected_year,
             "select_years": select_years,
-            "timeline_data": timeline_data,
+            "calendar_data": calendar_data,
             "today": today,
-            "isotoday": today.date().isoformat()
+            "isotoday": today.date().isoformat(),
         },
     )
 
@@ -311,7 +199,6 @@ def schedule_form(request, isodate):
             "next_date": next_date,
         },
     )
-
 
 
 @login_required
@@ -398,34 +285,17 @@ def schedule_delete(request, post_id):
     return redirect(f"/schedule/{isodate}/")
 
 
-# TODO - add login with Google
 def login_user(request):
-    if request.method == "GET":
-        return render(request, "login.html")
-
-    if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
-
-        if settings.LOGIN_USERNAME != username and settings.LOGIN_PASSWORD != password:
-            return redirect("/login/")
-
-        if not User.objects.filter(username=settings.LOGIN_USERNAME).exists():
-            User.objects.all().delete()
-            user = User.objects.create_user(
-                username=settings.LOGIN_USERNAME, password=settings.LOGIN_PASSWORD
-            )
-            user.save()
-
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect("/")
-
-        return redirect("/login/")
+    return render(request, "login.html")
 
 
 @login_required
 def logout_user(request):
     logout(request)
-    return redirect("/login/")
+    return redirect("login")
+
+
+@login_required
+def user_account(request):
+
+    return render(request, "user_account.html")

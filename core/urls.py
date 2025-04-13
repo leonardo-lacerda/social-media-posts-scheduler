@@ -8,6 +8,7 @@ urlpatterns = [
     path("", include("socialsched.urls")),
     path("", include("integrations.urls")),
     path("admin/", admin.site.urls),
+    path("", include("social_django.urls", namespace="social")),
     path("__reload__/", include("django_browser_reload.urls")),
 ]
 

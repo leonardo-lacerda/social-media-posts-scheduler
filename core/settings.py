@@ -29,10 +29,6 @@ BASE_REDIRECT_URL = APP_URL.replace("https://", "")
 
 # App envs
 
-LOGIN_USERNAME = os.getenv("LOGIN_USERNAME")
-LOGIN_PASSWORD = os.getenv("LOGIN_PASSWORD")
-
-
 FACEBOOK_CLIENT_ID = os.getenv("FACEBOOK_CLIENT_ID")
 FACEBOOK_CLIENT_SECRET = os.getenv("FACEBOOK_CLIENT_SECRET")
 FACEBOOK_REDIRECT_URI = APP_URL + "/facebook/callback/"
@@ -77,6 +73,7 @@ CSRF_TRUSTED_ORIGINS = [APP_URL]
 INSTALLED_APPS = [
     "socialsched",
     "integrations",
+    "social_django",
     "django_browser_reload",
     "django_cleanup.apps.CleanupConfig",
     "django.contrib.admin",
@@ -98,6 +95,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "social_django.middleware.SocialAuthExceptionMiddleware",
     "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
@@ -114,6 +112,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "social_django.context_processors.backends",
+                "social_django.context_processors.login_redirect",
             ],
         },
     },
@@ -194,3 +194,16 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+# Google OAuth2 Login/Logout
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
+SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = APP_URL + "/complete/google-oauth2/"
+
+AUTHENTICATION_BACKENDS = [
+    "social_core.backends.google.GoogleOAuth2",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+SOCIAL_AUTH_REQUIRE_POST = False

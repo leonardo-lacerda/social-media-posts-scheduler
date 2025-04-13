@@ -26,7 +26,7 @@
         </ul>
         <ul>
             <li>
-                <a href="{% url 'timeline' %}">
+                <a href="{% url 'calendar' %}">
                     Calendar
                 </a>
             </li>
@@ -37,16 +37,10 @@
                 </a>
             </li>
 
-            <li>
-                <a href="{% url 'settings' %}">
-                    Bulk Operations
-                </a>
-            </li>
-
             {% if user.is_authenticated %}
             <li>
-                <a href="{% url 'logout' %}">
-                    Logout
+                <a href="{% url 'account' %}">
+                    Account
                 </a>
             </li>
             {% endif %}
