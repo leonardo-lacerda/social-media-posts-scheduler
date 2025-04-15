@@ -1,80 +1,85 @@
-import time
-import requests
+from facebook_business.api import FacebookAdsApi, FacebookRequest
+from facebook_business.adobjects.abstractobject import AbstractObject
+from facebook_business.typechecker import TypeChecker
 from core.settings import log
 from core import settings
-from socialsched.models import PostModel
-from integrations.models import IntegrationsModel, Platform
-from .common import ErrorAccessTokenOrUserIdNotFound
 
-# TODO - some permision error here
-def post_on_instagram(integration, post_id: int, post_text: str, media_obj: str):
-    try:
-        access_token = integration.access_token
-        app_id = integration.user_id
 
-        media_url = settings.APP_URL + media_obj.url
+def post_on_instagram(
+    integration,
+    post_id: int,
+    post_text: str,
+    media_url: str = None,
+):
+    access_token = integration.access_token
+    instagram_account_id = integration.user_id
 
-        log.info(f"Media url: {media_url}")
+    FacebookAdsApi.init(
+        settings.FACEBOOK_CLIENT_ID, settings.FACEBOOK_CLIENT_SECRET, access_token
+    )
 
-        if access_token is None or app_id is None:
-            raise ErrorAccessTokenOrUserIdNotFound
+    # Step 1: Create media container
+    create_media_request = FacebookRequest(
+        node_id=instagram_account_id,
+        method="POST",
+        endpoint="/media",
+        api=FacebookAdsApi.get_default_api(),
+        param_checker=TypeChecker({}, {}),
+        target_class=AbstractObject,
+        api_type="EDGE",
+        response_parser=None,
+    )
+    create_media_request.add_params(
+        {
+            "image_url": media_url,
+            "caption": post_text,
+            "access_token": access_token,
+        }
+    )
+    media_response = create_media_request.execute()
+    media_response_data = media_response.json()
+    creation_id = media_response_data.get("id")
 
-        # Step 1: Create media container
-        media_response = requests.post(
-            f"https://graph.facebook.com/v21.0/{app_id}/media",
-            params={"access_token": access_token},
-            data={
-                "image_url": media_url,
-                "caption": post_text,
-            }
-        )
+    # Step 2: Publish the post
+    publish_request = FacebookRequest(
+        node_id=instagram_account_id,
+        method="POST",
+        endpoint="/media_publish",
+        api=FacebookAdsApi.get_default_api(),
+        param_checker=TypeChecker({}, {}),
+        target_class=AbstractObject,
+        api_type="EDGE",
+        response_parser=None,
+    )
+    publish_request.add_params(
+        {
+            "creation_id": creation_id,
+            "access_token": access_token,
+        }
+    )
+    publish_response = publish_request.execute()
+    publish_response_data = publish_response.json()
+    media_id = publish_response_data.get("id")
 
-        if media_response.status_code != 200:
-            log.error(f"Media container creation failed: {media_response.json()}")
-            raise Exception("Failed to create media container on Instagram")
+    permalink_request = FacebookRequest(
+        node_id=media_id,
+        method="GET",
+        endpoint="/",
+        api=FacebookAdsApi.get_default_api(),
+        param_checker=TypeChecker({}, {}),
+        target_class=AbstractObject,
+        api_type="NODE",
+        response_parser=None,
+    )
+    permalink_request.add_params(
+        {
+            "fields": "permalink",
+            "access_token": access_token,
+        }
+    )
+    permalink_response = permalink_request.execute()
+    permalink_response_data = permalink_response.json()
+    post_url = permalink_response_data.get("permalink")
+    log.info(f"Instagram post URL: {post_url}")
 
-        media_id = media_response.json().get("id")
-
-        # Check media status
-        status = 'IN_PROGRESS'
-        while status == 'IN_PROGRESS':
-            status_response = requests.get(
-                f"https://graph.facebook.com/v21.0/{media_id}",
-                params={"access_token": access_token, "fields": "status_code"}
-            )
-            if status_response.status_code != 200:
-                log.error(f"Failed to check media status: {status_response.json()}")
-                raise Exception("Failed to check media status on Instagram")
-
-            status = status_response.json().get("status_code")
-            if status == 'IN_PROGRESS':
-                time.sleep(3)
-
-        if status != 'FINISHED':
-            log.error(f"Media status not finished: {status}")
-            raise Exception("Media status not finished on Instagram")
-
-        # Step 2: Publish media
-        publish_response = requests.post(
-            f"https://graph.facebook.com/v21.0/{app_id}/media_publish",
-            params={"access_token": access_token},
-            data={
-                "creation_id": media_id,
-            }
-        )
-
-        if publish_response.status_code != 200:
-            log.error(f"Media publish failed: {publish_response.json()}")
-            raise Exception("Failed to publish media on Instagram")
-
-        posted_url = f"https://www.instagram.com/p/{publish_response.json()['id']}/"
-
-        # Update the post model with the Instagram link
-        PostModel.objects.filter(id=post_id).update(link_instagram=posted_url)
-        log.info(f"Post url: {posted_url}")
-
-    except Exception as err:
-        log.error(err)
-        PostModel.objects.filter(id=post_id).update(post_on_instagram=False)
-        # IntegrationsModel.objects.filter(platform=Platform.INSTAGRAM.value).delete()
-        return None
+    return post_url

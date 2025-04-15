@@ -11,3 +11,4 @@ pandas==2.2.3
 openpyxl==3.1.5
 loguru==0.7.2
 social-auth-app-django==5.4.3
+facebook-business==22.0.4

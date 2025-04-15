@@ -1,4 +1,5 @@
 from django.utils import timezone
+from core import settings
 from socialsched.models import PostModel
 from .models import IntegrationsModel, Platform
 from .platforms.linkedin import post_on_linkedin
@@ -29,19 +30,31 @@ def post_scheduled_posts():
 
     for post in posts:
         text = post.description
-        file = post.media_file.path if post.media_file else None
-        fileobj = post.media_file if post.media_file else None
+        media_path = post.media_file.path if post.media_file else None
+        media_object = post.media_file if post.media_file else None
+        media_url = None
+        if media_object:
+            media_url = settings.APP_URL + media_object.url
 
         if linkedin_integration and post.post_on_linkedin:
-            linkedin_integration = post_on_linkedin(linkedin_integration, post.id, text, file)
-            
+            linkedin_integration = post_on_linkedin(
+                linkedin_integration, post.id, text, media_path
+            )
+
         if x_integration and post.post_on_x:
-            x_integration = post_on_x(x_integration, post.id, text, file)
-        
+            x_integration = post_on_x(x_integration, post.id, text, media_path)
+
         if facebook_integration and post.post_on_facebook:
-            facebook_integration = post_on_facebook(facebook_integration, post.id, text, file)
-        
+            facebook_integration = post_on_facebook(
+                facebook_integration, post.id, text, media_url=media_url
+            )
+
         if instagram_integration and post.post_on_instagram:
-            instagram_integration = post_on_instagram(instagram_integration, post.id, text, fileobj)
-            
-        PostModel.objects.filter(id=post.id).update(posted=True)
+            instagram_integration = post_on_instagram(
+                instagram_integration,
+                post.id,
+                text,
+                media_url=media_url,
+            )
+
+        # PostModel.objects.filter(id=post.id).update(posted=True)

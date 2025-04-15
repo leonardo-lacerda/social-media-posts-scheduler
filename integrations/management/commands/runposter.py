@@ -15,7 +15,7 @@ def runner():
         except KeyboardInterrupt:
             break
         except Exception as err:
-            log.info(err)
+            log.exception(err)
             continue
 
 

@@ -11,7 +11,7 @@ from .models import IntegrationsModel, Platform
 
 @login_required
 def integrations_form(request):
-    
+
     linkedin_ok = bool(
         IntegrationsModel.objects.filter(platform=Platform.LINKEDIN.value).first()
     )
@@ -231,13 +231,14 @@ def x_uninstall(request):
 def facebook_login(request):
     # https://developers.facebook.com/docs/instagram-platform/instagram-api-with-facebook-login
     fb_login_url = (
-        "https://www.facebook.com/v21.0/dialog/oauth"
+        "https://www.facebook.com/v22.0/dialog/oauth"
         "?response_type=code"
         f"&client_id={settings.FACEBOOK_CLIENT_ID}"
         f"&redirect_uri={settings.FACEBOOK_REDIRECT_URI}"
         "&scope=email,public_profile,pages_show_list,pages_manage_posts,instagram_basic,instagram_content_publish,business_management"
     )
     return redirect(fb_login_url)
+
 
 @login_required
 def facebook_callback(request):
@@ -251,8 +252,9 @@ def facebook_callback(request):
         )
         return redirect("/integrations/")
 
+    # Exchange code for access token
     response = requests.post(
-        url="https://graph.facebook.com/v21.0/oauth/access_token",
+        url="https://graph.facebook.com/v22.0/oauth/access_token",
         data={
             "client_id": settings.FACEBOOK_CLIENT_ID,
             "client_secret": settings.FACEBOOK_CLIENT_SECRET,
@@ -274,8 +276,9 @@ def facebook_callback(request):
 
     short_token = response.json().get("access_token")
 
+    # Exchange short-lived token for long-lived token
     response = requests.get(
-        url="https://graph.facebook.com/v21.0/oauth/access_token",
+        url="https://graph.facebook.com/v22.0/oauth/access_token",
         params={
             "grant_type": "fb_exchange_token",
             "client_id": settings.FACEBOOK_CLIENT_ID,
@@ -296,24 +299,35 @@ def facebook_callback(request):
 
     access_token = response.json().get("access_token")
 
-    response_user = requests.get(
-        url="https://graph.facebook.com/v21.0/me",
-        params={"access_token": access_token},
-    )
-
-    if response_user.status_code != 200:
+    if not access_token:
         messages.add_message(
             request,
             messages.ERROR,
-            "Could not retrieve Facebook user ID!",
+            "Failed to retrieve long-lived access token from Facebook.",
             extra_tags="🟥 Error!",
         )
         return redirect("/integrations/")
 
-    user_id = response_user.json().get("id")
+    # Retrieve user ID using the Graph API directly
+    user_info_url = "https://graph.facebook.com/v22.0/me"
+    user_info_params = {"access_token": access_token, "fields": "id"}
+    user_info_response = requests.get(user_info_url, params=user_info_params)
+    user_id = None
+    if user_info_response.status_code == 200:
+        user_data = user_info_response.json()
+        user_id = user_data.get("id")
+    else:
+        messages.add_message(
+            request,
+            messages.ERROR,
+            f"Failed to retrieve user information from Facebook. Status Code: {user_info_response.status_code}, Response: {user_info_response.text}",
+            extra_tags="🟥 Error!",
+        )
+        return redirect("/integrations/")
 
+    # Retrieve pages associated with the user
     response_pages = requests.get(
-        url=f"https://graph.facebook.com/v21.0/{user_id}/accounts",
+        url=f"https://graph.facebook.com/v22.0/{user_id}/accounts",
         params={"access_token": access_token},
     )
 
@@ -337,19 +351,19 @@ def facebook_callback(request):
         )
         return redirect("/integrations/")
 
-    print("Facebook pages:", pages)
-    
     page = pages[0]
     page_id = page["id"]
     page_access_token = page["access_token"]
 
-    # Now retrieve Instagram accounts linked to this page
+    # Retrieve Instagram accounts linked to the page
     response_instagram = requests.get(
-        url=f"https://graph.facebook.com/v21.0/{page_id}/instagram_accounts",
+        url=f"https://graph.facebook.com/v22.0/{page_id}/instagram_accounts",
         params={"access_token": page_access_token},
     )
 
-    if response_instagram.status_code != 200 or not response_instagram.json().get("data"):
+    if response_instagram.status_code != 200 or not response_instagram.json().get(
+        "data"
+    ):
         messages.add_message(
             request,
             messages.ERROR,
@@ -359,8 +373,6 @@ def facebook_callback(request):
         return redirect("/integrations/")
 
     instagram_accounts = response_instagram.json().get("data")
-
-    print("Instagram accounts:", instagram_accounts)
 
     if not instagram_accounts:
         messages.add_message(

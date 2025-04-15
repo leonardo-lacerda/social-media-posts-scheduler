@@ -1,66 +1,54 @@
-import requests
 from core.settings import log
+from core import settings
 from socialsched.models import PostModel
 from integrations.models import IntegrationsModel, Platform
+from facebook_business.api import FacebookAdsApi
+from facebook_business.adobjects.page import Page
 from .common import ErrorAccessTokenOrUserIdNotFound
 
 
-def post_on_facebook(integration, post_id: int, post_text: str, media_path: any = None):
-    try:
+def post_on_facebook(
+    integration,
+    post_id: int,
+    post_text: str,
+    media_url: str = None,
+):
 
-        access_token = integration.access_token
-        page_id = integration.user_id
+    access_token = integration.access_token
+    page_id = integration.user_id
 
-        if access_token is None or page_id is None:
-            raise ErrorAccessTokenOrUserIdNotFound
-        
-        if media_path:
-            with open(media_path, 'rb') as media_file:
-                media_response = requests.post(
-                    f"https://graph.facebook.com/v21.0/{page_id}/photos",
-                    params={"access_token": access_token},
-                    files={"source": media_file},
-                    data={"published": False}
-                )
+    FacebookAdsApi.init(
+        settings.FACEBOOK_CLIENT_ID, settings.FACEBOOK_CLIENT_SECRET, access_token
+    )
 
-            if media_response.status_code != 200:
-                log.error(f"Media upload failed: {media_response.json()}")
-                raise Exception("Failed to upload media to Facebook")
+    page = Page(page_id)
+    post_params = {"message": post_text, "published": True}
 
-            media_id = media_response.json().get("id")
+    if media_url.endswith((".jpg", ".jpeg", ".png")):
+        media_response = page.create_photo(
+            params={
+                "url": media_url,
+                "published": False,
+            }
+        )
 
-            post_response = requests.post(
-                f"https://graph.facebook.com/v21.0/{page_id}/feed",
-                params={"access_token": access_token},
-                data={
-                    "message": post_text,
-                    "attached_media[0]": f'{{"media_fbid":"{media_id}"}}',
-                    "published": "true"  # Publish immediately
-                }
-            )
-        else:
-            post_response = requests.post(
-                f"https://graph.facebook.com/v21.0/{page_id}/feed",
-                params={"access_token": access_token},
-                data={
-                    "message": post_text,
-                    "published": "true"
-                }
-            )
-        
-        if post_response.status_code != 200:
-            log.error(post_response.content)
-            PostModel.objects.filter(id=post_id).update(post_on_facebook=False)
-            IntegrationsModel.objects.filter(platform=Platform.FACEBOOK.value).delete()
-            return None
+    # elif media_url.endswith(".mp4"):
+    #     media_response = page.create_video(
+    #         params={
+    #             "file_url": media_url,
+    #             "published": False,
+    #         }
+    #     )
+    # else:
+    #     raise Exception(
+    #         f"File {media_url} not supported! Only .jpg, .jpeg, .png and .mp4 are allowed."
+    #     )
 
-        posted_url = f"https://www.facebook.com/{post_response.json()["id"]}"
+    media_id = media_response["id"]
+    post_params["attached_media[0]"] = f'{{"media_fbid":"{media_id}"}}'
 
-        PostModel.objects.filter(id=post_id).update(link_facebook=posted_url)
-        log.info(f"Post url: {posted_url}")
-
-    except Exception as err:
-        log.error(err)
-        PostModel.objects.filter(id=post_id).update(post_on_facebook=False)
-        IntegrationsModel.objects.filter(platform=Platform.FACEBOOK.value).delete()
-        return None
+    response = page.create_feed(params=post_params)
+    post_id = response["id"]
+    post_url = f"https://www.facebook.com/{page_id}/posts/{post_id}"
+    print("Facebook post URL: ", post_url)
+    return post_url

@@ -52,4 +52,3 @@ Externalize writing posts via an excel file which you can import. Delete all pos
 - In Clients page click `Create client` button add name set authorized JS origins (http://localhost:8000 for dev, http://localhost:8000/complete/google-oauth2/ for dev redirect uri). Change it with your domain once app is ready for prod.
 - Download secrets (you have later access to them as well);
 - In the `.env` file fill `SOCIAL_AUTH_GOOGLE_OAUTH2_KEY` and `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` with Cliend ID and Client Secret taken from previously downloaded json file with secrets;
-
