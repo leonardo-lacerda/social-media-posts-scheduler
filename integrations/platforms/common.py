@@ -1,11 +1,23 @@
+class ErrorAccessTokenNotProvided(Exception):
+    def __str__(self):
+        return "Access token not found."
 
+
+class ErrorPageIdNotProvided(Exception):
+    def __str__(self):
+        return "Page ID not found."
+
+
+class ErrorUserIdNotProvided(Exception):
+    def __str__(self):
+        return "User ID not found."
 
 
 class ErrorAccessTokenOrUserIdNotFound(Exception):
     def __str__(self):
-        return "Access token or user ID not found."
+        return "Access token or User ID not found."
 
 
-class ErrorAccessTokenIdNotFound(Exception):
+class ErrorThisTypeOfPostIsNotSupported(Exception):
     def __str__(self):
-        return "Access token or user ID not found."
+        return "This type of posts is not supported."
