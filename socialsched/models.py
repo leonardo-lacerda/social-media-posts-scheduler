@@ -19,7 +19,6 @@ def get_filename(_, filename: str):
 
 
 class PostModel(models.Model):
-    title = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(max_length=63206)
     scheduled_on_date = models.DateField()
     scheduled_on_time = models.TimeField()

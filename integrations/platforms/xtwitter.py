@@ -1,98 +1,169 @@
+import os
 import requests
-from requests_oauthlib import OAuth2Session
-from django.conf import settings
+import mimetypes
+from core import settings
 from core.settings import log
+from dataclasses import dataclass
 from socialsched.models import PostModel
+from requests_oauthlib import OAuth2Session
 from integrations.models import IntegrationsModel, Platform
-from .common import ErrorAccessTokenOrUserIdNotFound
+from .common import ErrorAccessTokenNotProvided, ErrorThisTypeOfPostIsNotSupported
 
 
-def _refresh_access_token(refresh_token: str):
-    token_url = "https://api.x.com/oauth2/token"
-    client = OAuth2Session(
-        client_id=settings.X_CLIENT_ID, token={"refresh_token": refresh_token}
-    )
-    extra = {
-        "client_id": settings.X_CLIENT_ID,
-        "client_secret": settings.X_CLIENT_SECRET,
-    }
-    token = client.refresh_token(token_url, **extra)
-    return token.get("access_token")
+@dataclass
+class XPoster:
+    integration: any
+    api_version: str = "2"
 
+    def __post_init__(self):
+        self.access_token = self.integration.access_token
+        self.refresh_token = self.integration.refresh_token
 
-def _upload_media(media_path: str, access_token: str):
-    if media_path.lower().endswith(".png"):
-        media_type = "image/png"
-    elif media_path.lower().endswith((".jpg", ".jpeg")):
-        media_type = "image/jpeg"
-    elif media_path.lower().endswith(".mp4"):
-        media_type = "video/mp4"
-    else:
-        raise ValueError("Unsupported media type")
+        if not self.access_token:
+            raise ErrorAccessTokenNotProvided
 
-    with open(media_path, "rb") as media_file:
-        files = {"media": (media_path, media_file, media_type)}
-        headers = {"Authorization": f"Bearer {access_token}"}
-        response = requests.post(
-            url="https://upload.x.com/2/media/upload", headers=headers, files=files
+        self.base_url = f"https://api.x.com/{self.api_version}/tweets"
+        self.upload_url = f"https://api.x.com/{self.api_version}/media/upload"
+
+    def _refresh_access_token(self):
+        token_url = "https://api.x.com/oauth2/token"
+        client = OAuth2Session(
+            client_id=settings.X_CLIENT_ID, token={"refresh_token": self.refresh_token}
+        )
+        extra = {
+            "client_id": settings.X_CLIENT_ID,
+            "client_secret": settings.X_CLIENT_SECRET,
+        }
+        token = client.refresh_token(token_url, **extra)
+        self.access_token = token["access_token"]
+
+        IntegrationsModel.objects.filter(platform=Platform.X_TWITTER.value).update(
+            access_token=self.access_token
         )
 
-    media_id = response.json().get("media_id_string")
-    return media_id
+    def _upload_media(self, media_path: str, refresh_token_was_generated: bool = False):
+        # Step 1: Check file size
+        total_bytes = os.path.getsize(media_path)
+        max_size = 5 * 1024 * 1024  # 5 MB
 
+        if total_bytes > max_size:
+            raise ValueError("Image size exceeds 5MB limit for upload.")
 
-def post_on_x(integration, post_id: int, post_text: str, media_path: str = None):
-    try:
+        # Step 2: Guess MIME type
+        mime_type, _ = mimetypes.guess_type(media_path)
+        if not mime_type or not mime_type.startswith("image/"):
+            raise ValueError(f"Unsupported or missing image MIME type: {mime_type}")
 
-        access_token = integration.access_token
-        refresh_token = integration.refresh_token
+        # Step 3: INIT
+        init_response = requests.post(
+            self.upload_url,
+            headers={
+                "Authorization": f"Bearer {self.access_token}",
+            },
+            files={
+                "command": (None, "INIT"),
+                "media_type": (None, mime_type),
+                "total_bytes": (None, str(total_bytes)),
+                "media_category": (None, "tweet_image"),
+            },
+        )
 
-        if not access_token:
-            raise ErrorAccessTokenOrUserIdNotFound
+        if init_response.status_code == 401 and not refresh_token_was_generated:
+            self._refresh_access_token()
+            return self._upload_media(media_path, True)
 
-        tweet_url = "https://api.x.com/2/tweets"
-        headers = {
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json",
-        }
+        init_response.raise_for_status()
 
-        payload = {"text": post_text}
+        media_id = init_response.json()["data"]["id"]
 
-        if media_path:
-            media_id = _upload_media(media_path, access_token)
-            payload["media"] = {"media_ids": [media_id]}
-
-        response = requests.post(url=tweet_url, headers=headers, json=payload)
-
-        if response.status_code == 401:  # Unauthorized, token might have expired
-            access_token = _refresh_access_token(refresh_token)
-            headers["Authorization"] = f"Bearer {access_token}"
-            response = requests.post(url=tweet_url, headers=headers, json=payload)
-
-            IntegrationsModel.objects.filter(platform=Platform.X_TWITTER.value).update(
-                access_token=access_token
+        # Step 4: APPEND
+        with open(media_path, "rb") as f:
+            append_response = requests.post(
+                self.upload_url,
+                headers={
+                    "Authorization": f"Bearer {self.access_token}",
+                },
+                files={
+                    "command": (None, "APPEND"),
+                    "media_id": (None, media_id),
+                    "segment_index": (None, "0"),
+                    "media": ("media", f),
+                },
             )
+            append_response.raise_for_status()
 
-        tweet = response.json()
+        # Step 5: FINALIZE
+        finalize_response = requests.post(
+            self.upload_url,
+            headers={
+                "Authorization": f"Bearer {self.access_token}",
+            },
+            files={
+                "command": (None, "FINALIZE"),
+                "media_id": (None, media_id),
+            },
+        )
+        finalize_response.raise_for_status()
 
-        if "id" in tweet.get("data", ""):
-            posted_url = f"https://x.com/user/status/{tweet['data']['id']}"
-            PostModel.objects.filter(id=post_id).update(link_x=posted_url)
-            log.info(f"Post url: {posted_url}")
-            return integration
+        return media_id
 
-        log.error(tweet)
+    def get_post_url(self, id: int):
+        return f"https://x.com/user/status/{id}"
 
-        if "duplicate" in tweet.get("detail", ""):
-            PostModel.objects.filter(id=post_id).update(post_on_x=False)
-            return integration
+    def post_text(self, text: str, refresh_token_was_generated: bool = False):
+        response = requests.post(
+            url=self.base_url,
+            headers={
+                "Authorization": f"Bearer {self.access_token}",
+                "Content-Type": "application/json",
+            },
+            json={"text": text},
+        )
 
-        IntegrationsModel.objects.filter(platform=Platform.X_TWITTER.value).delete()
+        # Unauthorized, token might be expired
+        if response.status_code == 401 and refresh_token_was_generated is False:
+            self._refresh_access_token()
+            self.post_text(text, True)
+        response.raise_for_status()
 
-        return None
+        return self.get_post_url(response.json()["data"]["id"])
 
-    except Exception as err:
-        log.error(err)
-        PostModel.objects.filter(id=post_id).update(post_on_x=False)
-        IntegrationsModel.objects.filter(platform=Platform.X_TWITTER.value).delete()
-        return None
+    def post_text_with_image(self, text: str, media_path: str):
+
+        media_id = self._upload_media(media_path)
+
+        response = requests.post(
+            url=self.base_url,
+            headers={
+                "Authorization": f"Bearer {self.access_token}",
+                "Content-Type": "application/json",
+            },
+            json={"text": text, "media": {"media_ids": [media_id]}},
+        )
+        response.raise_for_status()
+
+        return self.get_post_url(response.json()["data"]["id"])
+
+    def make_post(self, text: str, media_path: str = None):
+        if media_path is None:
+            return self.post_text(text)
+
+        if media_path.endswith((".jpg", ".jpeg", ".png")):
+            return self.post_text_with_image(text, media_path)
+
+        raise ErrorThisTypeOfPostIsNotSupported
+
+
+def post_on_x(
+    integration,
+    post_id: int,
+    post_text: str,
+    media_path: str = None,
+):
+
+    poster = XPoster(integration)
+    post_url = poster.make_post(post_text, media_path)
+
+    PostModel.objects.filter(id=post_id).update(link_x=post_url, post_on_x=False)
+
+    log.success(f"X post url: {post_url}")

@@ -10,7 +10,6 @@ class PostForm(ModelForm):
             "post_on_instagram",
             "post_on_facebook",
             "post_on_linkedin",
-            "title",
             "description",
             "scheduled_on_date",
             "scheduled_on_time",
@@ -18,7 +17,6 @@ class PostForm(ModelForm):
         ]
 
         widgets = {
-            "title": TextInput(attrs={"autocomplete": "off"}),
             "scheduled_on_date": DateInput(format=("%m/%d/%Y"), attrs={"type": "date"}),
             "scheduled_on_time": TimeInput(format='%H:%M', attrs={'type': 'time'}),
             "post_on_x": CheckboxInput(),

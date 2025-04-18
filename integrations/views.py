@@ -132,7 +132,7 @@ def x_login(request):
         "?response_type=code"
         f"&client_id={settings.X_CLIENT_ID}"
         f"&redirect_uri={settings.X_REDIRECT_URI}"
-        "&scope=tweet.read tweet.write users.read offline.access"
+        "&scope=tweet.read tweet.write users.read media.write offline.access"
         f"&state={uuid.uuid4().hex}"
         "&code_challenge=challenge"
         "&code_challenge_method=plain"

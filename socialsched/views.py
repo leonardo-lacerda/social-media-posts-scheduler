@@ -218,6 +218,7 @@ def schedule_modify(request, post_id):
             "post": post,
             "year": post.scheduled_on_date.year,
             "scheduled_on_date": post.scheduled_on_date.isoformat(),
+            "current_date": post.scheduled_on_date,
             "timezone": settings.TIME_ZONE,
             "modify_post_id": post_id,
             "prev_date": prev_date,
