@@ -15,7 +15,6 @@ class PostForm(ModelForm):
             "scheduled_on_date",
             "scheduled_on_time",
             "media_file",
-            "video_file",
         ]
 
         widgets = {

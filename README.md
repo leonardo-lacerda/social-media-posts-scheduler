@@ -12,8 +12,11 @@ For all of them you need to search for developer + X or developer + Linkedin etc
 
 Using [pdm](https://pdm-project.org/latest/) for managing dependencies.
 
-Run migrations:
+
+Migrations:
 - `make migrate-all`;
+- `make purge-db`;
+- `make purge-migration-dirs`;
 
 Run the application:
 - `make web` - start web app (open browser at `http://localhost:8000/`);
