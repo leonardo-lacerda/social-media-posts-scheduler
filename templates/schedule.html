@@ -49,16 +49,10 @@
         {% csrf_token %}
 
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            
-            <div style="width: fit-content;">
-                <label for="{{ post_form.scheduled_on_time.id_for_label }}">
-                    Time for {{timezone}} at:
-                    {{ post_form.scheduled_on_time }}
-                    {{ post_form.scheduled_on_time.errors }}
-                </label>
-            </div>
 
             <div style="display: flex; gap: .5rem;">
+
+                <p>Socials: </p>
 
                 <label for="{{ post_form.post_on_facebook.id_for_label }}">
                     <i class="bi bi-facebook"></i>
@@ -86,8 +80,15 @@
 
             </div>
 
+            <div style="width: fit-content;">
+                <label for="{{ post_form.scheduled_on_time.id_for_label }}">
+                    Time for {{timezone}} at:
+                    {{ post_form.scheduled_on_time }}
+                    {{ post_form.scheduled_on_time.errors }}
+                </label>
+            </div>
 
-            <label for="{{ post_form.scheduled_on_date.id_for_label }}">
+            <label style="display: none;" for="{{ post_form.scheduled_on_date.id_for_label }}">
                 <span class="pico-color-slate-450">Date selected:</span>
                 <input class="pico-color-slate-450" type="date" name="{{ post_form.scheduled_on_date.name }}"
                     id="{{ post_form.scheduled_on_date.id_for_label }}"
@@ -95,13 +96,12 @@
                 {{ post_form.scheduled_on_date.errors }}
             </label>
 
-
         </div>
 
         <div x-data="emojiPicker()">
 
             <label for="{{ post_form.description.id_for_label }}">
-                Post/Description:
+                Post:
                 <textarea x-data x-grow @input="countLength" name="{{ post_form.description.name }}" cols="40" rows="5"
                     maxlength="63207" required
                     id="{{ post_form.description.id_for_label }}">{% if post_form.description.value %}{{ post_form.description.value }}{% endif %}</textarea>
@@ -137,12 +137,12 @@
             {{ post_form.media_file.errors }}
         </label>
 
-        <div class="mt-2">
+        <div class=" mt-2">
             <button type="submit">
                 <i class="bi bi-save"></i>
                 Schedule post
             </button>
-        </div>
+            </div>
 
     </form>
 </article>

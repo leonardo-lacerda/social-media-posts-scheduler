@@ -1,8 +1,77 @@
-from facebook_business.api import FacebookAdsApi, FacebookRequest
-from facebook_business.adobjects.abstractobject import AbstractObject
-from facebook_business.typechecker import TypeChecker
+import re
+import requests
 from core.settings import log
-from core import settings
+from dataclasses import dataclass
+from socialsched.models import PostModel
+from .common import (
+    ErrorAccessTokenNotProvided,
+    ErrorPageIdNotProvided,
+    ErrorThisTypeOfPostIsNotSupported,
+)
+
+
+@dataclass
+class InstagramPoster:
+    integration: any
+    api_version: str = "v22.0"
+
+    def __post_init__(self):
+        self.access_token = self.integration.access_token
+        self.page_id = self.integration.user_id
+
+        if not self.access_token:
+            raise ErrorAccessTokenNotProvided
+
+        if not self.page_id:
+            raise ErrorPageIdNotProvided
+
+        self.base_url = f"https://graph.facebook.com/{self.api_version}/{self.page_id}"
+        self.media_url = self.base_url + "/media"
+        self.media_publish_url = self.base_url + "/media_publish"
+
+    def get_post_url(self, post_id: int):
+        url = f"https://graph.facebook.com/{post_id}"
+        params = {
+            "fields": "permalink",
+            "access_token": self.access_token,
+        }
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        return response.json()["permalink"]
+
+    def post_text_with_image(self, text: str, image_url: str):
+        params = {
+            "image_url": image_url,
+            "is_carousel_item": False,
+            "alt_text": text,
+            "caption": text,
+            "access_token": self.access_token,
+        }
+        container = requests.post(self.media_url, params=params)
+        container.raise_for_status()
+
+        publish = requests.post(
+            self.media_publish_url,
+            headers={"Authorization": f"Bearer {self.access_token}"},
+            json={"creation_id": container.json()["id"]},
+        )
+        publish.raise_for_status()
+
+        return self.get_post_url(publish.json()["id"])
+
+    def make_post(self, text: str, media_url: str = None):
+        if media_url is None:
+            pattern = r"(https?://[^\s]+)$"
+            match = re.search(pattern, text)
+            if match:
+                link = match.group(1)
+                return self.post_text_with_link(text, link)
+            return self.post_text(text)
+
+        if media_url.endswith((".jpg", ".jpeg", ".png")):
+            return self.post_text_with_image(text, media_url)
+
+        raise ErrorThisTypeOfPostIsNotSupported
 
 
 def post_on_instagram(
@@ -11,75 +80,12 @@ def post_on_instagram(
     post_text: str,
     media_url: str = None,
 ):
-    access_token = integration.access_token
-    instagram_account_id = integration.user_id
 
-    FacebookAdsApi.init(
-        settings.FACEBOOK_CLIENT_ID, settings.FACEBOOK_CLIENT_SECRET, access_token
+    poster = InstagramPoster(integration)
+    post_url = poster.make_post(post_text, media_url)
+
+    PostModel.objects.filter(id=post_id).update(
+        link_instagram=post_url, post_on_instagram=False
     )
 
-    # Step 1: Create media container
-    create_media_request = FacebookRequest(
-        node_id=instagram_account_id,
-        method="POST",
-        endpoint="/media",
-        api=FacebookAdsApi.get_default_api(),
-        param_checker=TypeChecker({}, {}),
-        target_class=AbstractObject,
-        api_type="EDGE",
-        response_parser=None,
-    )
-    create_media_request.add_params(
-        {
-            "image_url": media_url,
-            "caption": post_text,
-            "access_token": access_token,
-        }
-    )
-    media_response = create_media_request.execute()
-    media_response_data = media_response.json()
-    creation_id = media_response_data.get("id")
-
-    # Step 2: Publish the post
-    publish_request = FacebookRequest(
-        node_id=instagram_account_id,
-        method="POST",
-        endpoint="/media_publish",
-        api=FacebookAdsApi.get_default_api(),
-        param_checker=TypeChecker({}, {}),
-        target_class=AbstractObject,
-        api_type="EDGE",
-        response_parser=None,
-    )
-    publish_request.add_params(
-        {
-            "creation_id": creation_id,
-            "access_token": access_token,
-        }
-    )
-    publish_response = publish_request.execute()
-    publish_response_data = publish_response.json()
-    media_id = publish_response_data.get("id")
-
-    permalink_request = FacebookRequest(
-        node_id=media_id,
-        method="GET",
-        endpoint="/",
-        api=FacebookAdsApi.get_default_api(),
-        param_checker=TypeChecker({}, {}),
-        target_class=AbstractObject,
-        api_type="NODE",
-        response_parser=None,
-    )
-    permalink_request.add_params(
-        {
-            "fields": "permalink",
-            "access_token": access_token,
-        }
-    )
-    permalink_response = permalink_request.execute()
-    permalink_response_data = permalink_response.json()
-    post_url = permalink_response_data.get("permalink")
-    log.info(f"Instagram post URL: {post_url}")
-
-    return post_url
+    log.success(f"Instagram post url: {post_url}")

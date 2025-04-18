@@ -89,12 +89,8 @@ def post_on_facebook(
     poster = FacebookPoster(integration)
     post_url = poster.make_post(post_text, media_url)
 
-    instance = PostModel(
-        link_facebook=post_url,
+    PostModel.objects.filter(id=post_id).update(
+        link_facebook=post_url, post_on_facebook=False
     )
-
-    instance.save()
-
-
 
     log.success(f"Facebook post url: {post_url}")
