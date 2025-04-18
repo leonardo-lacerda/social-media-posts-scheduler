@@ -161,9 +161,11 @@ def post_on_x(
     media_path: str = None,
 ):
 
-    poster = XPoster(integration)
-    post_url = poster.make_post(post_text, media_path)
-
+    post_url = None
+    try:
+        poster = XPoster(integration)
+        post_url = poster.make_post(post_text, media_path)
+        log.success(f"X post url: {post_url}")
+    except Exception as err:
+        log.exception(err)
     PostModel.objects.filter(id=post_id).update(link_x=post_url, post_on_x=False)
-
-    log.success(f"X post url: {post_url}")

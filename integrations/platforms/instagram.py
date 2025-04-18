@@ -81,11 +81,15 @@ def post_on_instagram(
     media_url: str = None,
 ):
 
-    poster = InstagramPoster(integration)
-    post_url = poster.make_post(post_text, media_url)
+    post_url = None
+
+    try:
+        poster = InstagramPoster(integration)
+        post_url = poster.make_post(post_text, media_url)
+        log.success(f"Instagram post url: {post_url}")
+    except Exception as err:
+        log.exception(err)
 
     PostModel.objects.filter(id=post_id).update(
         link_instagram=post_url, post_on_instagram=False
     )
-
-    log.success(f"Instagram post url: {post_url}")

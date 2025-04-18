@@ -86,11 +86,15 @@ def post_on_facebook(
     media_url: str = None,
 ):
 
-    poster = FacebookPoster(integration)
-    post_url = poster.make_post(post_text, media_url)
+    post_url = None
+
+    try:
+        poster = FacebookPoster(integration)
+        post_url = poster.make_post(post_text, media_url)
+        log.success(f"Facebook post url: {post_url}")
+    except Exception as err:
+        log.exception(err)
 
     PostModel.objects.filter(id=post_id).update(
         link_facebook=post_url, post_on_facebook=False
     )
-
-    log.success(f"Facebook post url: {post_url}")
