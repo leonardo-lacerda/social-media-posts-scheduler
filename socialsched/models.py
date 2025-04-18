@@ -31,11 +31,10 @@ class PostModel(models.Model):
         blank=True,
     )
 
-    video_file = models.BooleanField(blank=True, null=True, default=False)
-    post_on_x = models.BooleanField(blank=True, null=True, default=True)
-    post_on_instagram = models.BooleanField(blank=True, null=True, default=True)
-    post_on_facebook = models.BooleanField(blank=True, null=True, default=True)
-    post_on_linkedin = models.BooleanField(blank=True, null=True, default=True)
+    post_on_x = models.BooleanField(blank=True, null=True, default=False)
+    post_on_instagram = models.BooleanField(blank=True, null=True, default=False)
+    post_on_facebook = models.BooleanField(blank=True, null=True, default=False)
+    post_on_linkedin = models.BooleanField(blank=True, null=True, default=False)
 
     link_x = models.CharField(max_length=50000, blank=True, null=True)
     link_instagram = models.CharField(max_length=50000, blank=True, null=True)
@@ -61,7 +60,7 @@ class PostModel(models.Model):
         if self.media_file:
             ext = os.path.splitext(self.media_file.name)[1].lower()
             if ext not in [".jpeg", ".jpg", ".png"]:
-                raise ValueError("Unsupported file type. Only JPEG, PNG images.")
+                raise ValueError("Unsupported file type. Only JPEG, PNG images are allowed.")
 
         postlen = len(self.description)
 

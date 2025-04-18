@@ -1,12 +1,13 @@
 import re
 import requests
 from core.settings import log
+from dataclasses import dataclass
+from socialsched.models import PostModel
 from .common import (
     ErrorAccessTokenNotProvided,
     ErrorPageIdNotProvided,
     ErrorThisTypeOfPostIsNotSupported,
 )
-from dataclasses import dataclass
 
 
 @dataclass
@@ -80,12 +81,20 @@ class FacebookPoster:
 
 def post_on_facebook(
     integration,
+    post_id: int,
     post_text: str,
     media_url: str = None,
 ):
 
     poster = FacebookPoster(integration)
-
     post_url = poster.make_post(post_text, media_url)
+
+    instance = PostModel(
+        link_facebook=post_url,
+    )
+
+    instance.save()
+
+
 
     log.success(f"Facebook post url: {post_url}")

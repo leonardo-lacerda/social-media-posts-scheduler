@@ -1,0 +1,27 @@
+[project]
+name = "social-media-posts-scheduler"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [{ name = "Alin Climente", email = "climente.alin@gmail.com" }]
+dependencies = [
+    "Django==5.2",
+    "django-cleanup==9.0.0",
+    "django-browser-reload==1.18.0",
+    "python-dotenv==1.1.0",
+    "requests==2.32.3",
+    "requests-cache==1.2.1",
+    "requests-oauthlib==2.0.0",
+    "waitress==3.0.2",
+    "whitenoise==6.9.0",
+    "pandas==2.2.3",
+    "openpyxl==3.1.5",
+    "loguru==0.7.3",
+    "social-auth-app-django==5.4.3",
+]
+requires-python = "==3.12.*"
+readme = "README.md"
+license = { text = "MIT" }
+
+
+[tool.pdm]
+distribution = false

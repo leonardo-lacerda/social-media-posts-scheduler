@@ -10,10 +10,7 @@ For all of them you need to search for developer + X or developer + Linkedin etc
 
 ## Quickstart
 
-Install dependencies:
-- `virtualenv .venv`;
-- `source .venv/bin/activate`;
-- `pip install -r requirements.txt`;
+Using [pdm](https://pdm-project.org/latest/) for managing dependencies.
 
 Run migrations:
 - `make migrate-all`;

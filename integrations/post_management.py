@@ -54,4 +54,4 @@ def post_scheduled_posts():
                 instagram_integration, post.id, text, media_url
             )
 
-        # PostModel.objects.filter(id=post.id).update(posted=True)
+        PostModel.objects.filter(id=post.id).update(posted=True)
