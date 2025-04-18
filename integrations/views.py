@@ -229,7 +229,6 @@ def x_uninstall(request):
 
 @login_required
 def facebook_login(request):
-    # https://developers.facebook.com/docs/instagram-platform/instagram-api-with-facebook-login
     fb_login_url = (
         "https://www.facebook.com/v22.0/dialog/oauth"
         "?response_type=code"

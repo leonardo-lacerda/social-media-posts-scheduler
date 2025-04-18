@@ -73,9 +73,7 @@ def calendar(request):
         "post_on_x",
         "post_on_instagram",
         "post_on_facebook",
-        "post_on_tiktok",
         "post_on_linkedin",
-        "post_on_youtube",
     )
 
     year_dates = get_year_dates(selected_year)
@@ -161,8 +159,7 @@ def calendar(request):
             "selected_year": selected_year,
             "select_years": select_years,
             "calendar_data": calendar_data,
-            "today": today,
-            "isotoday": today.date().isoformat(),
+            "today": today.date().isoformat(),
         },
     )
 
@@ -196,6 +193,7 @@ def schedule_form(request, isodate):
             "current_date": scheduled_on_date,
             "timezone": settings.TIME_ZONE,
             "prev_date": prev_date,
+            "today": today.date().isoformat(),
             "next_date": next_date,
         },
     )
@@ -203,15 +201,18 @@ def schedule_form(request, isodate):
 
 @login_required
 def schedule_modify(request, post_id):
+    today = timezone.localtime()
     post = get_object_or_404(PostModel, id=post_id)
     posts = PostModel.objects.filter(scheduled_on_date=post.scheduled_on_date)
     prev_date = post.scheduled_on_date - timedelta(days=1)
     next_date = post.scheduled_on_date + timedelta(days=1)
+    show_form = today.date() <= post.scheduled_on_date
     form = PostForm(instance=post)
     return render(
         request,
         "schedule.html",
         context={
+            "show_form": show_form,
             "posts": posts,
             "post_form": form,
             "post": post,
@@ -220,6 +221,7 @@ def schedule_modify(request, post_id):
             "timezone": settings.TIME_ZONE,
             "modify_post_id": post_id,
             "prev_date": prev_date,
+            "today": today.date().isoformat(),
             "next_date": next_date,
         },
     )
@@ -297,5 +299,4 @@ def logout_user(request):
 
 @login_required
 def user_account(request):
-
     return render(request, "user_account.html")

@@ -46,15 +46,12 @@ def post_scheduled_posts():
 
         if facebook_integration and post.post_on_facebook:
             facebook_integration = post_on_facebook(
-                facebook_integration, post.id, text, media_url=media_url
+                facebook_integration, post.id, text, media_url
             )
 
         if instagram_integration and post.post_on_instagram:
             instagram_integration = post_on_instagram(
-                instagram_integration,
-                post.id,
-                text,
-                media_url=media_url,
+                instagram_integration, post.id, text, media_url
             )
 
         # PostModel.objects.filter(id=post.id).update(posted=True)

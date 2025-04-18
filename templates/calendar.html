@@ -30,7 +30,7 @@
             {% endfor %}
         </select>
 
-        <a role="button" class="outline" href="{% url 'schedule_form' isodate=isotoday %}">
+        <a role="button" class="outline" href="{% url 'schedule_form' isodate=today %}">
             Post Today 👉
         </a>
 
@@ -43,16 +43,14 @@
         Try to give value and make posts less "addsy".
         Search on the web for "content writting formulas"
         to get some template ideas for your posts/videos.
-
-        <i class="bi bi-lightbulb"></i> Hold Shift key and move mouse wheel to Scrool horizontally between months.
-
     </p>
 </hgroup>
 
 
 <div class="mt-4">
 
-    <div id="months-container" style="display: flex; gap: 1rem; max-width: 100%; overflow-x: scroll;">
+    <div id="months-container"
+        style="display: flex; gap: 1rem; max-width: 100%; overflow-x: scroll; user-select: none;">
 
         <article class="pico-background-{{ calendar_data.january.article_background }}">
             <h3 class="pico-color-{{ calendar_data.january.text_color }}">
@@ -66,19 +64,12 @@
                 <li>
                     <a class="pico-color-{{ calendar_data.january.text_color }} no-decoration"
                         href="{% url 'schedule_form' isodate=i.isodate %}">
-                        <span style="display: block; padding-right: .5rem;">
-                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
-                            <sup class="pico-color-{{ calendar_data.january.text_color }}">
-                                {{ i.posts_count }} total posts
-                            </sup>
-                        </span>
                         <p class="pico-color-{{ calendar_data.january.text_color }}">
+                            <span class="day-mono">{{ i.day }} </span>
                             <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
                             <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
                             <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
                             <i class="bi bi-twitter-x"></i> <sup>{{ i.twitter_count }}</sup>
-                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
-                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
                         </p>
                     </a>
                 </li>
@@ -99,19 +90,12 @@
                 <li>
                     <a class="pico-color-{{ calendar_data.february.text_color }} no-decoration"
                         href="{% url 'schedule_form' isodate=i.isodate %}">
-                        <span style="display: block; padding-right: .5rem;">
-                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
-                            <sup class="pico-color-{{ calendar_data.february.text_color }}">
-                                {{ i.posts_count }} total posts
-                            </sup>
-                        </span>
                         <p class="pico-color-{{ calendar_data.february.text_color }}">
+                            <span class="day-mono">{{ i.day }} </span>
                             <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
                             <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
                             <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
                             <i class="bi bi-twitter-x"></i> <sup>{{ i.twitter_count }}</sup>
-                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
-                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
                         </p>
                     </a>
                 </li>
@@ -131,19 +115,12 @@
                 <li>
                     <a class="pico-color-{{ calendar_data.march.text_color }} no-decoration"
                         href="{% url 'schedule_form' isodate=i.isodate %}">
-                        <span style="display: block; padding-right: .5rem;">
-                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
-                            <sup class="pico-color-{{ calendar_data.march.text_color }}">
-                                {{ i.posts_count }} total posts
-                            </sup>
-                        </span>
                         <p class="pico-color-{{ calendar_data.march.text_color }}">
+                            <span class="day-mono">{{ i.day }} </span>
                             <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
                             <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
                             <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
                             <i class="bi bi-twitter-x"></i> <sup>{{ i.twitter_count }}</sup>
-                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
-                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
                         </p>
                     </a>
                 </li>
@@ -164,19 +141,12 @@
                 <li>
                     <a class="pico-color-{{ calendar_data.april.text_color }} no-decoration"
                         href="{% url 'schedule_form' isodate=i.isodate %}">
-                        <span style="display: block; padding-right: .5rem;">
-                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
-                            <sup class="pico-color-{{ calendar_data.april.text_color }}">
-                                {{ i.posts_count }} total posts
-                            </sup>
-                        </span>
                         <p class="pico-color-{{ calendar_data.april.text_color }}">
+                            <span class="day-mono">{{ i.day }} </span>
                             <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
                             <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
                             <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
                             <i class="bi bi-twitter-x"></i> <sup>{{ i.twitter_count }}</sup>
-                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
-                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
                         </p>
                     </a>
                 </li>
@@ -196,19 +166,12 @@
                 <li>
                     <a class="pico-color-{{ calendar_data.may.text_color }} no-decoration"
                         href="{% url 'schedule_form' isodate=i.isodate %}">
-                        <span style="display: block; padding-right: .5rem;">
-                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
-                            <sup class="pico-color-{{ calendar_data.may.text_color }}">
-                                {{ i.posts_count }} total posts
-                            </sup>
-                        </span>
                         <p class="pico-color-{{ calendar_data.may.text_color }}">
+                            <span class="day-mono">{{ i.day }} </span>
                             <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
                             <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
                             <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
                             <i class="bi bi-twitter-x"></i> <sup>{{ i.twitter_count }}</sup>
-                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
-                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
                         </p>
                     </a>
                 </li>
@@ -228,19 +191,12 @@
                 <li>
                     <a class="pico-color-{{ calendar_data.june.text_color }} no-decoration"
                         href="{% url 'schedule_form' isodate=i.isodate %}">
-                        <span style="display: block; padding-right: .5rem;">
-                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
-                            <sup class="pico-color-{{ calendar_data.june.text_color }}">
-                                {{ i.posts_count }} total posts
-                            </sup>
-                        </span>
                         <p class="pico-color-{{ calendar_data.june.text_color }}">
+                            <span class="day-mono">{{ i.day }} </span>
                             <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
                             <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
                             <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
                             <i class="bi bi-twitter-x"></i> <sup>{{ i.twitter_count }}</sup>
-                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
-                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
                         </p>
                     </a>
                 </li>
@@ -260,19 +216,12 @@
                 <li>
                     <a class="pico-color-{{ calendar_data.july.text_color }} no-decoration"
                         href="{% url 'schedule_form' isodate=i.isodate %}">
-                        <span style="display: block; padding-right: .5rem;">
-                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
-                            <sup class="pico-color-{{ calendar_data.july.text_color }}">
-                                {{ i.posts_count }} total posts
-                            </sup>
-                        </span>
                         <p class="pico-color-{{ calendar_data.july.text_color }}">
+                            <span class="day-mono">{{ i.day }} </span>
                             <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
                             <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
                             <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
                             <i class="bi bi-twitter-x"></i> <sup>{{ i.twitter_count }}</sup>
-                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
-                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
                         </p>
                     </a>
                 </li>
@@ -293,19 +242,12 @@
                 <li>
                     <a class="pico-color-{{ calendar_data.august.text_color }} no-decoration"
                         href="{% url 'schedule_form' isodate=i.isodate %}">
-                        <span style="display: block; padding-right: .5rem;">
-                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
-                            <sup class="pico-color-{{ calendar_data.august.text_color }}">
-                                {{ i.posts_count }} total posts
-                            </sup>
-                        </span>
                         <p class="pico-color-{{ calendar_data.august.text_color }}">
+                            <span class="day-mono">{{ i.day }} </span>
                             <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
                             <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
                             <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
                             <i class="bi bi-twitter-x"></i> <sup>{{ i.twitter_count }}</sup>
-                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
-                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
                         </p>
                     </a>
                 </li>
@@ -325,19 +267,12 @@
                 <li>
                     <a class="pico-color-{{ calendar_data.september.text_color }} no-decoration"
                         href="{% url 'schedule_form' isodate=i.isodate %}">
-                        <span style="display: block; padding-right: .5rem;">
-                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
-                            <sup class="pico-color-{{ calendar_data.september.text_color }}">
-                                {{ i.posts_count }} total posts
-                            </sup>
-                        </span>
                         <p class="pico-color-{{ calendar_data.september.text_color }}">
+                            <span class="day-mono">{{ i.day }} </span>
                             <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
                             <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
                             <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
                             <i class="bi bi-twitter-x"></i> <sup>{{ i.twitter_count }}</sup>
-                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
-                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
                         </p>
                     </a>
                 </li>
@@ -356,19 +291,12 @@
                 <li>
                     <a class="pico-color-{{ calendar_data.octomber.text_color }} no-decoration"
                         href="{% url 'schedule_form' isodate=i.isodate %}">
-                        <span style="display: block; padding-right: .5rem;">
-                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
-                            <sup class="pico-color-{{ calendar_data.octomber.text_color }}">
-                                {{ i.posts_count }} total posts
-                            </sup>
-                        </span>
                         <p class="pico-color-{{ calendar_data.octomber.text_color }}">
+                            <span class="day-mono">{{ i.day }} </span>
                             <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
                             <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
                             <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
                             <i class="bi bi-twitter-x"></i> <sup>{{ i.twitter_count }}</sup>
-                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
-                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
                         </p>
                     </a>
                 </li>
@@ -388,19 +316,12 @@
                 <li>
                     <a class="pico-color-{{ calendar_data.november.text_color }} no-decoration"
                         href="{% url 'schedule_form' isodate=i.isodate %}">
-                        <span style="display: block; padding-right: .5rem;">
-                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
-                            <sup class="pico-color-{{ calendar_data.november.text_color }}">
-                                {{ i.posts_count }} total posts
-                            </sup>
-                        </span>
                         <p class="pico-color-{{ calendar_data.november.text_color }}">
+                            <span class="day-mono">{{ i.day }} </span>
                             <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
                             <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
                             <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
                             <i class="bi bi-twitter-x"></i> <sup>{{ i.twitter_count }}</sup>
-                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
-                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
                         </p>
                     </a>
                 </li>
@@ -420,19 +341,12 @@
                 <li>
                     <a class="pico-color-{{ calendar_data.december.text_color }} no-decoration"
                         href="{% url 'schedule_form' isodate=i.isodate %}">
-                        <span style="display: block; padding-right: .5rem;">
-                            <span style="font-size: 35px;font-weight: bold;">{{ i.day }}</span>
-                            <sup class="pico-color-{{ calendar_data.december.text_color }}">
-                                {{ i.posts_count }} total posts
-                            </sup>
-                        </span>
                         <p class="pico-color-{{ calendar_data.december.text_color }}">
+                            <span class="day-mono">{{ i.day }} </span>
                             <i class="bi bi-instagram"></i> <sup>{{ i.instagram_count }}</sup>
                             <i class="bi bi-facebook"></i> <sup>{{ i.facebook_count }}</sup>
                             <i class="bi bi-linkedin"></i> <sup>{{ i.linkedin_count }}</sup>
                             <i class="bi bi-twitter-x"></i> <sup>{{ i.twitter_count }}</sup>
-                            <i class="bi bi-tiktok"></i> <sup>{{ i.tiktok_count }}</sup>
-                            <i class="bi bi-youtube"></i> <sup>{{ i.youtube_count }}</sup>
                         </p>
                     </a>
                 </li>
@@ -452,5 +366,43 @@
         }
     });
 </script>
+
+
+
+<script>
+    const container = document.getElementById('months-container');
+
+    let isDragging = false;
+    let startX;
+    let scrollLeft;
+
+    container.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        container.style.cursor = 'grabbing';
+        startX = e.pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+    });
+
+    container.addEventListener('mouseleave', () => {
+        isDragging = false;
+        container.style.cursor = 'grab';
+    });
+
+    container.addEventListener('mouseup', () => {
+        isDragging = false;
+        container.style.cursor = 'grab';
+    });
+
+    container.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 2; // Adjust scrolling speed (multiplier)
+        container.scrollLeft = scrollLeft - walk;
+    });
+
+</script>
+
+
 
 {% endblock %}

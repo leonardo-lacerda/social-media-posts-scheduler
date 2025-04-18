@@ -49,9 +49,7 @@ def get_day_data(posts, d):
     post_on_x = 0
     post_on_instagram = 0
     post_on_facebook = 0
-    post_on_tiktok = 0
     post_on_linkedin = 0
-    post_on_youtube = 0
     for post in posts:
 
         if post["scheduled_on"].date() != d:
@@ -60,9 +58,7 @@ def get_day_data(posts, d):
         post_on_x += 1 if post["post_on_x"] else 0
         post_on_instagram += 1 if post["post_on_instagram"] else 0
         post_on_facebook += 1 if post["post_on_facebook"] else 0
-        post_on_tiktok += 1 if post["post_on_tiktok"] else 0
         post_on_linkedin += 1 if post["post_on_linkedin"] else 0
-        post_on_youtube += 1 if post["post_on_youtube"] else 0
         posts_count += (
             1
             if any(
@@ -70,9 +66,7 @@ def get_day_data(posts, d):
                     post["post_on_x"],
                     post["post_on_instagram"],
                     post["post_on_facebook"],
-                    post["post_on_tiktok"],
                     post["post_on_linkedin"],
-                    post["post_on_youtube"],
                 ]
             )
             else 0
@@ -86,6 +80,4 @@ def get_day_data(posts, d):
         "facebook_count": post_on_facebook,
         "linkedin_count": post_on_linkedin,
         "twitter_count": post_on_x,
-        "tiktok_count": post_on_tiktok,
-        "youtube_count": post_on_youtube,
     }

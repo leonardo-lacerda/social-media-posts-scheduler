@@ -23,6 +23,9 @@
             <i class="bi bi-chevron-left"></i>
             Prev
         </a>
+        <a href="{% url 'schedule_form' isodate=today %}" style="margin-right: 1rem;">
+            Today
+        </a>
         <a href="{% url 'schedule_form' isodate=next_date %}">
             Next
             <i class="bi bi-chevron-right"></i>
@@ -45,8 +48,8 @@
 
         {% csrf_token %}
 
-        <div style="display: flex; align-items: center; gap: 2rem;">
-
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            
             <div style="width: fit-content;">
                 <label for="{{ post_form.scheduled_on_time.id_for_label }}">
                     Time for {{timezone}} at:
@@ -67,18 +70,6 @@
                     <i class="bi bi-instagram"></i>
                     {{ post_form.post_on_instagram }}
                     {{ post_form.post_on_instagram.errors }}
-                </label>
-
-                <label for="{{ post_form.post_on_tiktok.id_for_label }}">
-                    <i class="bi bi-tiktok"></i>
-                    {{ post_form.post_on_tiktok }}
-                    {{ post_form.post_on_tiktok.errors }}
-                </label>
-
-                <label for="{{ post_form.post_on_youtube.id_for_label }}">
-                    <i class="bi bi-youtube"></i>
-                    {{ post_form.post_on_youtube }}
-                    {{ post_form.post_on_youtube.errors }}
                 </label>
 
                 <label for="{{ post_form.post_on_x.id_for_label }}">
@@ -107,13 +98,6 @@
 
         </div>
 
-
-        <label for="{{ post_form.title.id_for_label }}" style="max-width: 665px;">
-            Title (Only needed for YouTube):
-            {{ post_form.title }}
-            {{ post_form.title.errors }}
-        </label>
-
         <div x-data="emojiPicker()">
 
             <label for="{{ post_form.description.id_for_label }}">
@@ -128,10 +112,8 @@
                 <div style="display: flex; flex-direction: column;">
                     <small x-text="xfreelenerr" class="pico-color-amber-300"></small>
                     <small x-text="instagramlenerr" class="pico-color-amber-300"></small>
-                    <small x-text="tiktoklenerr" class="pico-color-amber-300"></small>
                     <small x-text="linkedinlenerr" class="pico-color-amber-300"></small>
                     <small x-text="xbluelenerr" class="pico-color-amber-300"></small>
-                    <small x-text="youtubelenerr" class="pico-color-amber-300"></small>
                     <small x-text="facebooklenerr" class="pico-color-amber-300"></small>
                 </div>
             </label>
@@ -149,8 +131,8 @@
 
         </div>
 
-        <label for="{{ post_form.media_file.id_for_label }}" class="mt-2">
-            Image or video (jpg, png, mp4):
+        <label for="{{ post_form.media_file.id_for_label }}"">
+            Image (jpg, jpeg, png):
             {{ post_form.media_file }}
             {{ post_form.media_file.errors }}
         </label>
@@ -177,33 +159,9 @@
             <small class="pico-color-slate-450">{{ post.scheduled_on }}</small>
         </div>
 
-        {% if post.title %}
-        <h4>{{ post.title }}</h4>
-        {% endif %}
         <p>{{ post.description }}</p>
 
         {% if post.media_file %}
-        {% if post.video_file %}
-        <div x-data="{fullScreen: false}" style="display: flex; justify-content: center;">
-            <div x-show="!fullScreen">
-                <div class="video-container">
-                    <video controls>
-                        <source src="{{ post.media_file.url }}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
-            </div>
-
-            <dialog :open="fullScreen" @click="fullScreen = false">
-                <div class="video-container">
-                    <video controls>
-                        <source src="{{ post.media_file.url }}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
-            </dialog>
-        </div>
-        {% else %}
         <div x-data="{fullScreen: false}" style="display: flex; justify-content: center;">
             <div x-show="!fullScreen">
                 <img @click="fullScreen = true" src="{{ post.media_file.url }}" alt="Media file"
@@ -215,7 +173,6 @@
                     style="max-width: 100%; height: 100%; object-fit: contain; margin-bottom: 1rem; margin-top: 1rem; border-radius: 5px;">
             </dialog>
         </div>
-        {% endif %}
         {% endif %}
 
         {% if post.posted %}
@@ -231,14 +188,6 @@
 
                 {% if post.link_facebook %}
                 <a target="_blank" href="{{ post.link_facebook }}"><i class="bi bi-facebook"></i></a>
-                {% endif %}
-
-                {% if post.link_tiktok %}
-                <a target="_blank" href="{{ post.link_tiktok }}"><i class="bi bi-tiktok"></i></a>
-                {% endif %}
-
-                {% if post.link_youtube %}
-                <a target="_blank" href="{{ post.link_youtube }}"><i class="bi bi-youtube"></i></a>
                 {% endif %}
 
                 {% if post.link_x %}
@@ -271,14 +220,6 @@
 
             {% if post.post_on_linkedin %}
             <i class="bi bi-linkedin"></i>
-            {% endif %}
-
-            {% if post.post_on_tiktok %}
-            <i class="bi bi-tiktok"></i>
-            {% endif %}
-
-            {% if post.post_on_youtube %}
-            <i class="bi bi-youtube"></i>
             {% endif %}
 
         </div>
@@ -345,10 +286,8 @@
             "X_free": 280,
             "X_blue": 4000,
             "instagram": 2200,
-            "tiktok": 2200,
             "facebook": 63206,
             "linkedin": 3000,
-            "youtube_description": 5000,
         }
 
         return {
@@ -358,8 +297,6 @@
             instagramlenerr: "",
             facebooklenerr: "",
             linkedinlenerr: "",
-            tiktoklenerr: "",
-            youtubelenerr: "",
             countLength: function (event) {
                 this.postLength = event.target.value.length;
 
@@ -391,18 +328,6 @@
                     this.linkedinlenerr = `Linkedin ${text_max_length.linkedin} allowed characters reached`;
                 } else {
                     this.linkedinlenerr = "";
-                }
-
-                if (this.postLength >= text_max_length.tiktok) {
-                    this.tiktoklenerr = `TikTok video description ${text_max_length.tiktok} allowed characters reached`;
-                } else {
-                    this.tiktoklenerr = "";
-                }
-
-                if (this.postLength >= text_max_length.youtube_description) {
-                    this.youtubelenerr = `Youtube video description ${text_max_length.youtube_description} allowed characters reached`;
-                } else {
-                    this.youtubelenerr = "";
                 }
 
             }

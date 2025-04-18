@@ -7,7 +7,7 @@
   margin-top: 2rem;
 }
 
-.title-description > p {
+.title-description>p {
   font-size: 14px;
   margin-top: 0.5rem;
 }
@@ -18,12 +18,12 @@
   padding: 2rem 2rem 1rem 2rem;
 }
 
-.article-form > hgroup {
+.article-form>hgroup {
   text-align: left;
   margin-bottom: 2rem;
 }
 
-.article-form > hgroup > p {
+.article-form>hgroup>p {
   margin-top: 0.5rem;
   font-size: 12px;
 }
@@ -93,15 +93,21 @@ a.no-decoration {
   --pico-text-decoration: none;
 }
 
+a.no-decoration:hover {
+  --pico-text-decoration: none;
+  opacity: .8;
+}
+
+
 ul.no-style {
-  padding: 0; 
+  padding: 0;
   margin: 0;
 }
 
-ul.no-style > li {
+ul.no-style>li {
   list-style-type: none !important;
   margin-bottom: 20px !important;
-} 
+}
 
 
 ul.errorlist {
@@ -109,7 +115,7 @@ ul.errorlist {
   margin-top: -16px;
 }
 
-ul.errorlist > li {
+ul.errorlist>li {
   list-style-type: none !important;
   color: var(--pico-color-red-450) !important;
 }
@@ -122,7 +128,7 @@ ul.errorlist > li {
   max-width: 200px;
 }
 
-.pagination > p {
+.pagination>p {
   text-align: center;
 }
 
@@ -133,7 +139,8 @@ ul.errorlist > li {
 
 .video-container {
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  padding-bottom: 56.25%;
+  /* 16:9 aspect ratio */
   height: 0;
   overflow: hidden;
   max-width: 100%;
@@ -147,4 +154,10 @@ ul.errorlist > li {
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+.day-mono {
+  font-size: 25px;
+  font-weight: bold;
+  font-family: monospace;
 }

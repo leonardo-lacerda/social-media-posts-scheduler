@@ -9,9 +9,7 @@ class PostForm(ModelForm):
             "post_on_x",
             "post_on_instagram",
             "post_on_facebook",
-            "post_on_tiktok",
             "post_on_linkedin",
-            "post_on_youtube",
             "title",
             "description",
             "scheduled_on_date",
@@ -27,9 +25,7 @@ class PostForm(ModelForm):
             "post_on_x": CheckboxInput(),
             "post_on_instagram": CheckboxInput(),
             "post_on_facebook": CheckboxInput(),
-            "post_on_tiktok": CheckboxInput(),
             "post_on_linkedin": CheckboxInput(),
-            "post_on_youtube": CheckboxInput(),
         }
 
 

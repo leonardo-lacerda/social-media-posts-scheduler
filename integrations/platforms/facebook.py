@@ -1,10 +1,6 @@
-import os
 import re
 import requests
 from core.settings import log
-from core import settings
-from socialsched.models import PostModel
-from integrations.models import IntegrationsModel, Platform
 from .common import (
     ErrorAccessTokenNotProvided,
     ErrorPageIdNotProvided,
@@ -79,15 +75,11 @@ class FacebookPoster:
         if media_url.endswith((".jpg", ".jpeg", ".png")):
             return self.post_text_with_image(text, media_url)
 
-        if media_url.endswith(".mp4"):
-            return self.post_text_with_video(text, media_url)
-
         raise ErrorThisTypeOfPostIsNotSupported
 
 
 def post_on_facebook(
     integration,
-    post_id: int,
     post_text: str,
     media_url: str = None,
 ):
