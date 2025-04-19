@@ -1,6 +1,7 @@
 import requests
 from core.settings import log
 from dataclasses import dataclass
+from integrations.models import IntegrationsModel
 from socialsched.models import PostModel
 from .common import (
     ErrorAccessTokenNotProvided,
@@ -10,13 +11,13 @@ from .common import (
 
 @dataclass
 class LinkedinPoster:
-    integration: any
+    integration: IntegrationsModel
     api_version: str = "v2"
 
     def __post_init__(self):
 
         self.user_id = self.integration.user_id
-        self.access_token = self.integration.access_token
+        self.access_token = self.integration.access_token_value
 
         if not self.user_id:
             raise ErrorUserIdNotProvided

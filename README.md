@@ -13,6 +13,13 @@ For all of them you need to search for developer + X or developer + Linkedin etc
 
 Project is using [pdm](https://pdm-project.org/latest/) for managing dependencies.
 
+- `pdm install` - install all packages;
+- `pdm add package` - add a package in dependencies;
+- `pdm remove package` - remove a package from dependencies;
+- `pdm update package` - update one package;
+- `pdm update` - update all packages;
+
+
 Migrations:
 - `make migrate-all`;
 - `make purge-db`;

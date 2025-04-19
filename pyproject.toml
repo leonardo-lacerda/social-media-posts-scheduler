@@ -17,6 +17,7 @@ dependencies = [
     "openpyxl==3.1.5",
     "loguru==0.7.3",
     "social-auth-app-django==5.4.3",
+    "pycryptodome>=3.22.0",
 ]
 requires-python = "==3.12.*"
 readme = "README.md"

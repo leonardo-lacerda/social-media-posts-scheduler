@@ -12,12 +12,12 @@ from .common import ErrorAccessTokenNotProvided, ErrorThisTypeOfPostIsNotSupport
 
 @dataclass
 class XPoster:
-    integration: any
+    integration: IntegrationsModel
     api_version: str = "2"
 
     def __post_init__(self):
-        self.access_token = self.integration.access_token
-        self.refresh_token = self.integration.refresh_token
+        self.access_token = self.integration.access_token_value
+        self.refresh_token = self.integration.refresh_token_value
 
         if not self.access_token:
             raise ErrorAccessTokenNotProvided

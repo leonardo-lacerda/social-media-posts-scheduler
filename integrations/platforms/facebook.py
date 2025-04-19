@@ -2,6 +2,7 @@ import re
 import requests
 from core.settings import log
 from dataclasses import dataclass
+from integrations.models import IntegrationsModel
 from socialsched.models import PostModel
 from .common import (
     ErrorAccessTokenNotProvided,
@@ -12,11 +13,11 @@ from .common import (
 
 @dataclass
 class FacebookPoster:
-    integration: any
+    integration: IntegrationsModel
     api_version: str = "v22.0"
 
     def __post_init__(self):
-        self.access_token = self.integration.access_token
+        self.access_token = self.integration.access_token_value
         self.page_id = self.integration.user_id
 
         if not self.access_token:
