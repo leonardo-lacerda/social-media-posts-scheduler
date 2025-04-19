@@ -26,8 +26,9 @@ Migrations:
 - `make purge-migration-dirs`;
 
 Run the application:
-- `make web` - start web app (open browser at `http://localhost:8000/`);
+- `make dev` - start web app in dev mode (open browser at `http://localhost:8000/`);
 - `make cron` - start post scheduler;
+- `make web` - start django with uvicorn;
 
 
 ## Google SignIn Configuration

@@ -1,10 +1,11 @@
-web:
+dev:
 	python manage.py runserver
-
 
 cron:
 	python manage.py runposter
 
+web:
+	uvicorn core.asgi:application --host 0.0.0.0 --port 8000
 
 migrate-all:
 	python manage.py makemigrations

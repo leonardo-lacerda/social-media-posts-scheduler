@@ -16,7 +16,7 @@ from .schedule_utils import (
 
 
 @login_required
-def delete_old_data(request):
+async def delete_old_data(request):
     today = timezone.localtime()
 
     PostModel.objects.filter(
@@ -33,7 +33,7 @@ def delete_old_data(request):
 
 
 @login_required
-def delete_all_data(request):
+async def delete_all_data(request):
 
     PostModel.objects.filter(account_id=request.user.id).delete()
 
@@ -47,7 +47,7 @@ def delete_all_data(request):
 
 
 @login_required
-def calendar(request):
+async def calendar(request):
     today = timezone.localtime()
     selected_year = today.year
     if request.GET.get("year") is not None:
@@ -166,7 +166,7 @@ def calendar(request):
 
 
 @login_required
-def schedule_form(request, isodate):
+async def schedule_form(request, isodate):
     today = timezone.localtime()
     scheduled_on_date = datetime.strptime(isodate, "%Y-%m-%d").date()
     prev_date = scheduled_on_date - timedelta(days=1)
@@ -203,7 +203,7 @@ def schedule_form(request, isodate):
 
 
 @login_required
-def schedule_modify(request, post_id):
+async def schedule_modify(request, post_id):
     today = timezone.localtime()
     post = get_object_or_404(PostModel, id=post_id)
     posts = PostModel.objects.filter(
@@ -234,7 +234,7 @@ def schedule_modify(request, post_id):
 
 
 @login_required
-def schedule_save(request, isodate):
+async def schedule_save(request, isodate):
     modify_post_id = None
     if request.GET.get("modify_post_id") is not None:
         modify_post_id = request.GET.get("modify_post_id")
@@ -284,7 +284,7 @@ def schedule_save(request, isodate):
 
 
 @login_required
-def schedule_delete(request, post_id):
+async def schedule_delete(request, post_id):
     post = get_object_or_404(PostModel, id=post_id, account_id=request.user.id)
     isodate = post.scheduled_on_date.isoformat()
     post.delete()
@@ -297,16 +297,16 @@ def schedule_delete(request, post_id):
     return redirect(f"/schedule/{isodate}/")
 
 
-def login_user(request):
+async def login_user(request):
     return render(request, "login.html")
 
 
 @login_required
-def logout_user(request):
+async def logout_user(request):
     logout(request)
     return redirect("login")
 
 
 @login_required
-def user_account(request):
+async def user_account(request):
     return render(request, "user_account.html")
