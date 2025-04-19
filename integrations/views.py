@@ -13,16 +13,24 @@ from .models import IntegrationsModel, Platform
 def integrations_form(request):
 
     linkedin_ok = bool(
-        IntegrationsModel.objects.filter(platform=Platform.LINKEDIN.value).first()
+        IntegrationsModel.objects.filter(
+            account_id=request.user.id, platform=Platform.LINKEDIN.value
+        ).first()
     )
     x_ok = bool(
-        IntegrationsModel.objects.filter(platform=Platform.X_TWITTER.value).first()
+        IntegrationsModel.objects.filter(
+            account_id=request.user.id, platform=Platform.X_TWITTER.value
+        ).first()
     )
     instagram_ok = bool(
-        IntegrationsModel.objects.filter(platform=Platform.INSTAGRAM.value).first()
+        IntegrationsModel.objects.filter(
+            account_id=request.user.id, platform=Platform.INSTAGRAM.value
+        ).first()
     )
     facebook_ok = bool(
-        IntegrationsModel.objects.filter(platform=Platform.FACEBOOK.value).first()
+        IntegrationsModel.objects.filter(
+            account_id=request.user.id, platform=Platform.FACEBOOK.value
+        ).first()
     )
 
     return render(
@@ -91,9 +99,11 @@ def linkedin_callback(request):
         return redirect("/integrations/")
 
     IntegrationsModel.objects.update_or_create(
+        account_id=request.user.id,
         user_id=user_id,
         platform=Platform.LINKEDIN.value,
         defaults={
+            "account_id": request.user.id,
             "user_id": user_id,
             "access_token": access_token,
             "platform": Platform.LINKEDIN.value,
@@ -113,7 +123,9 @@ def linkedin_callback(request):
 @login_required
 def linkedin_uninstall(request):
 
-    IntegrationsModel.objects.filter(platform=Platform.LINKEDIN.value).delete()
+    IntegrationsModel.objects.filter(
+        account_id=request.user.id, platform=Platform.LINKEDIN.value
+    ).delete()
 
     messages.add_message(
         request,
@@ -192,9 +204,11 @@ def x_callback(request):
         return redirect("/integrations/")
 
     IntegrationsModel.objects.update_or_create(
+        account_id=request.user.id,
         user_id=user_id,
         platform=Platform.X_TWITTER.value,
         defaults={
+            "account_id": request.user.id,
             "user_id": user_id,
             "access_token": token["access_token"],
             "refresh_token": token["refresh_token"],
@@ -215,7 +229,9 @@ def x_callback(request):
 @login_required
 def x_uninstall(request):
 
-    IntegrationsModel.objects.filter(platform=Platform.X_TWITTER.value).delete()
+    IntegrationsModel.objects.filter(
+        account_id=request.user.id, platform=Platform.X_TWITTER.value
+    ).delete()
 
     messages.add_message(
         request,
@@ -384,9 +400,11 @@ def facebook_callback(request):
 
     # Update or create access tokens in the IntegrationsModel
     IntegrationsModel.objects.update_or_create(
+        account_id=request.user.id,
         user_id=page_id,
         platform=Platform.FACEBOOK.value,
         defaults={
+            "account_id": request.user.id,
             "user_id": page_id,
             "access_token": page_access_token,
             "platform": Platform.FACEBOOK.value,
@@ -395,9 +413,11 @@ def facebook_callback(request):
 
     account = instagram_accounts[0]
     IntegrationsModel.objects.update_or_create(
+        account_id=request.user.id,
         user_id=account["id"],
         platform=Platform.INSTAGRAM.value,
         defaults={
+            "account_id": request.user.id,
             "user_id": account["id"],
             "access_token": page_access_token,
             "platform": Platform.INSTAGRAM.value,
@@ -417,8 +437,13 @@ def facebook_callback(request):
 @login_required
 def facebook_uninstall(request):
 
-    IntegrationsModel.objects.filter(platform=Platform.FACEBOOK.value).delete()
-    IntegrationsModel.objects.filter(platform=Platform.INSTAGRAM.value).delete()
+    IntegrationsModel.objects.filter(
+        account_id=request.user.id, platform=Platform.FACEBOOK.value
+    ).delete()
+
+    IntegrationsModel.objects.filter(
+        account_id=request.user.id, platform=Platform.INSTAGRAM.value
+    ).delete()
 
     messages.add_message(
         request,

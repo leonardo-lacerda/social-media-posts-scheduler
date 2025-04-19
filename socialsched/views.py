@@ -1,5 +1,3 @@
-import os
-import shutil
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
@@ -21,7 +19,9 @@ from .schedule_utils import (
 def delete_old_data(request):
     today = timezone.localtime()
 
-    PostModel.objects.filter(scheduled_on__lt=today).delete()
+    PostModel.objects.filter(
+        account_id=request.user.id, scheduled_on__lt=today
+    ).delete()
 
     messages.add_message(
         request,
@@ -35,10 +35,7 @@ def delete_old_data(request):
 @login_required
 def delete_all_data(request):
 
-    PostModel.objects.all().delete()
-
-    shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
-    os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
+    PostModel.objects.filter(account_id=request.user.id).delete()
 
     messages.add_message(
         request,
@@ -56,19 +53,23 @@ def calendar(request):
     if request.GET.get("year") is not None:
         selected_year = int(request.GET.get("year"))
 
-    min_date = PostModel.objects.aggregate(Min("scheduled_on_date"))[
-        "scheduled_on_date__min"
-    ]
-    max_date = PostModel.objects.aggregate(Max("scheduled_on_date"))[
-        "scheduled_on_date__max"
-    ]
+    min_date = PostModel.objects.filter(account_id=request.user.id).aggregate(
+        Min("scheduled_on_date")
+    )["scheduled_on_date__min"]
+
+    max_date = PostModel.objects.filter(account_id=request.user.id).aggregate(
+        Max("scheduled_on_date")
+    )["scheduled_on_date__max"]
+
     min_year = min_date.year if min_date else today.year
     max_year = max_date.year if max_date else today.year
 
     select_years = list(set([min_year, max_year, today.year, today.year + 4]))
     select_years = [y for y in range(min(select_years), max(select_years), 1)]
 
-    posts = PostModel.objects.filter(scheduled_on_date__year=selected_year).values(
+    posts = PostModel.objects.filter(
+        account_id=request.user.id, scheduled_on_date__year=selected_year
+    ).values(
         "scheduled_on",
         "post_on_x",
         "post_on_instagram",
@@ -170,7 +171,9 @@ def schedule_form(request, isodate):
     scheduled_on_date = datetime.strptime(isodate, "%Y-%m-%d").date()
     prev_date = scheduled_on_date - timedelta(days=1)
     next_date = scheduled_on_date + timedelta(days=1)
-    posts = PostModel.objects.filter(scheduled_on_date=scheduled_on_date)
+    posts = PostModel.objects.filter(
+        account_id=request.user.id, scheduled_on_date=scheduled_on_date
+    )
 
     show_form = today.date() <= scheduled_on_date
 
@@ -203,7 +206,9 @@ def schedule_form(request, isodate):
 def schedule_modify(request, post_id):
     today = timezone.localtime()
     post = get_object_or_404(PostModel, id=post_id)
-    posts = PostModel.objects.filter(scheduled_on_date=post.scheduled_on_date)
+    posts = PostModel.objects.filter(
+        account_id=request.user.id, scheduled_on_date=post.scheduled_on_date
+    )
     prev_date = post.scheduled_on_date - timedelta(days=1)
     next_date = post.scheduled_on_date + timedelta(days=1)
     show_form = today.date() <= post.scheduled_on_date
@@ -235,14 +240,18 @@ def schedule_save(request, isodate):
         modify_post_id = request.GET.get("modify_post_id")
 
     if modify_post_id:
-        post = get_object_or_404(PostModel, id=modify_post_id)
+        post = get_object_or_404(
+            PostModel, id=modify_post_id, account_id=request.user.id
+        )
         form = PostForm(request.POST, request.FILES, instance=post)
     else:
         form = PostForm(request.POST, request.FILES)
 
     if not form.is_valid():
         scheduled_on_date = datetime.strptime(isodate, "%Y-%m-%d").date()
-        posts = PostModel.objects.filter(scheduled_on_date=scheduled_on_date)
+        posts = PostModel.objects.filter(
+            account_id=request.user.id, scheduled_on_date=scheduled_on_date
+        )
 
         return render(
             request,
@@ -256,7 +265,7 @@ def schedule_save(request, isodate):
         )
 
     try:
-        form.save()
+        form.save(account_id=request.user.id)
         messages.add_message(
             request,
             messages.SUCCESS,
@@ -276,7 +285,7 @@ def schedule_save(request, isodate):
 
 @login_required
 def schedule_delete(request, post_id):
-    post = get_object_or_404(PostModel, id=post_id)
+    post = get_object_or_404(PostModel, id=post_id, account_id=request.user.id)
     isodate = post.scheduled_on_date.isoformat()
     post.delete()
     messages.add_message(
