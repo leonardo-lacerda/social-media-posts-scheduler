@@ -41,14 +41,6 @@ def integrations_form(request):
             "linkedin_ok": linkedin_ok,
             "instagram_ok": instagram_ok and facebook_ok,
             "facebook_ok": facebook_ok and instagram_ok,
-            # "x_redirect_url": settings.X_REDIRECT_URI,
-            # "x_uninstall_url": settings.X_UNINSTALL_URI,
-            # "linkedin_redirect_url": settings.LINKEDIN_REDIRECT_URI,
-            # "linkedin_uninstall_url": settings.LINKEDIN_UNINSTALL_URI,
-            # "instagram_redirect_url": settings.INSTAGRAM_REDIRECT_URI,
-            # "instagram_uninstall_url": settings.INSTAGRAM_UNINSTALL_URI,
-            # "facebook_redirect_url": settings.FACEBOOK_REDIRECT_URI,
-            # "facebook_uninstall_url": settings.FACEBOOK_UNINSTALL_URI,
         },
     )
 

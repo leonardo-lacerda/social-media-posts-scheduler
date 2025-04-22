@@ -3,6 +3,7 @@ from core.settings import log
 from dataclasses import dataclass
 from integrations.models import IntegrationsModel
 from socialsched.models import PostModel
+from asgiref.sync import sync_to_async
 from .common import (
     ErrorAccessTokenNotProvided,
     ErrorUserIdNotProvided,
@@ -109,7 +110,14 @@ class LinkedinPoster:
         return f"https://www.linkedin.com/feed/update/{response.json()['id']}"
 
 
-def post_on_linkedin(
+@sync_to_async
+def update_linkedin_link(post_id: int, post_url: str):
+    return PostModel.objects.filter(id=post_id).update(
+        link_linkedin=post_url, post_on_linkedin=False
+    )
+
+
+async def post_on_linkedin(
     integration,
     post_id: int,
     post_text: str,
@@ -125,6 +133,4 @@ def post_on_linkedin(
     except Exception as err:
         log.exception(err)
 
-    PostModel.objects.filter(id=post_id).update(
-        link_linkedin=post_url, post_on_linkedin=False
-    )
+    await update_linkedin_link(post_id, post_url)

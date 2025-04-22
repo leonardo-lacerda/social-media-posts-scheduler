@@ -4,6 +4,7 @@ import mimetypes
 from core import settings
 from core.settings import log
 from dataclasses import dataclass
+from asgiref.sync import sync_to_async
 from socialsched.models import PostModel
 from requests_oauthlib import OAuth2Session
 from integrations.models import IntegrationsModel, Platform
@@ -154,7 +155,12 @@ class XPoster:
         raise ErrorThisTypeOfPostIsNotSupported
 
 
-def post_on_x(
+@sync_to_async
+def update_x_link(post_id: int, post_url: str):
+    return PostModel.objects.filter(id=post_id).update(link_x=post_url, post_on_x=False)
+
+
+async def post_on_x(
     integration,
     post_id: int,
     post_text: str,
@@ -168,4 +174,5 @@ def post_on_x(
         log.success(f"X post url: {post_url}")
     except Exception as err:
         log.exception(err)
-    PostModel.objects.filter(id=post_id).update(link_x=post_url, post_on_x=False)
+
+    await update_x_link(post_id, post_url)

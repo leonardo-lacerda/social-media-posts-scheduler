@@ -1,7 +1,7 @@
-import re
 import requests
 from core.settings import log
 from dataclasses import dataclass
+from asgiref.sync import sync_to_async
 from integrations.models import IntegrationsModel
 from socialsched.models import PostModel
 from .common import (
@@ -70,7 +70,14 @@ class InstagramPoster:
         raise ErrorThisTypeOfPostIsNotSupported
 
 
-def post_on_instagram(
+@sync_to_async
+def update_instagram_link(post_id: int, post_url: str):
+    return PostModel.objects.filter(id=post_id).update(
+        link_instagram=post_url, post_on_instagram=False
+    )
+
+
+async def post_on_instagram(
     integration,
     post_id: int,
     post_text: str,
@@ -86,6 +93,4 @@ def post_on_instagram(
     except Exception as err:
         log.exception(err)
 
-    PostModel.objects.filter(id=post_id).update(
-        link_instagram=post_url, post_on_instagram=False
-    )
+    await update_instagram_link(post_id, post_url)

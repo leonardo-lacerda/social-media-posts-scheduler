@@ -1,6 +1,7 @@
 import re
 import requests
 from core.settings import log
+from asgiref.sync import sync_to_async
 from dataclasses import dataclass
 from integrations.models import IntegrationsModel
 from socialsched.models import PostModel
@@ -80,7 +81,14 @@ class FacebookPoster:
         raise ErrorThisTypeOfPostIsNotSupported
 
 
-def post_on_facebook(
+@sync_to_async
+def update_facebook_link(post_id: int, post_url: str):
+    return PostModel.objects.filter(id=post_id).update(
+        link_facebook=post_url, post_on_facebook=False
+    )
+
+
+async def post_on_facebook(
     integration,
     post_id: int,
     post_text: str,
@@ -96,6 +104,4 @@ def post_on_facebook(
     except Exception as err:
         log.exception(err)
 
-    PostModel.objects.filter(id=post_id).update(
-        link_facebook=post_url, post_on_facebook=False
-    )
+    await update_facebook_link(post_id, post_url)
