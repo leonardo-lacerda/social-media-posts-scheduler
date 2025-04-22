@@ -62,13 +62,8 @@ class InstagramPoster:
 
     def make_post(self, text: str, media_url: str = None):
         if media_url is None:
-            pattern = r"(https?://[^\s]+)$"
-            match = re.search(pattern, text)
-            if match:
-                link = match.group(1)
-                return self.post_text_with_link(text, link)
-            return self.post_text(text)
-
+            log.info("No media url for instagram post. Skip posting.")
+            return
         if media_url.endswith((".jpg", ".jpeg", ".png")):
             return self.post_text_with_image(text, media_url)
 

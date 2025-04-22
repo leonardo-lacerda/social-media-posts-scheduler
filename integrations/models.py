@@ -12,7 +12,7 @@ class Platform(models.TextChoices):
 
 
 class IntegrationsModel(models.Model):
-    account_id = models.IntegerField(unique=True)
+    account_id = models.IntegerField()
     user_id = models.CharField(max_length=5000, null=True, blank=True)
     access_token = models.CharField(max_length=5000, null=True, blank=True)
     refresh_token = models.CharField(max_length=5000, null=True, blank=True)

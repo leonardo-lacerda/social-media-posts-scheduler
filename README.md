@@ -45,7 +45,7 @@ Run the application:
 ## Facebook && Instagram
 
 - You'll need a Facebook Public Page and an Instagram Professional account linked into Meta bussiness account;
-- Google [meta developer](https://developers.facebook.com/);
+- Google [meta developer social technologies](https://developers.facebook.com/);
 - Create an app;
 - Setup `Facebook login for business` there in add Settings:
     - OAuth Redirect URIs: https://ngrok-or-prod-url.app/facebook/callback;
@@ -59,7 +59,7 @@ Run the application:
 ## X
 
 - A single X account is enough here;
-- Google [x developer](https://developer.x.com/en/portal/dashboard);
+- Google [x developer portal](https://developer.x.com/en/portal/dashboard);
 - Create an app and generate OAuth 2.0 Client ID and Client Secret save them to .env;
 - On User authentication settings click Edit button;
 - Select Type of App > Web App and fill Callback URI / Redirect URL > https://ngrok-or-prod-url.app/X/callback/;
