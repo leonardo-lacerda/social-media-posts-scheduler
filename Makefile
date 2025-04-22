@@ -5,7 +5,7 @@ cron:
 	python manage.py runposter
 
 web:
-	uvicorn core.asgi:application --host 0.0.0.0 --port 8000
+	waitress-serve --listen=*:8000 core.wsgi:application
 
 migrate-all:
 	python manage.py makemigrations

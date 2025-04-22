@@ -10,7 +10,7 @@ from .models import IntegrationsModel, Platform
 
 
 @login_required
-async def integrations_form(request):
+def integrations_form(request):
 
     linkedin_ok = bool(
         IntegrationsModel.objects.filter(
@@ -54,7 +54,7 @@ async def integrations_form(request):
 
 
 @login_required
-async def linkedin_login(request):
+def linkedin_login(request):
     linkedin_auth_url = (
         "https://www.linkedin.com/oauth/v2/authorization"
         "?response_type=code"
@@ -66,7 +66,7 @@ async def linkedin_login(request):
 
 
 @login_required
-async def linkedin_callback(request):
+def linkedin_callback(request):
     code = request.GET.get("code")
     token_url = "https://www.linkedin.com/oauth/v2/accessToken"
     token_data = {
@@ -121,7 +121,7 @@ async def linkedin_callback(request):
 
 
 @login_required
-async def linkedin_uninstall(request):
+def linkedin_uninstall(request):
 
     IntegrationsModel.objects.filter(
         account_id=request.user.id, platform=Platform.LINKEDIN.value
@@ -138,7 +138,7 @@ async def linkedin_uninstall(request):
 
 
 @login_required
-async def x_login(request):
+def x_login(request):
     x_auth_url = (
         "https://twitter.com/i/oauth2/authorize"
         "?response_type=code"
@@ -153,7 +153,7 @@ async def x_login(request):
 
 
 @login_required
-async def x_callback(request):
+def x_callback(request):
     code = request.GET.get("code")
     if not code:
         messages.add_message(
@@ -227,7 +227,7 @@ async def x_callback(request):
 
 
 @login_required
-async def x_uninstall(request):
+def x_uninstall(request):
 
     IntegrationsModel.objects.filter(
         account_id=request.user.id, platform=Platform.X_TWITTER.value
@@ -244,7 +244,7 @@ async def x_uninstall(request):
 
 
 @login_required
-async def facebook_login(request):
+def facebook_login(request):
     fb_login_url = (
         "https://www.facebook.com/v22.0/dialog/oauth"
         "?response_type=code"
@@ -256,7 +256,7 @@ async def facebook_login(request):
 
 
 @login_required
-async def facebook_callback(request):
+def facebook_callback(request):
     code = request.GET.get("code")
     if not code:
         messages.add_message(
@@ -435,7 +435,7 @@ async def facebook_callback(request):
 
 
 @login_required
-async def facebook_uninstall(request):
+def facebook_uninstall(request):
 
     IntegrationsModel.objects.filter(
         account_id=request.user.id, platform=Platform.FACEBOOK.value
