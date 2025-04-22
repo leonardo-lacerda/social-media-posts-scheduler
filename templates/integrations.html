@@ -19,52 +19,22 @@
 </hgroup>
 
 
-<div class="container mt-4">
+<div class="container grid mt-4">
 
   <article>
     <h4>
       <i class="bi bi-facebook"></i> & <i class="bi bi-instagram"></i>
     </h4>
-    <p>
-      {% if facebook_ok %}
-      All good to post.
-      {% else %}
-
-    <p>Urls to put in your facebook/instagram app. Same app can be used to post on both Facebook and Instagram.</p>
-
-    <p>Redirect url:</p>
-    <div style="display: flex;" x-data="{ url: '{{facebook_redirect_url}}', copied: false }">
-      <pre style="padding: 1rem;" x-text="url"></pre>
-      <i style="cursor: pointer; margin-top: .7rem;" @click="
-            navigator.clipboard.writeText(url).then(() => {
-                copied = true;
-                setTimeout(() => copied = false, 3000);
-            })
-        " class="bi bi-clipboard">
-        <span x-text="copied ? 'Copied!' : 'Copy'"></span>
-      </i>
-    </div>
-
-    <p>The uninstall/delete url:</p>
-    <div style="display: flex;" x-data="{ url: '{{facebook_uninstall_url}}', copied: false }">
-      <pre style="padding: 1rem;" x-text="url"></pre>
-      <i style="cursor: pointer; margin-top: .7rem;" @click="
-            navigator.clipboard.writeText(url).then(() => {
-                copied = true;
-                setTimeout(() => copied = false, 3000);
-            })
-        " class="bi bi-clipboard">
-        <span x-text="copied ? 'Copied!' : 'Copy'"></span>
-      </i>
-    </div>
-
+    {% if facebook_ok %}
+    <p>All good to post.</p> 
+    {% else %}
+    <p>Please click Authorize button to allow this app to publish posts on your behalf.</p>
     {% endif %}
-    </p>
 
     <div style="display: flex; justify-content: end;">
       <div style="display: flex; gap: 1rem;">
         {% if facebook_ok %}
-        <a href="{% url 'facebook_uninstall' %}" role="button" class="outline">
+        <a href="{% url 'facebook_uninstall' %}" role="button" class="outline secondary">
           Deauthorize
         </a>
         {% endif %}
@@ -82,28 +52,14 @@
     {% if linkedin_ok %}
     <p>All good to post.</p>
     {% else %}
-
-    <p>Redirect url you need to put in the app:</p>
-
-    <div style="display: flex;" x-data="{ url: '{{linkedin_redirect_url}}', copied: false }">
-      <pre style="padding: 1rem;" x-text="url"></pre>
-      <i style="cursor: pointer; margin-top: .7rem;" @click="
-            navigator.clipboard.writeText(url).then(() => {
-                copied = true;
-                setTimeout(() => copied = false, 3000);
-            })
-        " class="bi bi-clipboard">
-        <span x-text="copied ? 'Copied!' : 'Copy'"></span>
-      </i>
-    </div>
-
+    <p>Please click Authorize button to allow this app to publish posts on your behalf.</p>
     {% endif %}
 
     <div style="display: flex; justify-content: end;">
       <div style="display: flex; gap: 1rem;">
 
         {% if linkedin_ok %}
-        <a href="{% url 'linkedin_uninstall' %}" role="button" class="outline">
+        <a href="{% url 'linkedin_uninstall' %}" role="button" class="outline secondary">
           Deauthorize
         </a>
         {% endif %}
@@ -121,26 +77,12 @@
     {% if x_ok %}
     <p>All good to post.</p>
     {% else %}
-
-    <p>Redirect url you need to put in the app:</p>
-
-    <div style="display: flex;" x-data="{ url: '{{x_redirect_url}}', copied: false }">
-      <pre style="padding: 1rem;" x-text="url"></pre>
-      <i style="cursor: pointer; margin-top: .7rem;" @click="
-            navigator.clipboard.writeText(url).then(() => {
-                copied = true;
-                setTimeout(() => copied = false, 3000);
-            })
-        " class="bi bi-clipboard">
-        <span x-text="copied ? 'Copied!' : 'Copy'"></span>
-      </i>
-    </div>
-
+    <p>Please click Authorize button to allow this app to publish posts on your behalf.</p>
     {% endif %}
     <div style="display: flex; justify-content: end;">
       <div style="display: flex; gap: 1rem;">
         {% if x_ok %}
-        <a href="{% url 'x_uninstall' %}" role="button" class="outline">
+        <a href="{% url 'x_uninstall' %}" role="button" class="outline secondary">
           Deauthorize
         </a>
         {% endif %}
