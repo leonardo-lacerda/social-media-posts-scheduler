@@ -2,6 +2,7 @@ import os
 import uuid
 from django.db import models
 from django.utils import timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from django.utils.timezone import is_aware
 from enum import IntEnum
 
@@ -45,6 +46,12 @@ class PostModel(models.Model):
 
     def save(self, *args, **kwargs):
 
+        skip_validation = kwargs.pop('skip_validation', False)
+
+        if skip_validation:
+            super().save(*args, **kwargs)
+            return
+
         if not any(
             [
                 self.post_on_x,
@@ -58,9 +65,11 @@ class PostModel(models.Model):
         if not is_aware(self.scheduled_on):
             raise ValueError("The scheduled_on field must be timezone-aware.")
 
-        if self.scheduled_on <= timezone.now():
-            raise ValueError("Can't schedule post in the past")
-
+        try:
+            ZoneInfo(self.post_timezone)
+        except ZoneInfoNotFoundError:
+            raise ValueError(f"Invalid timezone: {self.post_timezone}")
+        
         if self.media_file:
             ext = os.path.splitext(self.media_file.name)[1].lower()
             if ext not in [".jpeg", ".jpg", ".png"]:

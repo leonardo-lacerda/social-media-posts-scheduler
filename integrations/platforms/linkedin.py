@@ -3,6 +3,7 @@ from core.settings import log
 from dataclasses import dataclass
 from integrations.models import IntegrationsModel
 from socialsched.models import PostModel
+from django.core.files.storage import default_storage
 from asgiref.sync import sync_to_async
 from .common import (
     ErrorAccessTokenNotProvided,
@@ -112,9 +113,16 @@ class LinkedinPoster:
 
 @sync_to_async
 def update_linkedin_link(post_id: int, post_url: str):
-    return PostModel.objects.filter(id=post_id).update(
-        link_linkedin=post_url, post_on_linkedin=False
-    )
+    post = PostModel.objects.get(id=post_id)
+
+    if post.media_file:
+        if default_storage.exists(post.media_file.path):
+            default_storage.delete(post.media_file.path)
+            post.media_file = None
+
+    post.link_linkedin = post_url
+    post.post_on_linkedin = False
+    post.save(skip_validation=True)
 
 
 async def post_on_linkedin(

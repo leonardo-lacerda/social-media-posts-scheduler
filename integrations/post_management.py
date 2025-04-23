@@ -4,6 +4,7 @@ from core.settings import log
 from django.utils import timezone
 from asgiref.sync import sync_to_async
 from socialsched.models import PostModel
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from .models import IntegrationsModel, Platform
 from .platforms.linkedin import post_on_linkedin
 from .platforms.xtwitter import post_on_x
@@ -24,8 +25,18 @@ def mark_post_posted(post_id):
 
 
 def post_scheduled_posts():
-    now = timezone.now()
-    posts = PostModel.objects.filter(posted=False, scheduled_on__lte=now)
+    potential_posts = PostModel.objects.filter(posted=False)
+    post_ids_to_publish = []
+    now_utc = timezone.now()
+
+    for post in potential_posts:
+        target_tz = ZoneInfo(post.post_timezone)
+        scheduled_aware = post.scheduled_on.replace(tzinfo=target_tz)
+        now_in_target_tz = now_utc.astimezone(target_tz)
+        if now_in_target_tz >= scheduled_aware:
+            post_ids_to_publish.append(post.pk)
+
+    posts = PostModel.objects.filter(pk__in=post_ids_to_publish)
 
     if len(posts) == 0:
         return
@@ -117,8 +128,8 @@ def post_scheduled_posts():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     try:
-        log.debug(f"Running async posting for {now}")
+        log.debug(f"Running async posting for {now_utc}")
         loop.run_until_complete(run_post_tasks())
-        log.debug(f"Finished async posting for {now}")
+        log.debug(f"Finished async posting for {now_utc}")
     finally:
         loop.close()

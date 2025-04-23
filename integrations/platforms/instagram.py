@@ -3,6 +3,7 @@ from core.settings import log
 from dataclasses import dataclass
 from asgiref.sync import sync_to_async
 from integrations.models import IntegrationsModel
+from django.core.files.storage import default_storage
 from socialsched.models import PostModel
 from .common import (
     ErrorAccessTokenNotProvided,
@@ -72,9 +73,17 @@ class InstagramPoster:
 
 @sync_to_async
 def update_instagram_link(post_id: int, post_url: str):
-    return PostModel.objects.filter(id=post_id).update(
-        link_instagram=post_url, post_on_instagram=False
-    )
+    post = PostModel.objects.get(id=post_id)
+
+    if post.media_file:
+        if default_storage.exists(post.media_file.path):
+            default_storage.delete(post.media_file.path)
+            post.media_file = None
+
+    post.link_instagram = post_url
+    post.post_on_instagram = False
+    post.save(skip_validation=True)
+
 
 
 async def post_on_instagram(
