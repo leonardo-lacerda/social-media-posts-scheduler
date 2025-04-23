@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout
-from django.conf import settings
 from django.utils import timezone
 from django.db.models import Min, Max
 from datetime import datetime, timedelta
@@ -13,37 +12,6 @@ from .schedule_utils import (
     get_initial_month_placeholder,
     get_year_dates,
 )
-
-
-@login_required
-def delete_old_data(request):
-    today = timezone.localtime()
-
-    PostModel.objects.filter(
-        account_id=request.user.id, scheduled_on__lt=today
-    ).delete()
-
-    messages.add_message(
-        request,
-        messages.SUCCESS,
-        "Old data was deleted!",
-        extra_tags="✅ Success!",
-    )
-    return redirect("/account/")
-
-
-@login_required
-def delete_all_data(request):
-
-    PostModel.objects.filter(account_id=request.user.id).delete()
-
-    messages.add_message(
-        request,
-        messages.SUCCESS,
-        "All data was deleted!",
-        extra_tags="✅ Success!",
-    )
-    return redirect("/account/")
 
 
 @login_required
@@ -172,7 +140,7 @@ def schedule_form(request, isodate):
     prev_date = scheduled_on - timedelta(days=1)
     next_date = scheduled_on + timedelta(days=1)
     posts = PostModel.objects.filter(
-        account_id=request.user.id, scheduled_on=scheduled_on
+        account_id=request.user.id, scheduled_on__date=scheduled_on
     )
 
     show_form = today.date() <= scheduled_on
@@ -186,7 +154,7 @@ def schedule_form(request, isodate):
             "show_form": show_form,
             "posts": posts,
             "post_form": form,
-            "scheduled_on": isodate,
+            "isodate": isodate,
             "year": scheduled_on.year,
             "current_date": scheduled_on,
             "prev_date": prev_date,
@@ -201,11 +169,11 @@ def schedule_modify(request, post_id):
     today = timezone.localtime()
     post = get_object_or_404(PostModel, id=post_id)
     posts = PostModel.objects.filter(
-        account_id=request.user.id, scheduled_on=post.scheduled_on
+        account_id=request.user.id, scheduled_on__date=post.scheduled_on
     )
     prev_date = post.scheduled_on - timedelta(days=1)
     next_date = post.scheduled_on + timedelta(days=1)
-    show_form = today.date() <= post.scheduled_on
+    show_form = today.date() <= post.scheduled_on.date()
     form = PostForm(instance=post)
     return render(
         request,
@@ -216,7 +184,7 @@ def schedule_modify(request, post_id):
             "post_form": form,
             "post": post,
             "year": post.scheduled_on.year,
-            "scheduled_on": post.scheduled_on.isoformat(),
+            "isodate": post.scheduled_on.date().isoformat(),
             "current_date": post.scheduled_on,
             "modify_post_id": post_id,
             "prev_date": prev_date,
@@ -243,7 +211,7 @@ def schedule_save(request, isodate):
     if not form.is_valid():
         scheduled_on = datetime.strptime(isodate, "%Y-%m-%d").date()
         posts = PostModel.objects.filter(
-            account_id=request.user.id, scheduled_on=scheduled_on
+            account_id=request.user.id, scheduled_on__date=scheduled_on
         )
 
         return render(
@@ -278,7 +246,7 @@ def schedule_save(request, isodate):
 @login_required
 def schedule_delete(request, post_id):
     post = get_object_or_404(PostModel, id=post_id, account_id=request.user.id)
-    isodate = post.scheduled_on.isoformat()
+    isodate = post.scheduled_on.date().isoformat()
     post.delete()
     messages.add_message(
         request,

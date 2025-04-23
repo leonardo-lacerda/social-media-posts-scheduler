@@ -43,7 +43,7 @@
 <article class="article-form mt-4 container">
 
     <form x-data="formData"
-        action="{% url 'schedule_save' isodate=scheduled_on %}?modify_post_id={{ modify_post_id }}" method="POST"
+        action="{% url 'schedule_save' isodate=isodate %}?modify_post_id={{ modify_post_id }}" method="POST"
         enctype="multipart/form-data">
 
         {% csrf_token %}

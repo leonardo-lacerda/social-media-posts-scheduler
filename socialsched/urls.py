@@ -4,8 +4,6 @@ from . import views
 
 urlpatterns = [
     path("", views.calendar, name="calendar"),
-    path("delete-all-data/", views.delete_all_data, name="delete_all_data"),
-    path("delete-old-data/", views.delete_old_data, name="delete_old_data"),
     path("schedule/<str:isodate>/", views.schedule_form, name="schedule_form"),
     path("schedule-save/<str:isodate>/", views.schedule_save, name="schedule_save"),
     path(

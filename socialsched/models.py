@@ -19,7 +19,7 @@ def get_filename(_, filename: str):
 
 
 class PostModel(models.Model):
-    account_id = models.IntegerField(unique=True)
+    account_id = models.IntegerField()
     description = models.TextField(max_length=63206)
     scheduled_on = models.DateTimeField(blank=True, null=True)
     media_file = models.FileField(
