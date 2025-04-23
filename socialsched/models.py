@@ -43,6 +43,10 @@ class PostModel(models.Model):
     posted = models.BooleanField(blank=True, null=True, default=False)
 
     def save(self, *args, **kwargs):
+
+        if not any([self.post_on_x, self.post_on_instagram, self.post_on_facebook, self.post_on_linkedin]):
+            raise ValueError("At least one platform must be selected for posting.")
+
         if not is_aware(self.scheduled_on):
             raise ValueError("The scheduled_on field must be timezone-aware.")
         
