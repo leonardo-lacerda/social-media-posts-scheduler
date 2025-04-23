@@ -118,7 +118,7 @@ def update_linkedin_link(post_id: int, post_url: str):
 
 
 async def post_on_linkedin(
-    integration,
+    integration: IntegrationsModel,
     post_id: int,
     post_text: str,
     media_path: str = None,
@@ -129,8 +129,9 @@ async def post_on_linkedin(
     try:
         poster = LinkedinPoster(integration)
         post_url = poster.make_post(post_text, media_path)
-        log.success(f"Linkedin post url: {post_url}")
+        log.success(f"Linkedin post url: {integration.account_id} {post_url}")
     except Exception as err:
+        log.error(f"Linkedin post error: {integration.account_id} {err}")
         log.exception(err)
 
     await update_linkedin_link(post_id, post_url)

@@ -161,7 +161,7 @@ def update_x_link(post_id: int, post_url: str):
 
 
 async def post_on_x(
-    integration,
+    integration: IntegrationsModel,
     post_id: int,
     post_text: str,
     media_path: str = None,
@@ -171,8 +171,9 @@ async def post_on_x(
     try:
         poster = XPoster(integration)
         post_url = poster.make_post(post_text, media_path)
-        log.success(f"X post url: {post_url}")
+        log.success(f"X post url: {integration.account_id} {post_url}")
     except Exception as err:
+        log.error(f"X post error: {integration.account_id} {err}")
         log.exception(err)
 
     await update_x_link(post_id, post_url)

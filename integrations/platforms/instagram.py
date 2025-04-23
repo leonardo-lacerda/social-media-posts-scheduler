@@ -78,7 +78,7 @@ def update_instagram_link(post_id: int, post_url: str):
 
 
 async def post_on_instagram(
-    integration,
+    integration: IntegrationsModel,
     post_id: int,
     post_text: str,
     media_url: str = None,
@@ -89,8 +89,9 @@ async def post_on_instagram(
     try:
         poster = InstagramPoster(integration)
         post_url = poster.make_post(post_text, media_url)
-        log.success(f"Instagram post url: {post_url}")
+        log.success(f"Instagram post url: {integration.account_id} {post_url}")
     except Exception as err:
+        log.error(f"Instagram post error: {integration.account_id} {err}")
         log.exception(err)
 
     await update_instagram_link(post_id, post_url)

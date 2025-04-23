@@ -89,7 +89,7 @@ def update_facebook_link(post_id: int, post_url: str):
 
 
 async def post_on_facebook(
-    integration,
+    integration: IntegrationsModel,
     post_id: int,
     post_text: str,
     media_url: str = None,
@@ -100,8 +100,9 @@ async def post_on_facebook(
     try:
         poster = FacebookPoster(integration)
         post_url = poster.make_post(post_text, media_url)
-        log.success(f"Facebook post url: {post_url}")
+        log.success(f"Facebook post url: {integration.account_id} {post_url}")
     except Exception as err:
+        log.error(f"Facebook post error: {integration.account_id} {err}")
         log.exception(err)
 
     await update_facebook_link(post_id, post_url)
