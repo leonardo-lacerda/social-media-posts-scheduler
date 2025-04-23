@@ -86,6 +86,12 @@
                 {{ post_form.scheduled_on.errors }}
             </label>
 
+            <label style="display: none;" for="{{ post_form.post_timezone.id_for_label }}">
+                Timezone:
+                {{ post_form.post_timezone }}
+                {{ post_form.post_timezone.errors }}
+            </label>
+
         </div>
 
         <div x-data="emojiPicker()">
@@ -240,17 +246,37 @@
 
 <script>
 
-    const scheduled_on_input = document.getElementById('id_scheduled_on');
+    document.addEventListener("DOMContentLoaded", function () {
+        
+        // Set the default timezone for the user
+        let userTimezone;
 
-    if (scheduled_on_input) {
-        const now = new Date();
-        now.setHours(now.getHours() + 1);
+        try {
+            userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+        } catch (e) {
+            userTimezone = "UTC";
+        }
 
-        const pad = (n) => String(n).padStart(2, '0');
-        const formatted = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        const timezoneInput = document.getElementById("id_post_timezone");
 
-        scheduled_on_input.value = formatted;
-    }
+        if (timezoneInput && !timezoneInput.value) {
+            timezoneInput.value = userTimezone;
+        }
+
+        // Prefill the scheduled_on input with the current date and time
+        const scheduled_on_input = document.getElementById('id_scheduled_on');
+
+        if (scheduled_on_input) {
+            const now = new Date();
+            now.setHours(now.getHours() + 1);
+
+            const pad = (n) => String(n).padStart(2, '0');
+            const formatted = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+            scheduled_on_input.value = formatted;
+        }
+    
+    })
 
 
     function emojiPicker() {

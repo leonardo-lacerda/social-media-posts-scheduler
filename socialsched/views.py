@@ -16,7 +16,7 @@ from .schedule_utils import (
 
 @login_required
 def calendar(request):
-    today = timezone.localtime()
+    today = timezone.now()
     selected_year = today.year
     if request.GET.get("year") is not None:
         selected_year = int(request.GET.get("year"))
@@ -135,7 +135,7 @@ def calendar(request):
 
 @login_required
 def schedule_form(request, isodate):
-    today = timezone.localtime()
+    today = timezone.now()
     scheduled_on = datetime.strptime(isodate, "%Y-%m-%d").date()
     prev_date = scheduled_on - timedelta(days=1)
     next_date = scheduled_on + timedelta(days=1)
@@ -166,7 +166,7 @@ def schedule_form(request, isodate):
 
 @login_required
 def schedule_modify(request, post_id):
-    today = timezone.localtime()
+    today = timezone.now()
     post = get_object_or_404(PostModel, id=post_id)
     posts = PostModel.objects.filter(
         account_id=request.user.id, scheduled_on__date=post.scheduled_on
@@ -185,7 +185,7 @@ def schedule_modify(request, post_id):
             "post": post,
             "year": post.scheduled_on.year,
             "isodate": post.scheduled_on.date().isoformat(),
-            "current_date": post.scheduled_on,
+            "current_date": post.scheduled_on.date(),
             "modify_post_id": post_id,
             "prev_date": prev_date,
             "today": today.date().isoformat(),

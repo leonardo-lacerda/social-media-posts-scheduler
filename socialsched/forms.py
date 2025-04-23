@@ -23,6 +23,7 @@ class PostForm(ModelForm):
             "description",
             "scheduled_on",
             "media_file",
+            "post_timezone",
         ]
 
         widgets = {

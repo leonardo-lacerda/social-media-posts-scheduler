@@ -19,16 +19,18 @@ def get_filename(_, filename: str):
 
 
 class PostModel(models.Model):
+    scheduled_on = models.DateTimeField()
+    post_timezone = models.CharField(max_length=100)
+    created_at = models.DateTimeField(default=timezone.now, null=True, blank=True)
+
     account_id = models.IntegerField()
     description = models.TextField(max_length=63206)
-    scheduled_on = models.DateTimeField(blank=True, null=True)
     media_file = models.FileField(
         max_length=100_000,
         upload_to=get_filename,
         null=True,
         blank=True,
     )
-
     post_on_x = models.BooleanField(blank=True, null=True, default=False)
     post_on_instagram = models.BooleanField(blank=True, null=True, default=False)
     post_on_facebook = models.BooleanField(blank=True, null=True, default=False)
@@ -39,17 +41,23 @@ class PostModel(models.Model):
     link_facebook = models.CharField(max_length=50000, blank=True, null=True)
     link_linkedin = models.CharField(max_length=50000, blank=True, null=True)
 
-    created_at = models.DateTimeField(default=timezone.now, null=True, blank=True)
     posted = models.BooleanField(blank=True, null=True, default=False)
 
     def save(self, *args, **kwargs):
 
-        if not any([self.post_on_x, self.post_on_instagram, self.post_on_facebook, self.post_on_linkedin]):
+        if not any(
+            [
+                self.post_on_x,
+                self.post_on_instagram,
+                self.post_on_facebook,
+                self.post_on_linkedin,
+            ]
+        ):
             raise ValueError("At least one platform must be selected for posting.")
 
         if not is_aware(self.scheduled_on):
             raise ValueError("The scheduled_on field must be timezone-aware.")
-        
+
         if self.scheduled_on <= timezone.now():
             raise ValueError("Can't schedule post in the past")
 

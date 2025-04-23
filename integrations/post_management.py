@@ -24,7 +24,7 @@ def mark_post_posted(post_id):
 
 
 def post_scheduled_posts():
-    now = timezone.localtime()
+    now = timezone.now()
     posts = PostModel.objects.filter(posted=False, scheduled_on__lte=now)
 
     if len(posts) == 0:
