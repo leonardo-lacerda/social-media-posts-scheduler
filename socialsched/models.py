@@ -2,7 +2,7 @@ import os
 import uuid
 from django.db import models
 from django.utils import timezone
-from datetime import datetime
+from django.utils.timezone import is_aware
 from enum import IntEnum
 
 
@@ -21,8 +21,6 @@ def get_filename(_, filename: str):
 class PostModel(models.Model):
     account_id = models.IntegerField(unique=True)
     description = models.TextField(max_length=63206)
-    scheduled_on_date = models.DateField()
-    scheduled_on_time = models.TimeField()
     scheduled_on = models.DateTimeField(blank=True, null=True)
     media_file = models.FileField(
         max_length=100_000,
@@ -45,22 +43,18 @@ class PostModel(models.Model):
     posted = models.BooleanField(blank=True, null=True, default=False)
 
     def save(self, *args, **kwargs):
-
-        if not self.scheduled_on:
-            naive_scheduled_on = datetime.combine(
-                self.scheduled_on_date, self.scheduled_on_time
-            )
-            self.scheduled_on = timezone.make_aware(
-                naive_scheduled_on, timezone.get_current_timezone()
-            )
-
-        if self.scheduled_on <= timezone.localtime():
+        if not is_aware(self.scheduled_on):
+            raise ValueError("The scheduled_on field must be timezone-aware.")
+        
+        if self.scheduled_on <= timezone.now():
             raise ValueError("Can't schedule post in the past")
 
         if self.media_file:
             ext = os.path.splitext(self.media_file.name)[1].lower()
             if ext not in [".jpeg", ".jpg", ".png"]:
-                raise ValueError("Unsupported file type. Only JPEG, PNG images are allowed.")
+                raise ValueError(
+                    "Unsupported file type. Only JPEG, PNG images are allowed."
+                )
 
         postlen = len(self.description)
 

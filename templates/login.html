@@ -6,21 +6,24 @@
 
 {% block body %}
 
-<div style="display: flex; flex-direction: column; align-items: center; margin-top: 5rem;">
+<div style="display: flex; flex-direction: column; align-items: center; margin-top: 2rem;">
 
-    <h1>Schedule posts on Instagram, Facebook, X, Linkedin!</h1>
-    <p>
-        Keep a consistent online presence of your business or personal brand by posting every day.
+    <h1 style="text-align: left;">Schedule posts on Instagram, Facebook, X, Linkedin!</h1>
+    <p style="max-width: 800px; text-align: center;">
+        Keep a consistent online presence of your business or personal brand by posting every day and
+        get more leads in the process.
     </p>
 
-    <img height="300px" width="300px" style="margin-top: 2rem;" src="{% static 'hero-image.png' %}" alt="">
+    <img height="350px" width="350px" style="margin-top: 2rem;" src="{% static 'hero-image.png' %}" alt="">
 
     <a style="margin-top: 2rem;" role="button" href="{% url "social:begin" "google-oauth2" %}?next=/">
         <i class="bi bi-google"></i>
         Login with Google
     </a>
-    <small style="margin-top: 1rem;" class="pico-color-slate-550">
-        Check FAQ below for more details!
+    <small style="margin-top: 2rem; text-align: center;" class="pico-color-slate-550">
+        Check FAQ below for more details
+        <br>
+        <i class="bi bi-chevron-down"></i>
     </small>
 
 </div>
@@ -28,7 +31,10 @@
 
 <div class="container" style="display: flex; flex-direction: column; margin-top: 6rem; margin-bottom: 6rem;">
 
-    <h1 style="display: block; text-align: center; margin-bottom: 2rem;">FAQ</h1>
+    <hgroup style="display: block; text-align: center; margin-bottom: 4rem;">
+        <h1>FAQ</h1>
+        <p>Here are probably the answers for all your questions related to this social media scheduling app.</p>
+    </hgroup>
 
 
     <details>
@@ -44,7 +50,7 @@
 
 
     <details>
-        <summary>How it works?</summary>
+        <summary>Is is good for me?</summary>
         <p>
             <strong>You can schedule a post with text + image on Facebook, Instagram, LinkedIn, X.</strong>
 
@@ -77,14 +83,25 @@
     <details>
         <summary>Can I post videos?</summary>
         <p>
-            No, but it's planned.
+            No, but it's planned. TikTok and YouTube as well.
         </p>
     </details>
 
+
     <details>
-        <summary>What if I don't like it?</summary>
+        <summary>Why is posting constantly important?</summary>
         <p>
-            You have 30 days free to see if this social media app scheduler, one among a dozen, is the right one for you.
+            It helps you get in front of your leads.
+            It helps your possible clients make the decision to choose you instead of your competition.
+        </p>
+    </details>
+
+
+    <details>
+        <summary>What if I don't like this app?</summary>
+        <p>
+            You have 30 days free to see if this social media app scheduler, one among a dozen, is the right one for
+            you.
         </p>
     </details>
 
@@ -102,18 +119,31 @@
     </details>
 
 
+    <details>
+        <summary>Why I don't see here Threads, Mastodon, Bluesky etc.?</summary>
+        <p>
+            They are not supported. Not sure if they will ever be included in this app.
+            TikTok and YouTube are a maybe in the roadmap.
+        </p>
+    </details>
+
+    <details>
+        <summary>Why only login with Google is supported?</summary>
+        <p>
+            It's the easiest way to make sure new accounts are real. Everyone has a Google account nowadays.
+        </p>
+    </details>
 
     <details>
         <summary>Is this app open-source?</summary>
         <p>
-            Yes. The code for this app is open-source.
+            Yes. The code for this app is open-source. You can host this app yourself if you want.
             <br>
-            Check it out at this 
+            Check it out at this
             <a href="https://github.com/ClimenteA/social-media-posts-scheduler">GitHub Repository</a>.
             Make sure to leave a ⭐ (star) if you like it.
         </p>
     </details>
-
 
 
     <details>

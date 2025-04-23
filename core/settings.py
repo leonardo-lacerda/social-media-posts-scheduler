@@ -120,7 +120,7 @@ LOGIN_URL = "/login/"
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = os.getenv("TIME_ZONE", default="UTC")
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 

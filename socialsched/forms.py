@@ -1,4 +1,4 @@
-from django.forms import ModelForm, CheckboxInput, TimeInput, DateInput
+from django.forms import ModelForm, CheckboxInput, DateTimeInput
 from .models import PostModel
 
 
@@ -21,14 +21,14 @@ class PostForm(ModelForm):
             "post_on_facebook",
             "post_on_linkedin",
             "description",
-            "scheduled_on_date",
-            "scheduled_on_time",
+            "scheduled_on",
             "media_file",
         ]
 
         widgets = {
-            "scheduled_on_date": DateInput(format=("%m/%d/%Y"), attrs={"type": "date"}),
-            "scheduled_on_time": TimeInput(format="%H:%M", attrs={"type": "time"}),
+            "scheduled_on": DateTimeInput(
+                format=("%Y-%m-%dT%H:%M"), attrs={"type": "datetime-local"}
+            ),
             "post_on_x": CheckboxInput(),
             "post_on_instagram": CheckboxInput(),
             "post_on_facebook": CheckboxInput(),

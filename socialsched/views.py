@@ -54,12 +54,12 @@ def calendar(request):
         selected_year = int(request.GET.get("year"))
 
     min_date = PostModel.objects.filter(account_id=request.user.id).aggregate(
-        Min("scheduled_on_date")
-    )["scheduled_on_date__min"]
+        Min("scheduled_on")
+    )["scheduled_on__min"]
 
     max_date = PostModel.objects.filter(account_id=request.user.id).aggregate(
-        Max("scheduled_on_date")
-    )["scheduled_on_date__max"]
+        Max("scheduled_on")
+    )["scheduled_on__max"]
 
     min_year = min_date.year if min_date else today.year
     max_year = max_date.year if max_date else today.year
@@ -68,7 +68,7 @@ def calendar(request):
     select_years = [y for y in range(min(select_years), max(select_years), 1)]
 
     posts = PostModel.objects.filter(
-        account_id=request.user.id, scheduled_on_date__year=selected_year
+        account_id=request.user.id, scheduled_on__year=selected_year
     ).values(
         "scheduled_on",
         "post_on_x",
@@ -168,21 +168,16 @@ def calendar(request):
 @login_required
 def schedule_form(request, isodate):
     today = timezone.localtime()
-    scheduled_on_date = datetime.strptime(isodate, "%Y-%m-%d").date()
-    prev_date = scheduled_on_date - timedelta(days=1)
-    next_date = scheduled_on_date + timedelta(days=1)
+    scheduled_on = datetime.strptime(isodate, "%Y-%m-%d").date()
+    prev_date = scheduled_on - timedelta(days=1)
+    next_date = scheduled_on + timedelta(days=1)
     posts = PostModel.objects.filter(
-        account_id=request.user.id, scheduled_on_date=scheduled_on_date
+        account_id=request.user.id, scheduled_on=scheduled_on
     )
 
-    show_form = today.date() <= scheduled_on_date
+    show_form = today.date() <= scheduled_on
 
-    form = PostForm(
-        initial={
-            "scheduled_on_time": (timezone.localtime() + timedelta(hours=1)).time(),
-            "scheduled_on_date": scheduled_on_date,
-        }
-    )
+    form = PostForm(initial={"scheduled_on": scheduled_on})
 
     return render(
         request,
@@ -191,10 +186,9 @@ def schedule_form(request, isodate):
             "show_form": show_form,
             "posts": posts,
             "post_form": form,
-            "scheduled_on_date": isodate,
-            "year": scheduled_on_date.year,
-            "current_date": scheduled_on_date,
-            "timezone": settings.TIME_ZONE,
+            "scheduled_on": isodate,
+            "year": scheduled_on.year,
+            "current_date": scheduled_on,
             "prev_date": prev_date,
             "today": today.date().isoformat(),
             "next_date": next_date,
@@ -207,11 +201,11 @@ def schedule_modify(request, post_id):
     today = timezone.localtime()
     post = get_object_or_404(PostModel, id=post_id)
     posts = PostModel.objects.filter(
-        account_id=request.user.id, scheduled_on_date=post.scheduled_on_date
+        account_id=request.user.id, scheduled_on=post.scheduled_on
     )
-    prev_date = post.scheduled_on_date - timedelta(days=1)
-    next_date = post.scheduled_on_date + timedelta(days=1)
-    show_form = today.date() <= post.scheduled_on_date
+    prev_date = post.scheduled_on - timedelta(days=1)
+    next_date = post.scheduled_on + timedelta(days=1)
+    show_form = today.date() <= post.scheduled_on
     form = PostForm(instance=post)
     return render(
         request,
@@ -221,10 +215,9 @@ def schedule_modify(request, post_id):
             "posts": posts,
             "post_form": form,
             "post": post,
-            "year": post.scheduled_on_date.year,
-            "scheduled_on_date": post.scheduled_on_date.isoformat(),
-            "current_date": post.scheduled_on_date,
-            "timezone": settings.TIME_ZONE,
+            "year": post.scheduled_on.year,
+            "scheduled_on": post.scheduled_on.isoformat(),
+            "current_date": post.scheduled_on,
             "modify_post_id": post_id,
             "prev_date": prev_date,
             "today": today.date().isoformat(),
@@ -248,9 +241,9 @@ def schedule_save(request, isodate):
         form = PostForm(request.POST, request.FILES)
 
     if not form.is_valid():
-        scheduled_on_date = datetime.strptime(isodate, "%Y-%m-%d").date()
+        scheduled_on = datetime.strptime(isodate, "%Y-%m-%d").date()
         posts = PostModel.objects.filter(
-            account_id=request.user.id, scheduled_on_date=scheduled_on_date
+            account_id=request.user.id, scheduled_on=scheduled_on
         )
 
         return render(
@@ -259,8 +252,7 @@ def schedule_save(request, isodate):
             context={
                 "posts": posts,
                 "post_form": form,
-                "scheduled_on_date": isodate,
-                "timezone": settings.TIME_ZONE,
+                "scheduled_on": isodate,
             },
         )
 
@@ -286,7 +278,7 @@ def schedule_save(request, isodate):
 @login_required
 def schedule_delete(request, post_id):
     post = get_object_or_404(PostModel, id=post_id, account_id=request.user.id)
-    isodate = post.scheduled_on_date.isoformat()
+    isodate = post.scheduled_on.isoformat()
     post.delete()
     messages.add_message(
         request,
