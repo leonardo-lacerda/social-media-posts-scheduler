@@ -42,9 +42,8 @@
 
 <article class="article-form mt-4 container">
 
-    <form x-data="formData"
-        action="{% url 'schedule_save' isodate=isodate %}?modify_post_id={{ modify_post_id }}" method="POST"
-        enctype="multipart/form-data">
+    <form x-data="formData" action="{% url 'schedule_save' isodate=isodate %}?modify_post_id={{ modify_post_id }}"
+        method="POST" enctype="multipart/form-data">
 
         {% csrf_token %}
 
@@ -79,12 +78,22 @@
                 </label>
 
             </div>
+            
 
-            <label for="{{ post_form.scheduled_on.id_for_label }}">
-                Schedule on:
-                {{ post_form.scheduled_on }}
-                {{ post_form.scheduled_on.errors }}
-            </label>
+            <div style="justify-self: self-end;" x-data="timePicker()">
+                
+                <label style="display: none;" for="{{ post_form.scheduled_on.id_for_label }}">
+                    Schedule on:
+                    {{ post_form.scheduled_on }}
+                    {{ post_form.scheduled_on.errors }}
+                </label>
+    
+                <label style="max-width: fit-content;" for="id_scheduled_on_time">
+                    At time:
+                    <input type="time" id="id_scheduled_on_time" 
+                    x-model="timeValue" @input="updateDatetime($event.target.value)">
+                </label>
+            </div>
 
             <label style="display: none;" for="{{ post_form.post_timezone.id_for_label }}">
                 Timezone:
@@ -247,36 +256,38 @@
 <script>
 
     document.addEventListener("DOMContentLoaded", function () {
-        
-        // Set the default timezone for the user
-        let userTimezone;
-
-        try {
-            userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-        } catch (e) {
-            userTimezone = "UTC";
-        }
-
         const timezoneInput = document.getElementById("id_post_timezone");
-
         if (timezoneInput && !timezoneInput.value) {
-            timezoneInput.value = userTimezone;
+            timezoneInput.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
         }
+    });
 
-        // Prefill the scheduled_on input with the current date and time
-        const scheduled_on_input = document.getElementById('id_scheduled_on');
+    function timePicker() {
+        return {
+            timeValue: '',
 
-        if (scheduled_on_input) {
-            const now = new Date();
-            now.setHours(now.getHours() + 1);
+            init() {
+                const now = new Date();
+                now.setHours(now.getHours() + 1);
+                this.timeValue = now.toTimeString().substring(0, 5);
+                this.updateDatetime(this.timeValue);
+            },
 
-            const pad = (n) => String(n).padStart(2, '0');
-            const formatted = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+            updateDatetime(time) {
+                const datetimeInput = document.getElementById('{{ post_form.scheduled_on.id_for_label }}');
+                if (!datetimeInput) return;
 
-            scheduled_on_input.value = formatted;
-        }
-    
-    })
+                let datePart;
+                if (datetimeInput.value) {
+                    datePart = datetimeInput.value.split('T')[0];
+                } else {
+                    const today = new Date();
+                    datePart = today.toISOString().split('T')[0];
+                }
+                datetimeInput.value = `${datePart}T${time}`;
+            }
+        };
+    }
 
 
     function emojiPicker() {

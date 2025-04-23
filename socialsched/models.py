@@ -46,7 +46,7 @@ class PostModel(models.Model):
 
     def save(self, *args, **kwargs):
 
-        skip_validation = kwargs.pop('skip_validation', False)
+        skip_validation = kwargs.pop("skip_validation", False)
 
         if skip_validation:
             super().save(*args, **kwargs)
@@ -69,7 +69,7 @@ class PostModel(models.Model):
             ZoneInfo(self.post_timezone)
         except ZoneInfoNotFoundError:
             raise ValueError(f"Invalid timezone: {self.post_timezone}")
-        
+
         if self.media_file:
             ext = os.path.splitext(self.media_file.name)[1].lower()
             if ext not in [".jpeg", ".jpg", ".png"]:
