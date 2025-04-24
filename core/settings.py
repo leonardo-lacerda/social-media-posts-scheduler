@@ -17,6 +17,8 @@ SECRET_KEY = os.getenv(
     "SECRET_KEY",
     default="django-insecure-@ur(_!x(@5ps_lvfpe&myyzg=q3+x3-7hio(s2m=!p)uzw8#oj",
 )
+NOTIFICATION_API_KEY = os.getenv("NOTIFICATION_API_KEY")
+NOTIFICATION_API_URL = os.getenv("NOTIFICATION_API_URL")
 APP_URL = os.getenv("APP_URL")
 BASE_REDIRECT_URL = APP_URL.replace("https://", "")
 
