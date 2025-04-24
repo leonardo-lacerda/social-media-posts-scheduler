@@ -1,11 +1,9 @@
 dev:
 	python manage.py runserver
 
-cron:
+poster:
 	python manage.py runposter
 
-web:
-	waitress-serve --listen=*:8000 core.wsgi:application
 
 migrate-all:
 	python manage.py makemigrations
@@ -24,3 +22,28 @@ purge-migration-dirs:
 purge-db:
 	make purge-migration-dirs
 	rm data/db.sqlite
+
+
+prep-prod:
+	make migrate-all
+	pdm export -o requirements.txt
+	python manage.py collectstatic --noinput
+	rm -rf staticfiles/django-browser-reload
+
+web:
+	waitress-serve --threads 2 --listen=*:8000 core.wsgi:application
+
+start:
+	docker compose up -d --force-recreate
+
+stop:
+	docker compose down
+
+build:
+	docker compose build
+
+applogs:
+	docker compose logs app poster -ft
+
+appexec:
+	docker compose exec app bash

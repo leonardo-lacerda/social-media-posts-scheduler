@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout
 from django.utils import timezone
+from core.settings import log_exception
 from django.db.models import Min, Max
 from datetime import datetime, timedelta
 from .models import PostModel
@@ -15,6 +16,7 @@ from .schedule_utils import (
 
 
 @login_required
+@log_exception
 def calendar(request):
     today = timezone.now()
     selected_year = today.year
@@ -134,6 +136,7 @@ def calendar(request):
 
 
 @login_required
+@log_exception
 def schedule_form(request, isodate):
     today = timezone.now()
     scheduled_on = datetime.strptime(isodate, "%Y-%m-%d").date()
@@ -165,6 +168,7 @@ def schedule_form(request, isodate):
 
 
 @login_required
+@log_exception
 def schedule_modify(request, post_id):
     today = timezone.now()
     post = get_object_or_404(PostModel, id=post_id)
@@ -195,6 +199,7 @@ def schedule_modify(request, post_id):
 
 
 @login_required
+@log_exception
 def schedule_save(request, isodate):
     modify_post_id = None
     if request.GET.get("modify_post_id") is not None:
@@ -244,6 +249,7 @@ def schedule_save(request, isodate):
 
 
 @login_required
+@log_exception
 def schedule_delete(request, post_id):
     post = get_object_or_404(PostModel, id=post_id, account_id=request.user.id)
     isodate = post.scheduled_on.date().isoformat()
@@ -262,11 +268,13 @@ def login_user(request):
 
 
 @login_required
+@log_exception
 def logout_user(request):
     logout(request)
     return redirect("login")
 
 
 @login_required
+@log_exception
 def user_account(request):
     return render(request, "user_account.html")

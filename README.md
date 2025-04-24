@@ -11,24 +11,22 @@ For all of them you need to search for developer + X or developer + Linkedin etc
 
 ## Quickstart
 
-Project is using [pdm](https://pdm-project.org/latest/) for managing dependencies.
+Project is using [uv](https://docs.astral.sh/uv/) for managing dependencies.
 
-- `pdm install` - install all packages;
-- `pdm add package` - add a package in dependencies;
-- `pdm remove package` - remove a package from dependencies;
-- `pdm update package` - update one package;
-- `pdm update` - update all packages;
+- `uv sync` - install all packages;
+- `uv sync --upgrade` - install all packages at their latest versions;
+- `uv add package` - add a package in dependencies;
+- `uv remove package` - remove a package from dependencies;
 
+Shortcut make commands:
 
-Migrations:
-- `make migrate-all`;
-- `make purge-db`;
-- `make purge-migration-dirs`;
-
-Run the application:
-- `make dev` - start web app in dev mode (open browser at `http://localhost:8000/`);
-- `make cron` - start post scheduler;
-- `make web` - start django with uvicorn;
+- `make migrate-all` - migrate all models changes;
+- `make purge-db` - delete all data and migration dirs;
+- `make poster` - start post scheduler;
+- `make start` - start app in docker;
+- `make stop` - stop app in docker;
+- `make build` - build app in docker;
+- `make applogs` - show app logs in docker;
 
 
 ## Google SignIn Configuration

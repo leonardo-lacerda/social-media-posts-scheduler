@@ -2,23 +2,43 @@ import os
 from loguru import logger as log
 from pathlib import Path
 from dotenv import load_dotenv
+from functools import wraps
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-logpath = os.path.join(BASE_DIR, "logs.log")
+logpath = BASE_DIR / "logs/logs.log"
 
 log.add(
     logpath,
     enqueue=True,
-    level="DEBUG",
-    retention="1 week",
+    level="INFO",
+    rotation="100 MB",
 )
+
+
+def log_exception(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        try:
+            return view_func(request, *args, **kwargs)
+        except Exception as err:
+            account_id = "N/A"
+            if hasattr(request, "user"):
+                if hasattr(request.user, "id"):
+                    account_id = request.user.id
+            log.error(f"Account ID: {account_id} got error: {err}")
+            log.exception(err)
+            raise
+
+    return wrapper
 
 
 load_dotenv(BASE_DIR / ".env")
 
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+
+
 SECRET_KEY = os.getenv(
     "SECRET_KEY",
     default="django-insecure-@ur(_!x(@5ps_lvfpe&myyzg=q3+x3-7hio(s2m=!p)uzw8#oj",
@@ -50,7 +70,7 @@ X_REDIRECT_URI = APP_URL + "/X/callback/"
 X_UNINSTALL_URI = APP_URL + "/X/uninstall/"
 
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", BASE_REDIRECT_URL]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "imposting.localhost", BASE_REDIRECT_URL]
 
 CSRF_TRUSTED_ORIGINS = [APP_URL]
 
@@ -77,6 +97,7 @@ INSTALLED_APPS = [
 
 
 MIDDLEWARE = [
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -86,8 +107,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "social_django.middleware.SocialAuthExceptionMiddleware",
-    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
+
 
 ROOT_URLCONF = "core.urls"
 

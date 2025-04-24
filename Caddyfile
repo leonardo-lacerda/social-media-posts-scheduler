@@ -1,0 +1,14 @@
+imposting.localhost {
+	reverse_proxy app:8000
+
+    handle_path /static/* {
+        root * /imposting/staticfiles
+        file_server
+    }
+
+    handle_path /media/* {
+        root * /imposting/media
+        file_server
+    }
+
+}

@@ -1,7 +1,7 @@
 import uuid
 import requests
 from requests_oauthlib import OAuth2Session
-from core.settings import log
+from core.settings import log, log_exception, DEBUG
 from core import settings
 from django.contrib import messages
 from django.shortcuts import redirect, render
@@ -10,6 +10,7 @@ from .models import IntegrationsModel, Platform
 
 
 @login_required
+@log_exception
 def integrations_form(request):
 
     linkedin_ok = bool(
@@ -46,6 +47,7 @@ def integrations_form(request):
 
 
 @login_required
+@log_exception
 def linkedin_login(request):
     linkedin_auth_url = (
         "https://www.linkedin.com/oauth/v2/authorization"
@@ -58,6 +60,7 @@ def linkedin_login(request):
 
 
 @login_required
+@log_exception
 def linkedin_callback(request):
     code = request.GET.get("code")
     token_url = "https://www.linkedin.com/oauth/v2/accessToken"
@@ -113,6 +116,7 @@ def linkedin_callback(request):
 
 
 @login_required
+@log_exception
 def linkedin_uninstall(request):
 
     IntegrationsModel.objects.filter(
@@ -130,6 +134,7 @@ def linkedin_uninstall(request):
 
 
 @login_required
+@log_exception
 def x_login(request):
     x_auth_url = (
         "https://twitter.com/i/oauth2/authorize"
@@ -145,6 +150,7 @@ def x_login(request):
 
 
 @login_required
+@log_exception
 def x_callback(request):
     code = request.GET.get("code")
     if not code:
@@ -219,6 +225,7 @@ def x_callback(request):
 
 
 @login_required
+@log_exception
 def x_uninstall(request):
 
     IntegrationsModel.objects.filter(
@@ -236,6 +243,7 @@ def x_uninstall(request):
 
 
 @login_required
+@log_exception
 def facebook_login(request):
     fb_login_url = (
         "https://www.facebook.com/v22.0/dialog/oauth"
@@ -248,6 +256,7 @@ def facebook_login(request):
 
 
 @login_required
+@log_exception
 def facebook_callback(request):
     code = request.GET.get("code")
     if not code:
@@ -427,6 +436,7 @@ def facebook_callback(request):
 
 
 @login_required
+@log_exception
 def facebook_uninstall(request):
 
     IntegrationsModel.objects.filter(

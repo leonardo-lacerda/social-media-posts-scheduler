@@ -1,0 +1,59 @@
+services:
+
+  app:
+    container_name: imposting-app
+    build: .
+    command: uv run waitress-serve --threads 2 --listen=*:8000 core.wsgi:application
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - "./:/app:rw"
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    networks:
+      - web
+
+  poster:
+    container_name: imposting-poster
+    build: .
+    command: python manage.py runposter
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - "./:/app:rw"
+    env_file:
+      - .env
+    networks:
+      - web
+
+  proxy:
+    container_name: imposting-proxy
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./media:/imposting/media
+      - ./staticfiles:/imposting/staticfiles
+      - $PWD/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    env_file:
+      - .env
+    networks:
+      - web
+
+networks:
+  web:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

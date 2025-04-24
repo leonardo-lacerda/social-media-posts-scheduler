@@ -1,8 +1,9 @@
 [project]
-name = "social-media-posts-scheduler"
+name = "imposting"
 version = "0.1.0"
-description = "Default template for PDM package"
-authors = [{ name = "Alin Climente", email = "climente.alin@gmail.com" }]
+description = "ImPosting - Simple social media posts scheduler"
+readme = "README.md"
+requires-python = ">=3.13"
 dependencies = [
     "Django==5.2",
     "django-cleanup==9.0.0",
@@ -19,10 +20,3 @@ dependencies = [
     "pycryptodome>=3.22.0",
     "waitress==3.0.2",
 ]
-requires-python = "==3.12.*"
-readme = "README.md"
-license = { text = "MIT" }
-
-
-[tool.pdm]
-distribution = false
