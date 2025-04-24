@@ -1,6 +1,6 @@
 services:
 
-  app:
+  imposting-app:
     container_name: imposting-app
     build: .
     command: uv run waitress-serve --threads 6 --listen=*:8000 core.wsgi:application
@@ -16,7 +16,7 @@ services:
     networks:
       - web
 
-  poster:
+  imposting-poster:
     container_name: imposting-poster
     build: .
     command: python manage.py runposter
