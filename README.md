@@ -11,6 +11,12 @@ For all of them you need to search for developer + X or developer + Linkedin etc
 
 ## Quickstart
 
+While developing:
+- `make dev` - start django app;
+- `make poster` - start background social media poster (needs manual restarts on changes);
+
+Use ngrok for `APP_URL` in `.env` file for Google auth callback and social media callbacks;
+
 Project is using [uv](https://docs.astral.sh/uv/) for managing dependencies.
 
 - `uv sync` - install all packages;

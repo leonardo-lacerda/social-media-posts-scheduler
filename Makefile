@@ -1,17 +1,17 @@
 dev:
-	python manage.py runserver
+	uv run python manage.py runserver
 
 poster:
-	python manage.py runposter
+	uv run python manage.py runserver runposter
 
 
 migrate-all:
-	python manage.py makemigrations
-	python manage.py migrate
-	python manage.py makemigrations integrations 
-	python manage.py migrate integrations 
-	python manage.py makemigrations socialsched 
-	python manage.py migrate socialsched
+	uv run python manage.py runserver makemigrations
+	uv run python manage.py runserver migrate
+	uv run python manage.py runserver makemigrations integrations 
+	uv run python manage.py runserver migrate integrations 
+	uv run python manage.py runserver makemigrations socialsched 
+	uv run python manage.py runserver migrate socialsched
 
 
 purge-migration-dirs:
@@ -26,12 +26,9 @@ purge-db:
 
 prep-prod:
 	make migrate-all
-	pdm export -o requirements.txt
-	python manage.py collectstatic --noinput
+	uv run python manage.py collectstatic --noinput
 	rm -rf staticfiles/django-browser-reload
 
-web:
-	waitress-serve --threads 2 --listen=*:8000 core.wsgi:application
 
 start:
 	docker compose up -d --force-recreate
