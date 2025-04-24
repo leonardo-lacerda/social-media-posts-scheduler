@@ -31,7 +31,7 @@ prep-prod:
 
 
 start:
-	docker compose up -d --force-recreate
+	docker compose up -d --build --force-recreate --remove-orphans
 
 stop:
 	docker compose down

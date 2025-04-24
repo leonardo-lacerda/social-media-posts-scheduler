@@ -9,7 +9,6 @@ services:
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
-      - "./:/app:rw"
     ports:
       - "8000:8000"
     env_file:
@@ -26,7 +25,6 @@ services:
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
-      - "./:/app:rw"
     env_file:
       - .env
     networks:
@@ -42,7 +40,7 @@ services:
     volumes:
       - ./media:/imposting/media
       - ./staticfiles:/imposting/staticfiles
-      - $PWD/Caddyfile:/etc/caddy/Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
     env_file:
