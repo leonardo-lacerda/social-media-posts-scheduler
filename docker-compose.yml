@@ -3,7 +3,7 @@ services:
   app:
     container_name: imposting-app
     build: .
-    command: uv run waitress-serve --threads 2 --listen=*:8000 core.wsgi:application
+    command: uv run waitress-serve --threads 6 --listen=*:8000 core.wsgi:application
     restart: unless-stopped
     tty: true
     volumes:

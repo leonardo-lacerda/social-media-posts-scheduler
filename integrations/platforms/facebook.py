@@ -1,6 +1,6 @@
 import re
 import requests
-from core.settings import log
+from core.logger import log
 from asgiref.sync import sync_to_async
 from dataclasses import dataclass
 from django.core.files.storage import default_storage

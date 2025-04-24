@@ -104,4 +104,4 @@ class PostModel(models.Model):
         verbose_name_plural = "scheduled"
 
     def __str__(self):
-        return f"Post '{self.description[:150]}' to be/was posted on {self.scheduled_on.isoformat()}"
+        return f"AccountId:{self.account_id} PostScheduledOn: {self.scheduled_on}"

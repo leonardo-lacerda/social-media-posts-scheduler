@@ -1,5 +1,5 @@
 import requests
-from core.settings import log
+from core.logger import log
 from dataclasses import dataclass
 from integrations.models import IntegrationsModel
 from socialsched.models import PostModel

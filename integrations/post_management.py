@@ -1,10 +1,10 @@
 import asyncio
 from core import settings
-from core.settings import log
+from core.logger import log
 from django.utils import timezone
 from asgiref.sync import sync_to_async
 from socialsched.models import PostModel
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from zoneinfo import ZoneInfo
 from .models import IntegrationsModel, Platform
 from .platforms.linkedin import post_on_linkedin
 from .platforms.xtwitter import post_on_x

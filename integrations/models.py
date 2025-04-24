@@ -42,3 +42,6 @@ class IntegrationsModel(models.Model):
     class Meta:
         app_label = "integrations"
         verbose_name_plural = "integrations"
+
+    def __str__(self):
+        return f"AccountId:{self.account_id} Platform: {self.platform}"

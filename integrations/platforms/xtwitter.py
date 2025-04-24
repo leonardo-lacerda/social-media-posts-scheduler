@@ -2,7 +2,7 @@ import os
 import requests
 import mimetypes
 from core import settings
-from core.settings import log
+from core.logger import log
 from dataclasses import dataclass
 from asgiref.sync import sync_to_async
 from django.core.files.storage import default_storage

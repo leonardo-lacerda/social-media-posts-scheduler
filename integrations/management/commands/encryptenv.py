@@ -1,4 +1,4 @@
-from core.settings import log, BASE_DIR
+from core.logger import log, BASE_DIR
 from integrations.aes import AESCBC
 from django.core.management.base import BaseCommand
 

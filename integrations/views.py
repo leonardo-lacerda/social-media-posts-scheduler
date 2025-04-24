@@ -1,7 +1,7 @@
 import uuid
 import requests
 from requests_oauthlib import OAuth2Session
-from core.settings import log, log_exception, DEBUG
+from core.logger import log, log_exception
 from core import settings
 from django.contrib import messages
 from django.shortcuts import redirect, render

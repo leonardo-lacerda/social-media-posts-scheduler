@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout
 from django.utils import timezone
-from core.settings import log_exception
+from core.logger import log_exception
 from django.db.models import Min, Max
 from datetime import datetime, timedelta
 from .models import PostModel

@@ -1,37 +1,11 @@
 import os
-from loguru import logger as log
 from pathlib import Path
 from dotenv import load_dotenv
-from functools import wraps
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 logpath = BASE_DIR / "logs/logs.log"
-
-log.add(
-    logpath,
-    enqueue=True,
-    level="INFO",
-    rotation="100 MB",
-)
-
-
-def log_exception(view_func):
-    @wraps(view_func)
-    def wrapper(request, *args, **kwargs):
-        try:
-            return view_func(request, *args, **kwargs)
-        except Exception as err:
-            account_id = "N/A"
-            if hasattr(request, "user"):
-                if hasattr(request.user, "id"):
-                    account_id = request.user.id
-            log.error(f"Account ID: {account_id} got error: {err}")
-            log.exception(err)
-            raise
-
-    return wrapper
 
 
 load_dotenv(BASE_DIR / ".env")
@@ -72,7 +46,11 @@ X_UNINSTALL_URI = APP_URL + "/X/uninstall/"
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "imposting.localhost", BASE_REDIRECT_URL]
 
-CSRF_TRUSTED_ORIGINS = [APP_URL]
+CSRF_TRUSTED_ORIGINS = [
+    APP_URL,
+    "https://imposting.localhost",
+    "http://imposting.localhost",
+]
 
 
 # INTERNAL_IPS = []

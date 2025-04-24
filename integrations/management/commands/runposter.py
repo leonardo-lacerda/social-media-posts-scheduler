@@ -1,5 +1,5 @@
 import signal
-from core.settings import log
+from core.logger import log
 from threading import Thread, Event
 from django.core.management.base import BaseCommand
 from integrations.post_management import post_scheduled_posts

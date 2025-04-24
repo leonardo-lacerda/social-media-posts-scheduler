@@ -1,5 +1,5 @@
 import requests
-from core.settings import log
+from core.logger import log
 from dataclasses import dataclass
 from asgiref.sync import sync_to_async
 from integrations.models import IntegrationsModel
@@ -83,7 +83,6 @@ def update_instagram_link(post_id: int, post_url: str):
     post.link_instagram = post_url
     post.post_on_instagram = False
     post.save(skip_validation=True)
-
 
 
 async def post_on_instagram(
