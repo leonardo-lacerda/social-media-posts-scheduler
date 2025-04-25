@@ -18,15 +18,92 @@
 
     <a style="margin-top: 2rem;" role="button" href="{% url "social:begin" "google-oauth2" %}?next=/">
         <i class="bi bi-google"></i>
-        Login with Google
+        Join with Google
     </a>
     <small style="margin-top: 2rem; text-align: center;" class="pico-color-slate-550">
-        Check FAQ below for more details
+        Check below for more details
         <br>
         <i class="bi bi-chevron-down"></i>
     </small>
 
 </div>
+
+
+    
+<table class="container" style="margin-top: 12rem;">
+    <thead>
+        <tr>
+            <th>📋 Steps</th>
+            <th>🛑 Without ImPosting</th>
+            <th>✅ With ImPosting</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1.</td>
+            <td>Schedule/Post on LinkedIn</td>
+            <td>Skip copy/pasting and app swiching just schedule post on ImPosting 🤩</td>
+        </tr>
+        <tr>
+            <td>2.</td>
+            <td>Copy and schedule/Post on X</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>3.</td>
+            <td>Copy and schedule/Post on Meta Business</th>
+            <td>-</td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+<div class="container" style="margin-top: 12rem;">
+
+    <hgroup style="display: block; text-align: center; margin-bottom: 6rem;">
+        <h1>Screenshots</h1>
+        <p>Some screenshots of the app. It's simple. Nothing fancy. Just post.</p>
+    </hgroup>
+
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+
+        <div style="display: flex; flex-direction: column; justify-content: center;">
+            <strong>Integrations</strong>
+            <p>
+                Allow ImPosting to post on your behalf. Click on Authorize button. 
+                If you don't see your posts published come on this page and click on Authorize button again (the token expired and the app needs a new one). 
+            </p>
+            <img src="{% static 'integrations.png' %}" alt="imposting integrations">
+        </div>
+        <div style="display: flex; flex-direction: column; justify-content: center;">
+            <strong>Calendar</strong>
+            <p>
+                A simple calendar where you can see the days you have posts or not. Select day or click Post Today button.
+            </p>
+            <img src="{% static 'calendar.png' %}" alt="imposting calendar">
+        </div>
+        <div style="display: flex; flex-direction: column; justify-content: center;">
+            <strong>Schedule</strong>
+            <p>
+                Just a simple form to write your post and add a image.
+            </p>
+            <img src="{% static 'schedule.png' %}" alt="imposting schedule">
+        </div>
+
+        <div style="display: flex; flex-direction: column; justify-content: center;">
+            <strong>Post</strong>
+            <p>
+                You can view posts for selected day below the schedule form. 
+                The social media icons will turn green once published (click on them to view the post on those platforms).
+                Images will be deleted once the post is published to save some disk space.
+            </p>
+            <img src="{% static 'post.png' %}" alt="imposting post">
+        </div>
+    </div>
+    
+</div>
+
 
 
 <div class="container" style="display: flex; flex-direction: column; margin-top: 6rem; margin-bottom: 6rem;">
@@ -84,6 +161,14 @@
         <summary>Can I post videos?</summary>
         <p>
             No, but it's planned. TikTok and YouTube as well.
+        </p>
+    </details>
+
+
+    <details>
+        <summary>Does it have analytics?</summary>
+        <p>
+            No. Turn on notifications - if you have many notifications you did good if not you need to improve.
         </p>
     </details>
 
@@ -203,8 +288,21 @@
         </p>
     </details>
 
-
 </div>
 
+
+<div style="display: flex; flex-direction: column; justify-content: center; margin-bottom: 12rem;">
+    <h1 style="text-align: center;">😁 Looks good for you?</h1>
+
+    <a style="margin-top: 2rem;" role="button" href="{% url "social:begin" "google-oauth2" %}?next=/">
+        <i class="bi bi-google"></i>
+        Join with Google
+    </a>
+
+    <small style="margin-top: 2rem; text-align: center;" class="pico-color-yellow-200">
+        You'll get 30 days FREE to test it! 
+    </small>
+
+</div>
 
 {% endblock %}

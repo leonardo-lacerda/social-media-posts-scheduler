@@ -35,12 +35,12 @@
 </div>
 
 
-<p style="text-align: center; font-weight: bold; margin-top: 2rem;">{{ current_date }} <sup>{{ posts|length }} posts</sup></p>
+<p style="text-align: center; font-weight: bold; margin-top: 1rem;">{{ current_date }} <sup>{{ posts|length }} posts</sup></p>
 
 
 {% if show_form %}
 
-<article class="article-form mt-4 container">
+<article class="article-form mt-2 container">
 
     <form x-data="formData" action="{% url 'schedule_save' isodate=isodate %}?modify_post_id={{ modify_post_id }}"
         method="POST" enctype="multipart/form-data">
@@ -107,7 +107,7 @@
 
             <label for="{{ post_form.description.id_for_label }}">
                 Post:
-                <textarea x-data x-grow @input="countLength" name="{{ post_form.description.name }}" cols="40" rows="5"
+                <textarea x-data x-grow @input="countLength" name="{{ post_form.description.name }}" cols="40" rows="3"
                     maxlength="63207" required
                     id="{{ post_form.description.id_for_label }}">{% if post_form.description.value %}{{ post_form.description.value }}{% endif %}</textarea>
                 {{ post_form.description.errors }}
@@ -142,12 +142,12 @@
             {{ post_form.media_file.errors }}
         </label>
 
-        <div class=" mt-2">
+        <div>
             <button type="submit">
                 <i class="bi bi-save"></i>
                 Schedule post
             </button>
-            </div>
+        </div>
 
     </form>
 </article>

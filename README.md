@@ -80,3 +80,26 @@ Shortcut make commands:
 - In Auth tab set the callback url: https://ngrok-or-prod-url.app/linkedin/callback/;
 - Update .env file with Client ID (LINKEDIN_CLIENT_ID) and Primary Client Secret (LINKEDIN_CLIENT_SECRET);
 
+
+## Screenshots
+
+Allow ImPosting to post on your behalf. Click on Authorize button. 
+If you don't see your posts published come on this page and click on Authorize button again (the token expired and the app needs a new one). 
+
+![integrations](./static/integrations.png)
+
+
+A simple calendar where you can see the days you have posts or not. Select day or click Post Today button.
+
+![calendar](./static/calendar.png)
+
+Just a simple form to write your post and add a image.
+
+![schedule](./static/schedule.png)
+
+
+You can view posts for selected day below the schedule form. 
+The social media icons will turn green once published (click on them to view the post on those platforms).
+Images will be deleted once the post is published to save some disk space.
+
+![post](./static/post.png)

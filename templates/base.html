@@ -25,6 +25,7 @@
             </li>
         </ul>
         <ul>
+            {% if user.is_authenticated %}
             <li>
                 <a href="{% url 'calendar' %}">
                     Calendar
@@ -37,7 +38,6 @@
                 </a>
             </li>
 
-            {% if user.is_authenticated %}
             <li>
                 <a href="{% url 'account' %}">
                     Account
