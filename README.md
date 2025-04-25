@@ -1,7 +1,30 @@
-# Social Media Posts Scheduler
 
-A simple social media posts scheduler. Built with Django and AlpineJs.
-Schedule posts with text/image/link on Facebook public page, Instagram profesional account, Linkedin, X. 
+<div align="center">
+  <strong>
+  <h2>A Simple (no fluff) Social Media Posts Scheduler</h2><br />
+  </strong>
+</div>
+
+
+<p align="center">
+  <a href="https://imposting.com/" target="_blank">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./static/android-chrome-512x512.png">
+    <img alt="imposting Logo" src="./static/android-chrome-512x512.png" width="180"/>
+  </picture>
+  </a>
+</p>
+
+<div align="center">
+<strong>
+     <a href="https://imposting.com">imposting.com</a>
+</strong>
+</div>
+
+<p align="center">
+Built with Django and AlpineJs. Schedule posts with text/image/link on Facebook public page, Instagram profesional account, Linkedin, X. Deploy it yourself or contact me to help you deploy it.
+</p>
+
 
 
 ## Get social media OAuth2 ids and secrets
