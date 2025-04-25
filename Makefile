@@ -6,12 +6,12 @@ poster:
 
 
 migrate-all:
-	uv run python manage.py runserver makemigrations
-	uv run python manage.py runserver migrate
-	uv run python manage.py runserver makemigrations integrations 
-	uv run python manage.py runserver migrate integrations 
-	uv run python manage.py runserver makemigrations socialsched 
-	uv run python manage.py runserver migrate socialsched
+	uv run python manage.py makemigrations
+	uv run python manage.py migrate
+	uv run python manage.py makemigrations integrations 
+	uv run python manage.py migrate integrations 
+	uv run python manage.py makemigrations socialsched 
+	uv run python manage.py migrate socialsched
 
 
 purge-migration-dirs:
