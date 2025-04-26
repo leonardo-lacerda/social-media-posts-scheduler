@@ -2,7 +2,7 @@ dev:
 	uv run python manage.py runserver
 
 poster:
-	uv run python manage.py runserver runposter
+	uv run python manage.py runposter
 
 
 migrate-all:
