@@ -45,6 +45,10 @@ def calendar(request):
         "post_on_instagram",
         "post_on_facebook",
         "post_on_linkedin",
+        "link_x",
+        "link_instagram",
+        "link_facebook",
+        "link_linkedin",
     )
 
     year_dates = get_year_dates(selected_year)
