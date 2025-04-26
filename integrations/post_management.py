@@ -5,6 +5,7 @@ from django.utils import timezone
 from asgiref.sync import sync_to_async
 from socialsched.models import PostModel
 from zoneinfo import ZoneInfo
+from django.core.files.storage import default_storage
 from .models import IntegrationsModel, Platform
 from .platforms.linkedin import post_on_linkedin
 from .platforms.xtwitter import post_on_x
@@ -22,6 +23,18 @@ def get_integration(account_id, platform):
 @sync_to_async
 def mark_post_posted(post_id):
     return PostModel.objects.filter(id=post_id).update(posted=True)
+
+
+@sync_to_async
+def delete_media_file(post_id: int):
+    post = PostModel.objects.get(id=post_id)
+
+    if post.media_file:
+        if default_storage.exists(post.media_file.path):
+            default_storage.delete(post.media_file.path)
+            post.media_file = None
+
+    post.save(skip_validation=True)
 
 
 def post_scheduled_posts():
@@ -130,6 +143,7 @@ def post_scheduled_posts():
     try:
         log.debug(f"Running async posting for {now_utc}")
         loop.run_until_complete(run_post_tasks())
+        loop.run_until_complete(delete_media_file(post.id))
         log.debug(f"Finished async posting for {now_utc}")
     finally:
         loop.close()
