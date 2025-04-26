@@ -10,3 +10,4 @@ loguru==0.7.3
 social-auth-app-django==5.4.3
 pycryptodome>=3.22.0
 waitress==3.0.2
+pillow>=11.2.1
