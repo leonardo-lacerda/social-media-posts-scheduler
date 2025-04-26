@@ -34,28 +34,6 @@ services:
     networks:
       - web
 
-  proxy:
-    container_name: imposting-proxy
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./media:/imposting/media
-      - ./staticfiles:/imposting/staticfiles
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    env_file:
-      - .env
-    networks:
-      - web
-
 networks:
   web:
-    driver: bridge
-
-volumes:
-  caddy_data:
-  caddy_config:
+    external: true
