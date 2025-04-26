@@ -1,5 +1,5 @@
 import requests
-from core.logger import log
+from core.logger import log, send_notification
 from dataclasses import dataclass
 from integrations.models import IntegrationsModel
 from socialsched.models import PostModel
@@ -134,5 +134,8 @@ async def post_on_linkedin(
     except Exception as err:
         log.error(f"Linkedin post error: {integration.account_id} {err}")
         log.exception(err)
+        send_notification(
+            "ImPosting", f"AccountId: {integration.account_id} got error {str(err)}"
+        )
 
     await update_linkedin_link(post_id, post_url)

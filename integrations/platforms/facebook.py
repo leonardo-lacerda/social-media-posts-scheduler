@@ -1,6 +1,6 @@
 import re
 import requests
-from core.logger import log
+from core.logger import log, send_notification
 from asgiref.sync import sync_to_async
 from dataclasses import dataclass
 from integrations.models import IntegrationsModel
@@ -105,5 +105,8 @@ async def post_on_facebook(
     except Exception as err:
         log.error(f"Facebook post error: {integration.account_id} {err}")
         log.exception(err)
+        send_notification(
+            "ImPosting", f"AccountId: {integration.account_id} got error {str(err)}"
+        )
 
     await update_facebook_link(post_id, post_url)

@@ -10,20 +10,23 @@ log.add(
     enqueue=True,
     level="INFO",
     rotation="100 MB",
+    retention="10 days",
+    compression="zip",
 )
 
 
-def sent_notification(email: str, message: str):
+def send_notification(email: str, message: str):
     try:
-        response = requests.post(NOTIFICATION_API_URL, headers={
-            "Accept": "*/*",
-            "Content-Type": "application/json"
-        }, json={
-            "messageType": "general",
-            "email": str(email),
-            "message": message,
-            "apikey": NOTIFICATION_API_KEY
-        })
+        response = requests.post(
+            NOTIFICATION_API_URL,
+            headers={"Accept": "*/*", "Content-Type": "application/json"},
+            json={
+                "messageType": "general",
+                "email": str(email),
+                "message": message,
+                "apikey": NOTIFICATION_API_KEY,
+            },
+        )
         response.raise_for_status()
     except Exception as err:
         log.exception(err)
@@ -42,7 +45,10 @@ def log_exception(view_func):
             log.error(f"Account ID: {account_id} got error: {err}")
             log.exception(err)
             if NOTIFICATION_API_KEY:
-                sent_notification(email="ImPosting", message=f"Account ID: {account_id} got error: {err}")
+                send_notification(
+                    email="ImPosting",
+                    message=f"AccountId: {account_id} got error {err}",
+                )
             raise
 
     return wrapper

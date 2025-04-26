@@ -1,5 +1,5 @@
 import requests
-from core.logger import log
+from core.logger import log, send_notification
 from dataclasses import dataclass
 from asgiref.sync import sync_to_async
 from integrations.models import IntegrationsModel
@@ -94,5 +94,9 @@ async def post_on_instagram(
     except Exception as err:
         log.error(f"Instagram post error: {integration.account_id} {err}")
         log.exception(err)
+        send_notification(
+            "ImPosting", f"AccountId: {integration.account_id} got error {str(err)}"
+        )
+
 
     await update_instagram_link(post_id, post_url)

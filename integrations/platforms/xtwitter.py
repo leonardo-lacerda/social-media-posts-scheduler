@@ -2,7 +2,7 @@ import os
 import requests
 import mimetypes
 from core import settings
-from core.logger import log
+from core.logger import log, send_notification
 from dataclasses import dataclass
 from asgiref.sync import sync_to_async
 from socialsched.models import PostModel
@@ -178,5 +178,8 @@ async def post_on_x(
     except Exception as err:
         log.error(f"X post error: {integration.account_id} {err}")
         log.exception(err)
+        send_notification(
+            "ImPosting", f"AccountId: {integration.account_id} got error {str(err)}"
+        )
 
     await update_x_link(post_id, post_url)
