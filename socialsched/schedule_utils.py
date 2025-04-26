@@ -55,10 +55,16 @@ def get_day_data(posts, d):
         if post["scheduled_on"].date() != d:
             continue
 
-        post_on_x += 1 if post["post_on_x"] else 0
-        post_on_instagram += 1 if post["post_on_instagram"] else 0
-        post_on_facebook += 1 if post["post_on_facebook"] else 0
-        post_on_linkedin += 1 if post["post_on_linkedin"] else 0
+        post_on_x += 1 if post["post_on_x"] or post["link_x"] else 0
+        post_on_instagram += (
+            1 if post["post_on_instagram"] or post["link_instagram"] else 0
+        )
+        post_on_facebook += (
+            1 if post["post_on_facebook"] or post["link_facebook"] else 0
+        )
+        post_on_linkedin += (
+            1 if post["post_on_linkedin"] or post["link_linkedin"] else 0
+        )
         posts_count += (
             1
             if any(
@@ -67,6 +73,10 @@ def get_day_data(posts, d):
                     post["post_on_instagram"],
                     post["post_on_facebook"],
                     post["post_on_linkedin"],
+                    post["link_x"],
+                    post["link_instagram"],
+                    post["link_facebook"],
+                    post["link_linkedin"],
                 ]
             )
             else 0

@@ -26,10 +26,11 @@
         <ul>
             <li>
                 <a href="/" role="button">
-                    <strong>ImPosting</strong>
+                    <strong>IP</strong>
                 </a>
             </li>
         </ul>
+
         <ul>
             {% if user.is_authenticated %}
             <li>
@@ -45,16 +46,15 @@
             </li>
 
             <li>
-                <a href="{% url 'account' %}">
-                    Account
+                <a title="logout" href="{% url "logout" %}">
+                    <i class="bi bi-box-arrow-right"></i>
                 </a>
             </li>
             {% endif %}
         </ul>
     </nav>
 
-
-    <main class="container-fluid">
+    <main>
 
         {% block body %}
 

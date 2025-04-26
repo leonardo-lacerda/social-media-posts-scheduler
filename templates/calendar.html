@@ -15,7 +15,7 @@
 </style>
 
 <hgroup class="title-description container">
-    <h1 style="display: flex; align-items: center; gap: 1rem;">
+    <h1 style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
         <span>🗓️ Calendar</span>
 
         <select x-data="{
@@ -35,15 +35,23 @@
         </a>
 
     </h1>
-    <p>
-        Here you have a high level overview of the whole year scheduled posts.
-        Next to each social platform icon you have the number of posts scheduled on that day.
-        It's recommended to have 1-2 quality posts per day.
-        More than that will make you annoying and will get you unfollowed.
-        Try to give value and make posts less "addsy".
-        Search on the web for "content writting formulas"
-        to get some template ideas for your posts.
-    </p>
+
+    <div x-data="{ showFullText: false }" style="margin-top: 20px;">
+        <p @click="showFullText = !showFullText" x-show="!showFullText">
+            Here you have a high level overview of the whole year scheduled posts.         
+            <span x-text="showFullText ? '..less' : '..more'"></span>
+        </p>
+        <p @click="showFullText = !showFullText" x-show="showFullText">
+            Here you have a high level overview of the whole year scheduled posts.
+            Next to each social platform icon you have the number of posts scheduled on that day.
+            It's recommended to have 1-2 quality posts per day.
+            More than that will make you annoying and will get you unfollowed.
+            Try to give value and make posts less "addsy".
+            Search on the web for "content writing formulas" to get some template ideas for your posts.
+            <span x-text="showFullText ? '..less' : '..more'"></span>
+        </p>
+    </div>
+
 </hgroup>
 
 

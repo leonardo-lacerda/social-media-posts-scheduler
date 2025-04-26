@@ -14,28 +14,26 @@
 
     <a href="{% url 'calendar' %}?year={{ year }}">
         <i class="bi bi-arrow-left"></i>
-        Back
+        BACK
     </a>
 
     <div>
 
         <a href="{% url 'schedule_form' isodate=prev_date %}" style="margin-right: 1rem;">
-            <i class="bi bi-chevron-left"></i>
-            Prev
+            <i class="bi bi-chevron-left"></i>-
         </a>
         <a href="{% url 'schedule_form' isodate=today %}" style="margin-right: 1rem;">
-            Today
+            NOW
         </a>
         <a href="{% url 'schedule_form' isodate=next_date %}">
-            Next
-            <i class="bi bi-chevron-right"></i>
+            -<i class="bi bi-chevron-right"></i>
         </a>
 
     </div>
 </div>
 
 
-<p style="text-align: center; font-weight: bold; margin-top: 1rem;">{{ current_date }} <sup>{{ posts|length }} posts</sup></p>
+<p style="text-align: center; font-weight: bold; margin-top: 2rem;">{{ current_date }} <sup>{{ posts|length }} posts</sup></p>
 
 
 {% if show_form %}
@@ -47,11 +45,30 @@
 
         {% csrf_token %}
 
-        <div class="grid" style="align-items: center;">
+        <div style="display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 2rem;">
 
-            <div style="display: flex; gap: 10px; margin-top: 1.5rem;">
+            <div style="margin-right: 2rem;" x-data="timePicker()">
+                
+                <label style="display: none;" for="{{ post_form.scheduled_on.id_for_label }}">
+                    Schedule on:
+                    {{ post_form.scheduled_on }}
+                    {{ post_form.scheduled_on.errors }}
+                </label>
+    
+                <label style="max-width: fit-content;" for="id_scheduled_on_time">
+                    At time:
+                    <input type="time" id="id_scheduled_on_time" 
+                    x-model="timeValue" @input="updateDatetime($event.target.value)">
+                </label>
+            </div>
 
-                <p style="margin-right: 10px;">Socials: </p>
+            <label style="display: none;" for="{{ post_form.post_timezone.id_for_label }}">
+                Timezone:
+                {{ post_form.post_timezone }}
+                {{ post_form.post_timezone.errors }}
+            </label>
+
+            <div style="display: flex; gap: 10px; margin-top: 1rem; flex-wrap: wrap;">
 
                 <label for="{{ post_form.post_on_facebook.id_for_label }}">
                     <i class="bi bi-facebook"></i>
@@ -79,28 +96,6 @@
 
             </div>
             
-
-            <div style="justify-self: self-end;" x-data="timePicker()">
-                
-                <label style="display: none;" for="{{ post_form.scheduled_on.id_for_label }}">
-                    Schedule on:
-                    {{ post_form.scheduled_on }}
-                    {{ post_form.scheduled_on.errors }}
-                </label>
-    
-                <label style="max-width: fit-content;" for="id_scheduled_on_time">
-                    At time:
-                    <input type="time" id="id_scheduled_on_time" 
-                    x-model="timeValue" @input="updateDatetime($event.target.value)">
-                </label>
-            </div>
-
-            <label style="display: none;" for="{{ post_form.post_timezone.id_for_label }}">
-                Timezone:
-                {{ post_form.post_timezone }}
-                {{ post_form.post_timezone.errors }}
-            </label>
-
         </div>
 
         <div x-data="emojiPicker()">
@@ -123,17 +118,21 @@
                 </div>
             </label>
 
-            <div style="display: flex; justify-content: right; position: relative;">
-
-                <div style="position: absolute; top: -10rem; right: 4rem;" id="emoji" x-show="showEmojiPicker"
-                    @click.away="showEmojiPicker = false">
-                </div>
-
-                <button class="outline" type="button" @click="togglePicker">
-                    <i class="bi bi-emoji-smile"></i>
-                </button>
-            </div>
-
+            <div x-data="{ isVisible: window.innerWidth >= 758 }"
+                x-init="window.addEventListener('resize', () => isVisible = window.innerWidth >= 758)">
+               <template x-if="isVisible">
+                   <div style="display: flex; justify-content: right; position: relative;">
+                       <div style="position: absolute; top: -10rem; right: 4rem;" id="emoji" x-show="showEmojiPicker"
+                           @click.away="showEmojiPicker = false">
+                       </div>
+           
+                       <button class="outline" type="button" @click="togglePicker">
+                           <i class="bi bi-emoji-smile"></i>
+                       </button>
+                   </div>
+               </template>
+           </div>
+           
         </div>
 
         <label for="{{ post_form.media_file.id_for_label }}"">

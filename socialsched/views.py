@@ -273,8 +273,3 @@ def logout_user(request):
     logout(request)
     return redirect("login")
 
-
-@login_required
-@log_exception
-def user_account(request):
-    return render(request, "user_account.html")

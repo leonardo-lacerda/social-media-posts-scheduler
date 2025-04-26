@@ -9,13 +9,22 @@
 
 <hgroup class="title-description container">
   <h1>🔑 Integrations</h1>
-  <p>
-    Authorize app to make posts on your behalf by authorizing them in this page.
-    For Facebook, Instagram you will need to have a Facebook public page created and linked to it an Instagram
-    Professional/Business account.
-    The Meta Business Suite needs to be setup as well in order to post on Facebook/Instagram. For Linkedin you will need
-    a Company page. For X you don't need a Company or public page.
-  </p>
+
+  <div x-data="{ showFullText: false }" style="margin-top: 20px;">
+      <p @click="showFullText = !showFullText" x-show="!showFullText">
+        Authorize app to make posts on your behalf by authorizing them in this page.
+          <span x-text="showFullText ? '..less' : '..more'"></span>
+      </p>
+      <p @click="showFullText = !showFullText" x-show="showFullText">
+          Authorize app to make posts on your behalf by authorizing them in this page.
+          For Facebook, Instagram you will need to have a Facebook public page created and linked to it an Instagram
+          Professional/Business account.
+          The Meta Business Suite needs to be setup as well in order to post on Facebook/Instagram. For Linkedin you will need
+          a Company page. For X you don't need a Company or public page.
+          <span x-text="showFullText ? '..less' : '..more'"></span>
+      </p>
+  </div>
+
 </hgroup>
 
 

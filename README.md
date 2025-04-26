@@ -111,7 +111,6 @@ If you don't see your posts published come on this page and click on Authorize b
 
 ![integrations](./static/integrations.png)
 
-
 A simple calendar where you can see the days you have posts or not. Select day or click Post Today button.
 
 ![calendar](./static/calendar.png)
