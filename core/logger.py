@@ -48,8 +48,8 @@ def log_exception(view_func):
                         user=request.user
                     ).first()
                     account_id = user_social_auth.uid
-                except Exception as err:
-                    log.error(f"User not logged in. {err}")
+                except Exception as serr:
+                    log.error(f"User not logged in. {serr}")
 
             log.error(f"Account ID: {account_id} got error: {err}")
             log.exception(err)
