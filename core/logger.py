@@ -16,6 +16,8 @@ log.add(
 
 
 def send_notification(email: str, message: str):
+    if not NOTIFICATION_API_KEY:
+        return
     try:
         response = requests.post(
             NOTIFICATION_API_URL,
@@ -44,11 +46,10 @@ def log_exception(view_func):
                     account_id = request.user.id
             log.error(f"Account ID: {account_id} got error: {err}")
             log.exception(err)
-            if NOTIFICATION_API_KEY:
-                send_notification(
-                    email="ImPosting",
-                    message=f"AccountId: {account_id} got error {err}",
-                )
+            send_notification(
+                email="ImPosting",
+                message=f"AccountId: {account_id} got error {err}",
+            )
             raise
 
     return wrapper
