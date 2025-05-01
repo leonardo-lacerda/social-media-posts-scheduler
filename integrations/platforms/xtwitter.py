@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 import mimetypes
 from core import settings
@@ -15,6 +16,7 @@ from .common import ErrorAccessTokenNotProvided, ErrorThisTypeOfPostIsNotSupport
 class XPoster:
     integration: IntegrationsModel
     api_version: str = "2"
+    chunk_size: int = 1024 * 1024  # 1MB chunks for uploads
 
     def __post_init__(self):
         self.access_token = self.integration.access_token_value
@@ -23,11 +25,11 @@ class XPoster:
         if not self.access_token:
             raise ErrorAccessTokenNotProvided
 
-        self.base_url = f"https://api.twitter.com/{self.api_version}/tweets"
-        self.upload_url = f"https://api.twitter.com/{self.api_version}/media/upload"
+        self.base_url = f"https://api.x.com/{self.api_version}/tweets"
+        self.upload_url = f"https://api.x.com/{self.api_version}/media/upload"
 
     def _refresh_access_token(self):
-        token_url = "https://api.twitter.com/oauth2/token"
+        token_url = "https://api.x.com/oauth2/token"
         client = OAuth2Session(
             client_id=settings.X_CLIENT_ID, token={"refresh_token": self.refresh_token}
         )
@@ -47,19 +49,24 @@ class XPoster:
         ).update(**update_data)
 
     def _upload_media(self, media_path: str, refresh_token_was_generated: bool = False):
-        # Step 1: Check file size
+        # Step 1: Get file info
         total_bytes = os.path.getsize(media_path)
-        max_size = 5 * 1024 * 1024  # 5 MB
-
-        if total_bytes > max_size:
-            raise ValueError("Image size exceeds 5MB limit for upload.")
-
-        # Step 2: Guess MIME type
         mime_type, _ = mimetypes.guess_type(media_path)
-        if not mime_type or not mime_type.startswith("image/"):
-            raise ValueError(f"Unsupported or missing image MIME type: {mime_type}")
 
-        # Step 3: INIT
+        if not mime_type:
+            raise ValueError(f"Cannot determine MIME type for {media_path}")
+
+        # Determine media category based on MIME type
+        if mime_type.startswith("image/"):
+            media_category = "tweet_image"
+        elif mime_type.startswith("video/"):
+            media_category = "tweet_video"
+        elif mime_type == "image/gif":
+            media_category = "tweet_gif"
+        else:
+            raise ValueError(f"Unsupported media type: {mime_type}")
+
+        # Step 2: INIT
         init_response = requests.post(
             self.upload_url,
             headers={
@@ -69,7 +76,7 @@ class XPoster:
                 "command": (None, "INIT"),
                 "media_type": (None, mime_type),
                 "total_bytes": (None, str(total_bytes)),
-                "media_category": (None, "tweet_image"),
+                "media_category": (None, media_category),
             },
         )
 
@@ -78,26 +85,33 @@ class XPoster:
             return self._upload_media(media_path, True)
 
         init_response.raise_for_status()
-
         media_id = init_response.json()["data"]["id"]
 
-        # Step 4: APPEND
+        # Step 3: APPEND (in chunks for larger files)
         with open(media_path, "rb") as f:
-            append_response = requests.post(
-                self.upload_url,
-                headers={
-                    "Authorization": f"Bearer {self.access_token}",
-                },
-                files={
-                    "command": (None, "APPEND"),
-                    "media_id": (None, media_id),
-                    "segment_index": (None, "0"),
-                    "media": ("media", f),
-                },
-            )
-            append_response.raise_for_status()
+            segment_index = 0
 
-        # Step 5: FINALIZE
+            while True:
+                chunk = f.read(self.chunk_size)
+                if not chunk:
+                    break
+
+                append_response = requests.post(
+                    self.upload_url,
+                    headers={
+                        "Authorization": f"Bearer {self.access_token}",
+                    },
+                    files={
+                        "command": (None, "APPEND"),
+                        "media_id": (None, media_id),
+                        "segment_index": (None, str(segment_index)),
+                        "media": ("media", chunk),
+                    },
+                )
+                append_response.raise_for_status()
+                segment_index += 1
+
+        # Step 4: FINALIZE
         finalize_response = requests.post(
             self.upload_url,
             headers={
@@ -110,7 +124,45 @@ class XPoster:
         )
         finalize_response.raise_for_status()
 
+        # Step 5: Check for processing_info and wait if necessary
+        finalize_data = finalize_response.json().get("data", {})
+        processing_info = finalize_data.get("processing_info")
+
+        # Only wait for processing if processing_info is present in the response
+        if processing_info:
+            self._wait_for_processing(media_id)
+
         return media_id
+
+    def _wait_for_processing(self, media_id):
+        """Poll for media processing status until it succeeds or fails."""
+        processing_info = None
+        check_after_secs = 1
+
+        while True:
+            status_response = requests.get(
+                f"{self.upload_url}?command=STATUS&media_id={media_id}",
+                headers={"Authorization": f"Bearer {self.access_token}"},
+            )
+            status_response.raise_for_status()
+
+            data = status_response.json().get("data", {})
+            processing_info = data.get("processing_info", None)
+
+            # If processing_info is no longer present, processing is complete
+            if not processing_info:
+                return
+
+            state = processing_info.get("state")
+
+            if state == "succeeded":
+                return
+            elif state == "failed":
+                error = processing_info.get("error", {})
+                raise Exception(f"Media processing failed: {error}")
+
+            check_after_secs = processing_info.get("check_after_secs", 5)
+            time.sleep(check_after_secs)
 
     def get_post_url(self, id: int):
         return f"https://x.com/user/status/{id}"
@@ -128,13 +180,12 @@ class XPoster:
         # Unauthorized, token might be expired
         if response.status_code == 401 and refresh_token_was_generated is False:
             self._refresh_access_token()
-            self.post_text(text, True)
-        response.raise_for_status()
+            return self.post_text(text, True)
 
+        response.raise_for_status()
         return self.get_post_url(response.json()["data"]["id"])
 
-    def post_text_with_image(self, text: str, media_path: str):
-
+    def post_text_with_media(self, text: str, media_path: str):
         media_id = self._upload_media(media_path)
 
         response = requests.post(
@@ -153,8 +204,9 @@ class XPoster:
         if media_path is None:
             return self.post_text(text)
 
-        if media_path.endswith((".jpg", ".jpeg", ".png")):
-            return self.post_text_with_image(text, media_path)
+        # Support for images, videos, and GIFs
+        if media_path.endswith((".jpg", ".jpeg", ".png", ".gif", ".mp4", ".mov")):
+            return self.post_text_with_media(text, media_path)
 
         raise ErrorThisTypeOfPostIsNotSupported
 
@@ -173,7 +225,6 @@ async def post_on_x(
     post_text: str,
     media_path: str = None,
 ):
-
     post_url = None
     try:
         poster = XPoster(integration)
