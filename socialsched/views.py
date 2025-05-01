@@ -5,6 +5,7 @@ from django.contrib.auth import logout
 from django.utils import timezone
 from core.logger import log_exception
 from django.db.models import Min, Max
+from social_django.models import UserSocialAuth
 from datetime import datetime, timedelta
 from .models import PostModel
 from .forms import PostForm
@@ -18,16 +19,19 @@ from .schedule_utils import (
 @login_required
 @log_exception
 def calendar(request):
+    user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
+    social_uid = user_social_auth.uid
+
     today = timezone.now()
     selected_year = today.year
     if request.GET.get("year") is not None:
         selected_year = int(request.GET.get("year"))
 
-    min_date = PostModel.objects.filter(account_id=request.user.id).aggregate(
+    min_date = PostModel.objects.filter(account_id=social_uid).aggregate(
         Min("scheduled_on")
     )["scheduled_on__min"]
 
-    max_date = PostModel.objects.filter(account_id=request.user.id).aggregate(
+    max_date = PostModel.objects.filter(account_id=social_uid).aggregate(
         Max("scheduled_on")
     )["scheduled_on__max"]
 
@@ -38,7 +42,7 @@ def calendar(request):
     select_years = [y for y in range(min(select_years), max(select_years), 1)]
 
     posts = PostModel.objects.filter(
-        account_id=request.user.id, scheduled_on__year=selected_year
+        account_id=social_uid, scheduled_on__year=selected_year
     ).values(
         "scheduled_on",
         "post_on_x",
@@ -142,12 +146,15 @@ def calendar(request):
 @login_required
 @log_exception
 def schedule_form(request, isodate):
+    user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
+    social_uid = user_social_auth.uid
+
     today = timezone.now()
     scheduled_on = datetime.strptime(isodate, "%Y-%m-%d").date()
     prev_date = scheduled_on - timedelta(days=1)
     next_date = scheduled_on + timedelta(days=1)
     posts = PostModel.objects.filter(
-        account_id=request.user.id, scheduled_on__date=scheduled_on
+        account_id=social_uid, scheduled_on__date=scheduled_on
     )
 
     show_form = today.date() <= scheduled_on
@@ -174,10 +181,13 @@ def schedule_form(request, isodate):
 @login_required
 @log_exception
 def schedule_modify(request, post_id):
+    user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
+    social_uid = user_social_auth.uid
+
     today = timezone.now()
     post = get_object_or_404(PostModel, id=post_id)
     posts = PostModel.objects.filter(
-        account_id=request.user.id, scheduled_on__date=post.scheduled_on
+        account_id=social_uid, scheduled_on__date=post.scheduled_on
     )
     prev_date = post.scheduled_on - timedelta(days=1)
     next_date = post.scheduled_on + timedelta(days=1)
@@ -205,14 +215,15 @@ def schedule_modify(request, post_id):
 @login_required
 @log_exception
 def schedule_save(request, isodate):
+    user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
+    social_uid = user_social_auth.uid
+
     modify_post_id = None
     if request.GET.get("modify_post_id") is not None:
         modify_post_id = request.GET.get("modify_post_id")
 
     if modify_post_id:
-        post = get_object_or_404(
-            PostModel, id=modify_post_id, account_id=request.user.id
-        )
+        post = get_object_or_404(PostModel, id=modify_post_id, account_id=social_uid)
         form = PostForm(request.POST, request.FILES, instance=post)
     else:
         form = PostForm(request.POST, request.FILES)
@@ -220,7 +231,7 @@ def schedule_save(request, isodate):
     if not form.is_valid():
         scheduled_on = datetime.strptime(isodate, "%Y-%m-%d").date()
         posts = PostModel.objects.filter(
-            account_id=request.user.id, scheduled_on__date=scheduled_on
+            account_id=social_uid, scheduled_on__date=scheduled_on
         )
 
         return render(
@@ -234,7 +245,7 @@ def schedule_save(request, isodate):
         )
 
     try:
-        form.save(account_id=request.user.id)
+        form.save(account_id=social_uid)
         messages.add_message(
             request,
             messages.SUCCESS,
@@ -255,7 +266,10 @@ def schedule_save(request, isodate):
 @login_required
 @log_exception
 def schedule_delete(request, post_id):
-    post = get_object_or_404(PostModel, id=post_id, account_id=request.user.id)
+    user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
+    social_uid = user_social_auth.uid
+
+    post = get_object_or_404(PostModel, id=post_id, account_id=social_uid)
     isodate = post.scheduled_on.date().isoformat()
     post.delete()
     messages.add_message(
@@ -276,4 +290,3 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     return redirect("login")
-

@@ -6,31 +6,34 @@ from core import settings
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
+from social_django.models import UserSocialAuth
 from .models import IntegrationsModel, Platform
 
 
 @login_required
 @log_exception
 def integrations_form(request):
+    user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
+    social_uid = user_social_auth.uid
 
     linkedin_ok = bool(
         IntegrationsModel.objects.filter(
-            account_id=request.user.id, platform=Platform.LINKEDIN.value
+            account_id=social_uid, platform=Platform.LINKEDIN.value
         ).first()
     )
     x_ok = bool(
         IntegrationsModel.objects.filter(
-            account_id=request.user.id, platform=Platform.X_TWITTER.value
+            account_id=social_uid, platform=Platform.X_TWITTER.value
         ).first()
     )
     instagram_ok = bool(
         IntegrationsModel.objects.filter(
-            account_id=request.user.id, platform=Platform.INSTAGRAM.value
+            account_id=social_uid, platform=Platform.INSTAGRAM.value
         ).first()
     )
     facebook_ok = bool(
         IntegrationsModel.objects.filter(
-            account_id=request.user.id, platform=Platform.FACEBOOK.value
+            account_id=social_uid, platform=Platform.FACEBOOK.value
         ).first()
     )
 
@@ -62,6 +65,9 @@ def linkedin_login(request):
 @login_required
 @log_exception
 def linkedin_callback(request):
+    user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
+    social_uid = user_social_auth.uid
+
     code = request.GET.get("code")
     token_url = "https://www.linkedin.com/oauth/v2/accessToken"
     token_data = {
@@ -94,11 +100,11 @@ def linkedin_callback(request):
         return redirect("/integrations/")
 
     IntegrationsModel.objects.update_or_create(
-        account_id=request.user.id,
+        account_id=social_uid,
         user_id=user_id,
         platform=Platform.LINKEDIN.value,
         defaults={
-            "account_id": request.user.id,
+            "account_id": social_uid,
             "user_id": user_id,
             "access_token": access_token,
             "platform": Platform.LINKEDIN.value,
@@ -118,9 +124,11 @@ def linkedin_callback(request):
 @login_required
 @log_exception
 def linkedin_uninstall(request):
+    user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
+    social_uid = user_social_auth.uid
 
     IntegrationsModel.objects.filter(
-        account_id=request.user.id, platform=Platform.LINKEDIN.value
+        account_id=social_uid, platform=Platform.LINKEDIN.value
     ).delete()
 
     messages.add_message(
@@ -152,6 +160,9 @@ def x_login(request):
 @login_required
 @log_exception
 def x_callback(request):
+    user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
+    social_uid = user_social_auth.uid
+
     code = request.GET.get("code")
     if not code:
         messages.add_message(
@@ -202,11 +213,11 @@ def x_callback(request):
         return redirect("/integrations/")
 
     IntegrationsModel.objects.update_or_create(
-        account_id=request.user.id,
+        account_id=social_uid,
         user_id=user_id,
         platform=Platform.X_TWITTER.value,
         defaults={
-            "account_id": request.user.id,
+            "account_id": social_uid,
             "user_id": user_id,
             "access_token": token["access_token"],
             "refresh_token": token["refresh_token"],
@@ -227,9 +238,11 @@ def x_callback(request):
 @login_required
 @log_exception
 def x_uninstall(request):
+    user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
+    social_uid = user_social_auth.uid
 
     IntegrationsModel.objects.filter(
-        account_id=request.user.id, platform=Platform.X_TWITTER.value
+        account_id=social_uid, platform=Platform.X_TWITTER.value
     ).delete()
 
     messages.add_message(
@@ -258,6 +271,9 @@ def facebook_login(request):
 @login_required
 @log_exception
 def facebook_callback(request):
+    user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
+    social_uid = user_social_auth.uid
+
     code = request.GET.get("code")
     if not code:
         messages.add_message(
@@ -401,11 +417,11 @@ def facebook_callback(request):
 
     # Update or create access tokens in the IntegrationsModel
     IntegrationsModel.objects.update_or_create(
-        account_id=request.user.id,
+        account_id=social_uid,
         user_id=page_id,
         platform=Platform.FACEBOOK.value,
         defaults={
-            "account_id": request.user.id,
+            "account_id": social_uid,
             "user_id": page_id,
             "access_token": page_access_token,
             "platform": Platform.FACEBOOK.value,
@@ -414,11 +430,11 @@ def facebook_callback(request):
 
     account = instagram_accounts[0]
     IntegrationsModel.objects.update_or_create(
-        account_id=request.user.id,
+        account_id=social_uid,
         user_id=account["id"],
         platform=Platform.INSTAGRAM.value,
         defaults={
-            "account_id": request.user.id,
+            "account_id": social_uid,
             "user_id": account["id"],
             "access_token": page_access_token,
             "platform": Platform.INSTAGRAM.value,
@@ -438,13 +454,15 @@ def facebook_callback(request):
 @login_required
 @log_exception
 def facebook_uninstall(request):
+    user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
+    social_uid = user_social_auth.uid
 
     IntegrationsModel.objects.filter(
-        account_id=request.user.id, platform=Platform.FACEBOOK.value
+        account_id=social_uid, platform=Platform.FACEBOOK.value
     ).delete()
 
     IntegrationsModel.objects.filter(
-        account_id=request.user.id, platform=Platform.INSTAGRAM.value
+        account_id=social_uid, platform=Platform.INSTAGRAM.value
     ).delete()
 
     messages.add_message(

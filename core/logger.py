@@ -1,6 +1,7 @@
 import requests
 from loguru import logger as log
 from functools import wraps
+from social_django.models import UserSocialAuth
 from .settings import logpath
 from .settings import NOTIFICATION_API_KEY, NOTIFICATION_API_URL
 
@@ -42,8 +43,14 @@ def log_exception(view_func):
         except Exception as err:
             account_id = "N/A"
             if hasattr(request, "user"):
-                if hasattr(request.user, "id"):
-                    account_id = request.user.id
+                try:
+                    user_social_auth = UserSocialAuth.objects.filter(
+                        user=request.user
+                    ).first()
+                    account_id = user_social_auth.uid
+                except Exception as err:
+                    log.error(f"User not logged in. {err}")
+
             log.error(f"Account ID: {account_id} got error: {err}")
             log.exception(err)
             send_notification(

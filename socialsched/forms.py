@@ -7,7 +7,9 @@ class PostForm(ModelForm):
     def save(self, commit=True, account_id=None):
         post = super().save(commit=False)
         if account_id is None:
-            raise Exception("Please provide request.user.id to account_id parameter")
+            raise Exception(
+                "Please provide user_social_auth.uid to account_id parameter"
+            )
         post.account_id = account_id
         if commit:
             post.save()
