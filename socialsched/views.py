@@ -20,7 +20,7 @@ from .schedule_utils import (
 @log_exception
 def calendar(request):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
-    social_uid = user_social_auth.uid
+    social_uid = user_social_auth.pk
 
     today = timezone.now()
     selected_year = today.year
@@ -147,7 +147,7 @@ def calendar(request):
 @log_exception
 def schedule_form(request, isodate):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
-    social_uid = user_social_auth.uid
+    social_uid = user_social_auth.pk
 
     today = timezone.now()
     scheduled_on = datetime.strptime(isodate, "%Y-%m-%d").date()
@@ -182,7 +182,7 @@ def schedule_form(request, isodate):
 @log_exception
 def schedule_modify(request, post_id):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
-    social_uid = user_social_auth.uid
+    social_uid = user_social_auth.pk
 
     today = timezone.now()
     post = get_object_or_404(PostModel, id=post_id)
@@ -216,7 +216,7 @@ def schedule_modify(request, post_id):
 @log_exception
 def schedule_save(request, isodate):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
-    social_uid = user_social_auth.uid
+    social_uid = user_social_auth.pk
 
     modify_post_id = None
     if request.GET.get("modify_post_id") is not None:
@@ -267,7 +267,7 @@ def schedule_save(request, isodate):
 @log_exception
 def schedule_delete(request, post_id):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
-    social_uid = user_social_auth.uid
+    social_uid = user_social_auth.pk
 
     post = get_object_or_404(PostModel, id=post_id, account_id=social_uid)
     isodate = post.scheduled_on.date().isoformat()

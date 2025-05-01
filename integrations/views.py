@@ -14,7 +14,7 @@ from .models import IntegrationsModel, Platform
 @log_exception
 def integrations_form(request):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
-    social_uid = user_social_auth.uid
+    social_uid = user_social_auth.pk
 
     linkedin_ok = bool(
         IntegrationsModel.objects.filter(
@@ -66,7 +66,7 @@ def linkedin_login(request):
 @log_exception
 def linkedin_callback(request):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
-    social_uid = user_social_auth.uid
+    social_uid = user_social_auth.pk
 
     code = request.GET.get("code")
     token_url = "https://www.linkedin.com/oauth/v2/accessToken"
@@ -125,7 +125,7 @@ def linkedin_callback(request):
 @log_exception
 def linkedin_uninstall(request):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
-    social_uid = user_social_auth.uid
+    social_uid = user_social_auth.pk
 
     IntegrationsModel.objects.filter(
         account_id=social_uid, platform=Platform.LINKEDIN.value
@@ -161,7 +161,7 @@ def x_login(request):
 @log_exception
 def x_callback(request):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
-    social_uid = user_social_auth.uid
+    social_uid = user_social_auth.pk
 
     code = request.GET.get("code")
     if not code:
@@ -239,7 +239,7 @@ def x_callback(request):
 @log_exception
 def x_uninstall(request):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
-    social_uid = user_social_auth.uid
+    social_uid = user_social_auth.pk
 
     IntegrationsModel.objects.filter(
         account_id=social_uid, platform=Platform.X_TWITTER.value
@@ -272,7 +272,7 @@ def facebook_login(request):
 @log_exception
 def facebook_callback(request):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
-    social_uid = user_social_auth.uid
+    social_uid = user_social_auth.pk
 
     code = request.GET.get("code")
     if not code:
@@ -455,7 +455,7 @@ def facebook_callback(request):
 @log_exception
 def facebook_uninstall(request):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
-    social_uid = user_social_auth.uid
+    social_uid = user_social_auth.pk
 
     IntegrationsModel.objects.filter(
         account_id=social_uid, platform=Platform.FACEBOOK.value
