@@ -23,24 +23,28 @@ class XPoster:
         if not self.access_token:
             raise ErrorAccessTokenNotProvided
 
-        self.base_url = f"https://api.x.com/{self.api_version}/tweets"
-        self.upload_url = f"https://api.x.com/{self.api_version}/media/upload"
+        self.base_url = f"https://api.twitter.com/{self.api_version}/tweets"
+        self.upload_url = f"https://api.twitter.com/{self.api_version}/media/upload"
 
     def _refresh_access_token(self):
-        token_url = "https://api.x.com/oauth2/token"
+        token_url = "https://api.twitter.com/oauth2/token"
         client = OAuth2Session(
             client_id=settings.X_CLIENT_ID, token={"refresh_token": self.refresh_token}
         )
-        extra = {
-            "client_id": settings.X_CLIENT_ID,
-            "client_secret": settings.X_CLIENT_SECRET,
-        }
-        token = client.refresh_token(token_url, **extra)
+        auth = (settings.X_CLIENT_ID, settings.X_CLIENT_SECRET)
+        token = client.refresh_token(token_url, auth=auth)
+
         self.access_token = token["access_token"]
 
-        IntegrationsModel.objects.filter(platform=Platform.X_TWITTER.value).update(
-            access_token=self.access_token
-        )
+        new_refresh_token = token.get("refresh_token")
+        update_data = {"access_token": self.access_token}
+        if new_refresh_token:
+            self.refresh_token = new_refresh_token
+            update_data["refresh_token"] = new_refresh_token
+
+        IntegrationsModel.objects.filter(
+            platform=Platform.X_TWITTER.value, account_id=self.integration.account_id
+        ).update(**update_data)
 
     def _upload_media(self, media_path: str, refresh_token_was_generated: bool = False):
         # Step 1: Check file size
@@ -181,5 +185,6 @@ async def post_on_x(
         send_notification(
             "ImPosting", f"AccountId: {integration.account_id} got error {str(err)}"
         )
+        await sync_to_async(integration.delete)()
 
     await update_x_link(post_id, post_url)

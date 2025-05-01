@@ -108,5 +108,6 @@ async def post_on_facebook(
         send_notification(
             "ImPosting", f"AccountId: {integration.account_id} got error {str(err)}"
         )
+        await sync_to_async(integration.delete)()
 
     await update_facebook_link(post_id, post_url)

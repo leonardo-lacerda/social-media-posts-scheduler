@@ -97,6 +97,7 @@ async def post_on_instagram(
         send_notification(
             "ImPosting", f"AccountId: {integration.account_id} got error {str(err)}"
         )
+        await sync_to_async(integration.delete)()
 
 
     await update_instagram_link(post_id, post_url)
