@@ -145,7 +145,7 @@ def linkedin_uninstall(request):
 @log_exception
 def x_login(request):
     x_auth_url = (
-        "https://twitter.com/i/oauth2/authorize"
+        "https://x.com/i/oauth2/authorize"
         "?response_type=code"
         f"&client_id={settings.X_CLIENT_ID}"
         f"&redirect_uri={settings.X_REDIRECT_URI}"
@@ -179,7 +179,7 @@ def x_callback(request):
 
     try:
         token = oauth.fetch_token(
-            "https://api.twitter.com/2/oauth2/token",
+            "https://api.x.com/2/oauth2/token",
             code=code,
             client_secret=settings.X_CLIENT_SECRET,
             code_verifier="challenge",
@@ -200,7 +200,7 @@ def x_callback(request):
         return redirect("/integrations/")
 
     try:
-        user_info = oauth.get("https://api.twitter.com/2/users/me").json()
+        user_info = oauth.get("https://api.x.com/2/users/me").json()
         user_id = user_info["data"]["id"]
     except Exception as e:
         log.error(f"Could not get user_id: {e}")

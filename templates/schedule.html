@@ -20,13 +20,13 @@
     <div>
 
         <a href="{% url 'schedule_form' isodate=prev_date %}" style="margin-right: 1rem;">
-            <i class="bi bi-chevron-left"></i>-
+            <i class="bi bi-arrow-left"></i>
         </a>
         <a href="{% url 'schedule_form' isodate=today %}" style="margin-right: 1rem;">
             NOW
         </a>
         <a href="{% url 'schedule_form' isodate=next_date %}">
-            -<i class="bi bi-chevron-right"></i>
+            <i class="bi bi-arrow-right"></i>
         </a>
 
     </div>
