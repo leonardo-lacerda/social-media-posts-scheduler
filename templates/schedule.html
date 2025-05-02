@@ -18,18 +18,17 @@
     </a>
 
     <div>
-
-        <a href="{% url 'schedule_form' isodate=prev_date %}" style="margin-right: 1rem;">
+        <a href="{% url 'schedule_form' isodate=prev_date %}" style="margin-right: 1rem; outline: none;">
             <i class="bi bi-arrow-left"></i>
         </a>
-        <a href="{% url 'schedule_form' isodate=today %}" style="margin-right: 1rem;">
+        <a href="{% url 'schedule_form' isodate=today %}" style="margin-right: 1rem; outline: none;">
             NOW
         </a>
-        <a href="{% url 'schedule_form' isodate=next_date %}">
+        <a href="{% url 'schedule_form' isodate=next_date %}" style="outline: none;">
             <i class="bi bi-arrow-right"></i>
         </a>
-
     </div>
+    
 </div>
 
 

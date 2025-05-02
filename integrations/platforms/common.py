@@ -3,6 +3,11 @@ class ErrorAccessTokenNotProvided(Exception):
         return "Access token not found."
 
 
+class ErrorRefreshTokenNotProvided(Exception):
+    def __str__(self):
+        return "Refresh token not found."
+
+
 class ErrorPageIdNotProvided(Exception):
     def __str__(self):
         return "Page ID not found."
