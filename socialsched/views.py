@@ -3,10 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout
 from django.utils import timezone
-from core.logger import log_exception
+from core.logger import log_exception, log
 from django.db.models import Min, Max
 from social_django.models import UserSocialAuth
 from datetime import datetime, timedelta
+from .instagram_image import make_instagram_image
 from .models import PostModel
 from .forms import PostForm
 from .schedule_utils import (
@@ -245,7 +246,21 @@ def schedule_save(request, isodate):
         )
 
     try:
-        form.save(account_id=social_uid)
+        post: PostModel = form.save(commit=False)
+        post.account_id = social_uid
+        post.save()
+
+        if (
+            post.media_file
+            and hasattr(post.media_file, "path")
+            and post.media_file.path
+        ):
+            make_instagram_image(post.media_file.path, post.description)
+        else:
+            post.media_file = make_instagram_image(None, post.description)
+
+        post.save()
+
         messages.add_message(
             request,
             messages.SUCCESS,
@@ -260,6 +275,7 @@ def schedule_save(request, isodate):
             err,
             extra_tags="🟥 Error!",
         )
+        log.error(f"heloooooooooooooooooooooooooooooooooooooo {isodate}")
         return redirect(f"/schedule/{isodate}/")
 
 

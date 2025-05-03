@@ -18,13 +18,13 @@
     </a>
 
     <div>
-        <a href="{% url 'schedule_form' isodate=prev_date %}" style="margin-right: 1rem; outline: none; text-decoration: none;">
+        <a href="{% url 'schedule_form' isodate=prev_date %}" style="margin-right: 1rem; text-decoration: none;">
             <i class="bi bi-arrow-left"></i>
         </a>
-        <a href="{% url 'schedule_form' isodate=today %}" style="margin-right: 1rem; outline: none;">
+        <a href="{% url 'schedule_form' isodate=today %}" style="margin-right: 1rem;">
             NOW
         </a>
-        <a href="{% url 'schedule_form' isodate=next_date %}" style="outline: none; text-decoration: none;">
+        <a href="{% url 'schedule_form' isodate=next_date %}" style="text-decoration: none;">
             <i class="bi bi-arrow-right"></i>
         </a>
     </div>
@@ -39,7 +39,7 @@
 
 <article class="article-form mt-2 container">
 
-    <form x-data="formData" action="{% url 'schedule_save' isodate=isodate %}?modify_post_id={{ modify_post_id }}"
+    <form x-data="formData" x-on:submit="loading = true" action="{% url 'schedule_save' isodate=isodate %}?modify_post_id={{ modify_post_id }}"
         method="POST" enctype="multipart/form-data">
 
         {% csrf_token %}
@@ -140,12 +140,13 @@
             {{ post_form.media_file.errors }}
         </label>
 
-        <div>
-            <button type="submit">
-                <i class="bi bi-save"></i>
-                Schedule post
-            </button>
-        </div>
+
+        <button type="submit" x-bind:disabled="loading">
+            <i class="bi bi-save"></i>
+            <span>Schedule post</span>
+        </button>
+
+        <small x-show="loading" aria-busy="true">Processing post image...</small>
 
     </form>
 </article>
@@ -333,6 +334,7 @@
         }
 
         return {
+            loading: false,
             postLength: 0,
             xfreelenerr: "",
             xbluelenerr: "",
