@@ -1,5 +1,6 @@
 import os
 import time
+from typing import Literal
 import requests
 import mimetypes
 from core import settings
@@ -35,14 +36,16 @@ class XPoster:
         self.base_url = f"https://api.x.com/{self.api_version}/tweets"
         self.upload_url = f"https://api.x.com/{self.api_version}/media/upload"
 
-        # Configure OAuth2Session with automatic token refresh
+        self._setup_oauth_session()
+
+    def _setup_oauth_session(self):
         token = {
             "access_token": self.access_token,
             "refresh_token": self.refresh_token,
             "token_type": "bearer",
-            "expires_in": 10,  # This will trigger a refresh when the session is used
         }
 
+        # Create a new session with explicit token refresh parameters
         self.client = OAuth2Session(
             client_id=settings.X_CLIENT_ID,
             token=token,
@@ -50,6 +53,7 @@ class XPoster:
             auto_refresh_kwargs={
                 "client_id": settings.X_CLIENT_ID,
                 "client_secret": settings.X_CLIENT_SECRET,
+                "grant_type": "refresh_token",
             },
             token_updater=self._token_saver,
         )
@@ -70,6 +74,50 @@ class XPoster:
         integration.save()
 
         log.info(f"Updated X token for account {self.integration.account_id}")
+
+    def _make_authenticated_request(self, method: Literal["post", "get"], url: str, **kwargs):
+        max_retries = 2
+        for attempt in range(max_retries):
+            try:
+                response = getattr(self.client, method)(url, **kwargs)
+                response.raise_for_status()
+                return response
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 401 and attempt < max_retries - 1:
+                    # Force token refresh
+                    log.warning(
+                        f"Auth failed, refreshing token manually for account {self.integration.account_id}"
+                    )
+                    self._force_token_refresh()
+                    continue
+                raise
+
+    def _force_token_refresh(self):
+        try:
+            token_url = "https://api.x.com/oauth2/token"
+            data = {
+                "grant_type": "refresh_token",
+                "refresh_token": self.refresh_token,
+                "client_id": settings.X_CLIENT_ID,
+                "client_secret": settings.X_CLIENT_SECRET,
+            }
+            headers = {"Content-Type": "application/x-www-form-urlencoded"}
+
+            response = requests.post(token_url, data=data, headers=headers)
+            response.raise_for_status()
+
+            new_token = response.json()
+            self._token_saver(new_token)
+
+            # Re-create the OAuth session with new tokens
+            self._setup_oauth_session()
+
+            log.info(
+                f"Manually refreshed token for account {self.integration.account_id}"
+            )
+        except Exception as e:
+            log.error(f"Failed to manually refresh token: {str(e)}")
+            raise
 
     def _upload_media(self, media_path: str):
         # Step 1: Get file info
@@ -97,9 +145,10 @@ class XPoster:
             "media_category": (None, media_category),
         }
 
-        # Use the OAuth2Session for all requests to handle token refresh automatically
-        init_response = self.client.post(self.upload_url, files=files)
-        init_response.raise_for_status()
+        # Use our wrapper method for authenticated requests
+        init_response = self._make_authenticated_request(
+            "post", self.upload_url, files=files
+        )
         media_id = init_response.json()["data"]["id"]
 
         # Step 3: APPEND (in chunks for larger files)
@@ -118,8 +167,9 @@ class XPoster:
                     "media": ("media", chunk),
                 }
 
-                append_response = self.client.post(self.upload_url, files=append_files)
-                append_response.raise_for_status()
+                self._make_authenticated_request(
+                    "post", self.upload_url, files=append_files
+                )
                 segment_index += 1
 
         # Step 4: FINALIZE
@@ -128,8 +178,9 @@ class XPoster:
             "media_id": (None, media_id),
         }
 
-        finalize_response = self.client.post(self.upload_url, files=finalize_files)
-        finalize_response.raise_for_status()
+        finalize_response = self._make_authenticated_request(
+            "post", self.upload_url, files=finalize_files
+        )
 
         # Step 5: Check for processing_info and wait if necessary
         finalize_data = finalize_response.json().get("data", {})
@@ -147,8 +198,7 @@ class XPoster:
 
         while True:
             status_url = f"{self.upload_url}?command=STATUS&media_id={media_id}"
-            status_response = self.client.get(status_url)
-            status_response.raise_for_status()
+            status_response = self._make_authenticated_request("get", status_url)
 
             data = status_response.json().get("data", {})
             processing_info = data.get("processing_info", None)
@@ -171,23 +221,23 @@ class XPoster:
         return f"https://x.com/user/status/{id}"
 
     def post_text(self, text: str):
-        response = self.client.post(
+        response = self._make_authenticated_request(
+            "post",
             url=self.base_url,
             headers={"Content-Type": "application/json"},
             json={"text": text},
         )
-        response.raise_for_status()
         return self.get_post_url(response.json()["data"]["id"])
 
     def post_text_with_media(self, text: str, media_path: str):
         media_id = self._upload_media(media_path)
 
-        response = self.client.post(
+        response = self._make_authenticated_request(
+            "post",
             url=self.base_url,
             headers={"Content-Type": "application/json"},
             json={"text": text, "media": {"media_ids": [media_id]}},
         )
-        response.raise_for_status()
 
         return self.get_post_url(response.json()["data"]["id"])
 
