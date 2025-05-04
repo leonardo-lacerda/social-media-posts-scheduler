@@ -75,7 +75,9 @@ class XPoster:
 
         log.info(f"Updated X token for account {self.integration.account_id}")
 
-    def _make_authenticated_request(self, method: Literal["post", "get"], url: str, **kwargs):
+    def _make_authenticated_request(
+        self, method: Literal["post", "get"], url: str, **kwargs
+    ):
         max_retries = 2
         for attempt in range(max_retries):
             try:
@@ -94,15 +96,15 @@ class XPoster:
 
     def _force_token_refresh(self):
         try:
-            token_url = "https://api.x.com/oauth2/token"
+            token_url = "https://api.x.com/2/oauth2/token"
             data = {
                 "grant_type": "refresh_token",
                 "refresh_token": self.refresh_token,
                 "client_id": settings.X_CLIENT_ID,
-                "client_secret": settings.X_CLIENT_SECRET,
             }
             headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
+            log.info(f"Token refresh payload: {data}")
             response = requests.post(token_url, data=data, headers=headers)
             response.raise_for_status()
 
@@ -115,8 +117,8 @@ class XPoster:
             log.info(
                 f"Manually refreshed token for account {self.integration.account_id}"
             )
-        except Exception as e:
-            log.error(f"Failed to manually refresh token: {str(e)}")
+        except Exception as err:
+            log.exception(err)
             raise
 
     def _upload_media(self, media_path: str):
