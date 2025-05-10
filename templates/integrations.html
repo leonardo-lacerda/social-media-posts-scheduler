@@ -10,7 +10,7 @@
 <hgroup class="title-description container">
   <h1>🔑 Integrations</h1>
 
-  <div x-data="{ showFullText: false }" style="margin-top: 20px;">
+  <div x-cloak x-data="{ showFullText: false }" style="margin-top: 20px;">
       <p @click="showFullText = !showFullText" x-show="!showFullText">
         Authorize app to make posts on your behalf by authorizing them in this page.
           <span x-text="showFullText ? '..less' : '..more'"></span>

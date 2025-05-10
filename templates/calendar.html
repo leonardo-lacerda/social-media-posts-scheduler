@@ -36,7 +36,7 @@
 
     </h1>
 
-    <div x-data="{ showFullText: false }" style="margin-top: 20px;">
+    <div x-cloak x-data="{ showFullText: false }" style="margin-top: 20px;">
         <p @click="showFullText = !showFullText" x-show="!showFullText">
             Here you have a high level overview of the whole year scheduled posts.         
             <span x-text="showFullText ? '..less' : '..more'"></span>

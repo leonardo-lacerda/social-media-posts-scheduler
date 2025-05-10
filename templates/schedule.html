@@ -12,7 +12,7 @@
 
 <div class="container" style="display: flex; justify-content: space-between;">
 
-    <a href="{% url 'calendar' %}?year={{ year }}">
+    <a href="{% url 'calendar' %}?year={{ year }}" style="text-decoration: none;">
         <i class="bi bi-arrow-left"></i>
         BACK
     </a>
@@ -21,7 +21,7 @@
         <a href="{% url 'schedule_form' isodate=prev_date %}" style="margin-right: 1rem; text-decoration: none;">
             <i class="bi bi-arrow-left"></i>
         </a>
-        <a href="{% url 'schedule_form' isodate=today %}" style="margin-right: 1rem;">
+        <a href="{% url 'schedule_form' isodate=today %}" style="margin-right: 1rem; text-decoration: none;">
             NOW
         </a>
         <a href="{% url 'schedule_form' isodate=next_date %}" style="text-decoration: none;">
