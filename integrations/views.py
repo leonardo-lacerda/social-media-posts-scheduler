@@ -3,6 +3,8 @@ import requests
 from requests_oauthlib import OAuth2Session
 from core.logger import log, log_exception
 from core import settings
+from datetime import timedelta
+from django.utils import timezone
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
@@ -187,7 +189,7 @@ def x_callback(request):
             auth=(
                 settings.X_CLIENT_ID,
                 settings.X_CLIENT_SECRET,
-            ),  # Ensure auth header is included
+            ),
         )
     except Exception as e:
         log.error(f"Error fetching token: {e}")
@@ -212,6 +214,8 @@ def x_callback(request):
         )
         return redirect("/integrations/")
 
+    access_expire = timezone.now() + timedelta(seconds=token["expires_in"] - 900)
+
     IntegrationsModel.objects.update_or_create(
         account_id=social_uid,
         user_id=user_id,
@@ -221,6 +225,7 @@ def x_callback(request):
             "user_id": user_id,
             "access_token": token["access_token"],
             "refresh_token": token["refresh_token"],
+            "access_expire": access_expire,
             "platform": Platform.X_TWITTER.value,
         },
     )
