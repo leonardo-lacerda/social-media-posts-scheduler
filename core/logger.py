@@ -57,6 +57,13 @@ def log_exception(view_func):
                 email="ImPosting",
                 message=f"AccountId: {account_id} got error {err}",
             )
+            # messages.add_message(
+            #     request,
+            #     messages.ERROR,
+            #     "Could not retrieve Instagram accounts associated with the page!",
+            #     extra_tags="🟥 Error!",
+            # )
+            # return redirect("/integrations/")
             raise
 
     return wrapper

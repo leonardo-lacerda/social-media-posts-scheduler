@@ -67,10 +67,16 @@ def linkedin_login(request):
 @login_required
 @log_exception
 def linkedin_callback(request):
+    # Refresh tokens are only for approved Marketing Developer Platform (MDP) partners
+    # https://learn.microsoft.com/en-us/linkedin/shared/authentication/programmatic-refresh-tokens
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
     social_uid = user_social_auth.pk
 
     code = request.GET.get("code")
+    if not code:
+        messages.error(request, "LinkedIn authorization failed: No code returned.")
+        return redirect("/integrations/")
+
     token_url = "https://www.linkedin.com/oauth/v2/accessToken"
     token_data = {
         "grant_type": "authorization_code",
@@ -81,25 +87,24 @@ def linkedin_callback(request):
     }
     token_headers = {"Content-Type": "application/x-www-form-urlencoded"}
     response = requests.post(token_url, data=token_data, headers=token_headers)
-    access_token = response.json().get("access_token")
+    response.raise_for_status()
+    token_json = response.json()
 
-    # Get the user ID
+    access_token = token_json["access_token"]
+    access_token_expires_in = token_json["expires_in"]
+    access_token_expire = timezone.now() + timedelta(
+        seconds=access_token_expires_in - 900
+    )  # Subtract 15 minutes for safety buffer
+
+    # Get LinkedIn user info (sub is the unique user ID)
     user_info_url = "https://api.linkedin.com/v2/userinfo"
     headers = {
         "Authorization": f"Bearer {access_token}",
     }
     response = requests.get(user_info_url, headers=headers)
+    response.raise_for_status()
     user_info = response.json()
     user_id = user_info.get("sub")
-
-    if access_token is None or user_id is None:
-        messages.add_message(
-            request,
-            messages.ERROR,
-            "Linkedin client secret is outdated or incorect!",
-            extra_tags="🟥 Error!",
-        )
-        return redirect("/integrations/")
 
     IntegrationsModel.objects.update_or_create(
         account_id=social_uid,
@@ -109,14 +114,15 @@ def linkedin_callback(request):
             "account_id": social_uid,
             "user_id": user_id,
             "access_token": access_token,
+            "access_expire": access_token_expire,
+            "refresh_expire": None,
             "platform": Platform.LINKEDIN.value,
         },
     )
 
-    messages.add_message(
+    messages.success(
         request,
-        messages.SUCCESS,
-        "Successfully logged into Linkedin! Now the app can make posts on your behalf.",
+        "Successfully logged into LinkedIn! Now the app can make posts on your behalf.",
         extra_tags="✅ Success!",
     )
 
@@ -301,15 +307,7 @@ def facebook_callback(request):
         },
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
-
-    if response.status_code != 200:
-        messages.add_message(
-            request,
-            messages.ERROR,
-            "Facebook client secret is outdated or incorrect!",
-            extra_tags="🟥 Error!",
-        )
-        return redirect("/integrations/")
+    response.raise_for_status()
 
     short_token = response.json().get("access_token")
 
@@ -324,15 +322,7 @@ def facebook_callback(request):
         },
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
-
-    if response.status_code != 200:
-        messages.add_message(
-            request,
-            messages.ERROR,
-            "Facebook client secret is outdated or incorrect!",
-            extra_tags="🟥 Error!",
-        )
-        return redirect("/integrations/")
+    response.raise_for_status()
 
     access_token = response.json().get("access_token")
 
@@ -349,33 +339,17 @@ def facebook_callback(request):
     user_info_url = "https://graph.facebook.com/v22.0/me"
     user_info_params = {"access_token": access_token, "fields": "id"}
     user_info_response = requests.get(user_info_url, params=user_info_params)
-    user_id = None
-    if user_info_response.status_code == 200:
-        user_data = user_info_response.json()
-        user_id = user_data.get("id")
-    else:
-        messages.add_message(
-            request,
-            messages.ERROR,
-            f"Failed to retrieve user information from Facebook. Status Code: {user_info_response.status_code}, Response: {user_info_response.text}",
-            extra_tags="🟥 Error!",
-        )
-        return redirect("/integrations/")
+    user_info_response.raise_for_status()
+
+    user_data = user_info_response.json()
+    user_id = user_data.get("id")
 
     # Retrieve pages associated with the user
     response_pages = requests.get(
         url=f"https://graph.facebook.com/v22.0/{user_id}/accounts",
         params={"access_token": access_token},
     )
-
-    if response_pages.status_code != 200 or not response_pages.json().get("data"):
-        messages.add_message(
-            request,
-            messages.ERROR,
-            "Could not retrieve Facebook pages associated with the user!",
-            extra_tags="🟥 Error!",
-        )
-        return redirect("/integrations/")
+    response_pages.raise_for_status()
 
     pages = response_pages.json().get("data")
 
@@ -397,17 +371,7 @@ def facebook_callback(request):
         url=f"https://graph.facebook.com/v22.0/{page_id}/instagram_accounts",
         params={"access_token": page_access_token},
     )
-
-    if response_instagram.status_code != 200 or not response_instagram.json().get(
-        "data"
-    ):
-        messages.add_message(
-            request,
-            messages.ERROR,
-            "Could not retrieve Instagram accounts associated with the page!",
-            extra_tags="🟥 Error!",
-        )
-        return redirect("/integrations/")
+    response_instagram.raise_for_status()
 
     instagram_accounts = response_instagram.json().get("data")
 

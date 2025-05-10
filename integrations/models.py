@@ -17,6 +17,7 @@ class IntegrationsModel(models.Model):
     access_token = models.CharField(max_length=5000, null=True, blank=True)
     refresh_token = models.CharField(max_length=5000, null=True, blank=True)
     access_expire = models.DateTimeField(null=True, blank=True)
+    refresh_expire = models.DateTimeField(null=True, blank=True)
     platform = models.CharField(max_length=1000, choices=Platform)
 
     def save(self, *args, **kwargs):
