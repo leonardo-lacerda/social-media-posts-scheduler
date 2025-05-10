@@ -5,6 +5,7 @@ from django.utils import timezone
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from django.utils.timezone import is_aware
 from enum import IntEnum
+from integrations.models import IntegrationsModel, Platform
 
 
 class TextMaxLength(IntEnum):
@@ -50,7 +51,6 @@ class PostModel(models.Model):
 
         if skip_validation:
             super().save(*args, **kwargs)
-            return
 
         if not any(
             [
@@ -79,23 +79,57 @@ class PostModel(models.Model):
 
         postlen = len(self.description)
 
-        if postlen > TextMaxLength.X_BLUE and self.post_on_x:
-            raise ValueError(f"Maximum length of a X post is {TextMaxLength.X_BLUE}")
+        if self.post_on_x:
+            x_ok = IntegrationsModel.objects.filter(
+                account_id=self.account_id, platform=Platform.X_TWITTER.value
+            ).first()
+            if not x_ok:
+                raise ValueError("Please got to Integrations and authorize X app")
+            if postlen > TextMaxLength.X_BLUE:
+                raise ValueError(
+                    f"Maximum length of a X post is {TextMaxLength.X_BLUE}"
+                )
 
-        if postlen > TextMaxLength.INSTAGRAM and self.post_on_instagram:
-            raise ValueError(
-                f"Maximum length of a Instagram post is {TextMaxLength.INSTAGRAM}"
-            )
+        if self.post_on_instagram:
+            ig_ok = IntegrationsModel.objects.filter(
+                account_id=self.account_id, platform=Platform.INSTAGRAM.value
+            ).first()
+            if not ig_ok:
+                raise ValueError(
+                    "Please got to Integrations and authorize Facebook/Instagram app"
+                )
+            if postlen > TextMaxLength.INSTAGRAM:
+                raise ValueError(
+                    f"Maximum length of a Instagram post is {TextMaxLength.INSTAGRAM}"
+                )
+            if not self.media_file:
+                raise ValueError("On Instagram media file is required.")
 
-        if postlen > TextMaxLength.FACEBOOK and self.post_on_facebook:
-            raise ValueError(
-                f"Maximum length of a Facebook post is {TextMaxLength.FACEBOOK}"
-            )
+        if self.post_on_facebook:
+            fb_ok = IntegrationsModel.objects.filter(
+                account_id=self.account_id, platform=Platform.FACEBOOK.value
+            ).first()
+            if not fb_ok:
+                raise ValueError(
+                    "Please got to Integrations and authorize Facebook/Instagram app"
+                )
+            if postlen > TextMaxLength.FACEBOOK:
+                raise ValueError(
+                    f"Maximum length of a Facebook post is {TextMaxLength.FACEBOOK}"
+                )
 
-        if postlen > TextMaxLength.LINKEDIN and self.post_on_linkedin:
-            raise ValueError(
-                f"Maximum length of a LinkedIn post is {TextMaxLength.LINKEDIN}"
-            )
+        if self.post_on_linkedin:
+            ld_ok = IntegrationsModel.objects.filter(
+                account_id=self.account_id, platform=Platform.LINKEDIN.value
+            ).first()
+            if not ld_ok:
+                raise ValueError(
+                    "Please got to Integrations and authorize LinkedIn app"
+                )
+            if postlen > TextMaxLength.LINKEDIN:
+                raise ValueError(
+                    f"Maximum length of a LinkedIn post is {TextMaxLength.LINKEDIN}"
+                )
 
         super().save(*args, **kwargs)
 
