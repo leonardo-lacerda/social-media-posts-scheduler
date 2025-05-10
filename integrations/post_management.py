@@ -11,6 +11,7 @@ from .platforms.linkedin import post_on_linkedin
 from .platforms.xtwitter import post_on_x
 from .platforms.facebook import post_on_facebook
 from .platforms.instagram import post_on_instagram
+from .platforms.refresh_tokens import refresh_tokens
 
 
 @sync_to_async
@@ -38,6 +39,9 @@ def delete_media_file(post_id: int):
 
 
 def post_scheduled_posts():
+
+    refresh_tokens()
+
     potential_posts = PostModel.objects.filter(posted=False)
     post_ids_to_publish = []
     now_utc = timezone.now()
@@ -118,18 +122,10 @@ def post_scheduled_posts():
 
             # INSTAGRAM
             if post.post_on_instagram:
-                ig_key = f"instagram_integration_{post.account_id}"
-                if ig_key not in cached_integrations:
-                    instagram_integration = await get_integration(
-                        post.account_id, Platform.INSTAGRAM.value
-                    )
-                    if instagram_integration:
-                        cached_integrations[ig_key] = instagram_integration
-
-                if cached_integrations.get(ig_key):
+                if cached_integrations.get(fb_key):
                     async_tasks.append(
                         post_on_instagram(
-                            cached_integrations[ig_key], post.id, text, media_url
+                            cached_integrations[fb_key], post.id, text, media_url
                         )
                     )
 

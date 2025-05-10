@@ -34,15 +34,15 @@
     <h4>
       <i class="bi bi-facebook"></i> & <i class="bi bi-instagram"></i>
     </h4>
-    {% if facebook_ok and instagram_ok %}
-    <p>Token expires at {{ meta_expire }} make sure to re-authorize until then.</p> 
+    {% if facebook_ok %}
+    <p>Token expires at {{ meta_expire }}, but we can refresh the token automatically.</p> 
     {% else %}
     <p>Please click Authorize button to allow this app to publish posts on your behalf.</p>
     {% endif %}
 
     <div style="display: flex; justify-content: end;">
       <div style="display: flex; gap: 1rem;">
-        {% if facebook_ok and instagram_ok %}
+        {% if facebook_ok %}
         <a href="{% url 'facebook_uninstall' %}" role="button" class="outline secondary">
           Deauthorize
         </a>

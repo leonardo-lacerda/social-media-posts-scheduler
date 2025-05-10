@@ -3,26 +3,32 @@ from datetime import timedelta
 from core import settings
 from django.utils import timezone
 from core.logger import log, send_notification
-from integrations.models import IntegrationsModel
+from integrations.models import IntegrationsModel, Platform
+from django.db.models import Q
 
 
 def refresh_access_token_for_x(integration: IntegrationsModel):
     refresh_token = integration.refresh_token_value
     if not refresh_token:
-        log.error(f"Missing refresh token for account {integration.account_id}")
+        integration.delete()
+        return
 
     try:
         token_url = "https://api.x.com/2/oauth2/token"
+
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+
+        auth = (settings.X_CLIENT_ID, settings.X_CLIENT_SECRET)
+
         data = {
             "grant_type": "refresh_token",
             "refresh_token": refresh_token,
-            "client_id": settings.X_CLIENT_ID,
-            "client_secret": settings.X_CLIENT_SECRET,
         }
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         log.info(f"Refreshing access token for account {integration.account_id}")
-        response = requests.post(token_url, data=data, headers=headers)
+        response = requests.post(token_url, data=data, headers=headers, auth=auth)
         response.raise_for_status()
 
         new_token = response.json()
@@ -50,13 +56,9 @@ def refresh_access_token_for_x(integration: IntegrationsModel):
 
 def refresh_access_token_for_linkedin(integration: IntegrationsModel):
     if integration.access_expire < timezone.now():
-        log.warning(
-            f"Access token expired for account {integration.account_id}. User must reauthenticate."
-        )
+        log.warning(f"Access token expired for account {integration.account_id}.")
 
-        integration.access_token = None
-        integration.access_expire = None
-        integration.save()
+        integration.delete()
 
         send_notification(
             "ImPosting",
@@ -70,28 +72,13 @@ def refresh_access_token_for_linkedin(integration: IntegrationsModel):
 
 
 def refresh_access_token_for_facebook(integration: IntegrationsModel):
-    if integration.access_expire < timezone.now():
-        log.warning(
-            f"Access token expired for account {integration.account_id}. User must reauthenticate."
-        )
-
-        integration.access_token = None
-        integration.access_expire = None
-        integration.save()
-
-        send_notification(
-            "ImPosting",
-            f"Facebook access token expired for account {integration.account_id}. Please log in again.",
-        )
-        return
-
     try:
         token_url = "https://graph.facebook.com/v22.0/oauth/access_token"
         params = {
             "grant_type": "fb_exchange_token",
             "client_id": settings.FACEBOOK_CLIENT_ID,
             "client_secret": settings.FACEBOOK_CLIENT_SECRET,
-            "fb_exchange_token": integration.access_token_value,  # Use current access token
+            "fb_exchange_token": integration.access_token_value,
         }
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
@@ -124,3 +111,28 @@ def refresh_access_token_for_facebook(integration: IntegrationsModel):
         )
 
         integration.delete()
+
+
+refresh_methods = {
+    Platform.X_TWITTER.value: refresh_access_token_for_x,
+    Platform.FACEBOOK.value: refresh_access_token_for_facebook,
+    Platform.LINKEDIN.value: refresh_access_token_for_linkedin,
+}
+
+
+def refresh_tokens():
+    try:
+
+        time_threshold = timezone.now() + timedelta(minutes=15)
+
+        integrations = IntegrationsModel.objects.filter(
+            Q(access_expire__lte=time_threshold) | Q(refresh_expire__lte=time_threshold)
+        )
+
+        for integration in integrations:
+            refresh_method = refresh_methods.get(integration.platform)
+            refresh_method(integration)
+
+    except Exception as err:
+        log.exception(err)
+        send_notification(f"ImPosting", "Could not refresh tokens because {err}")

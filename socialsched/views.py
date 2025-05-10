@@ -243,16 +243,16 @@ def schedule_save(request, isodate):
     try:
         post: PostModel = form.save(commit=False)
         post.account_id = social_uid
-        post.save()
+        # post.save()
 
-        if (
-            post.media_file
-            and hasattr(post.media_file, "path")
-            and post.media_file.path
-        ):
-            make_instagram_image(post.media_file.path, post.description)
-        else:
-            post.media_file = make_instagram_image(None, post.description)
+        # if (
+        #     post.media_file
+        #     and hasattr(post.media_file, "path")
+        #     and post.media_file.path
+        # ):
+        #     make_instagram_image(post.media_file.path, post.description)
+        # else:
+        #     post.media_file = make_instagram_image(None, post.description)
 
         post.save()
 

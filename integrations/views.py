@@ -26,15 +26,25 @@ def integrations_form(request):
     ).first()
     x_ok = bool(x_integration)
 
-    instagram_integration = IntegrationsModel.objects.filter(
-        account_id=social_uid, platform=Platform.INSTAGRAM.value
-    ).first()
-    instagram_ok = bool(instagram_integration)
-
     facebook_integration = IntegrationsModel.objects.filter(
         account_id=social_uid, platform=Platform.FACEBOOK.value
     ).first()
     facebook_ok = bool(facebook_integration)
+
+    x_expire = None
+    if x_integration:
+        if x_integration.access_expire:
+            x_expire = x_integration.access_expire.date()
+
+    linkedin_expire = None
+    if linkedin_integration:
+        if linkedin_integration.access_expire:
+            linkedin_expire = linkedin_integration.access_expire.date()
+
+    facebook_expire = None
+    if facebook_integration:
+        if facebook_integration.access_expire:
+            facebook_expire = facebook_integration.access_expire.date()
 
     return render(
         request,
@@ -42,19 +52,11 @@ def integrations_form(request):
         context={
             "x_ok": x_ok,
             "linkedin_ok": linkedin_ok,
-            "instagram_ok": instagram_ok and facebook_ok,
-            "facebook_ok": facebook_ok and instagram_ok,
-            "x_expire": x_integration.access_expire.date() if x_integration else None,
-            "linkedin_expire": (
-                linkedin_integration.access_expire.date()
-                if linkedin_integration
-                else None
-            ),
-            "meta_expire": (
-                facebook_integration.access_expire.date()
-                if facebook_integration and instagram_integration
-                else None
-            ),
+            "instagram_ok": facebook_ok,
+            "facebook_ok": facebook_ok,
+            "x_expire": x_expire,
+            "linkedin_expire": linkedin_expire,
+            "facebook_expire": facebook_expire,
         },
     )
 
@@ -312,19 +314,6 @@ def facebook_callback(request):
             "access_token": access_token,
             "access_expire": access_token_expire,
             "platform": Platform.FACEBOOK.value,
-        },
-    )
-
-    IntegrationsModel.objects.update_or_create(
-        account_id=social_uid,
-        user_id=user_id,
-        platform=Platform.INSTAGRAM.value,
-        defaults={
-            "account_id": social_uid,
-            "user_id": user_id,
-            "access_token": access_token,
-            "access_expire": access_token_expire,
-            "platform": Platform.INSTAGRAM.value,
         },
     )
 
