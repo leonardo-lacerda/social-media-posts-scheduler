@@ -1,7 +1,6 @@
 import requests
 from core.logger import log, send_notification
 from dataclasses import dataclass
-from django.utils import timezone
 from integrations.models import IntegrationsModel
 from socialsched.models import PostModel
 from asgiref.sync import sync_to_async
@@ -9,27 +8,6 @@ from .common import (
     ErrorAccessTokenNotProvided,
     ErrorUserIdNotProvided,
 )
-
-
-def refresh_access_token_for_linkedin(integration: IntegrationsModel):
-    if integration.access_expire < timezone.now():
-        log.warning(
-            f"Access token expired for account {integration.account_id}. User must reauthenticate."
-        )
-
-        integration.access_token = None
-        integration.access_expire = None
-        integration.save()
-
-        send_notification(
-            "ImPosting",
-            f"LinkedIn access token expired for account {integration.account_id}.",
-        )
-        return
-
-    log.info(
-        f"LinkedIn access token is still valid for account {integration.account_id}. No action needed."
-    )
 
 
 @dataclass

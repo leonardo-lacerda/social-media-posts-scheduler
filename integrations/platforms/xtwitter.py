@@ -1,10 +1,7 @@
 import os
 import time
 from typing import Literal
-import requests
 import mimetypes
-from datetime import timedelta
-from django.utils import timezone
 from core import settings
 from core.logger import log, send_notification
 from dataclasses import dataclass
@@ -16,48 +13,6 @@ from .common import (
     ErrorAccessTokenNotProvided,
     ErrorThisTypeOfPostIsNotSupported,
 )
-
-
-def refresh_access_token_for_x(integration: IntegrationsModel):
-    refresh_token = integration.refresh_token_value
-    if not refresh_token:
-        log.error(f"Missing refresh token for account {integration.account_id}")
-        raise ValueError("No refresh token available")
-
-    try:
-        token_url = "https://api.x.com/2/oauth2/token"
-        data = {
-            "grant_type": "refresh_token",
-            "refresh_token": refresh_token,
-            "client_id": settings.X_CLIENT_ID,
-            "client_secret": settings.X_CLIENT_SECRET,
-        }
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
-
-        log.info(f"Refreshing access token for account {integration.account_id}")
-        response = requests.post(token_url, data=data, headers=headers)
-        response.raise_for_status()
-
-        new_token = response.json()
-
-        integration.access_token = new_token["access_token"]
-
-        if new_token.get("refresh_token"):
-            integration.refresh_token = new_token["refresh_token"]
-
-        expires_in = new_token.get("expires_in", 7200)
-        integration.access_expire = timezone.now() + timedelta(seconds=expires_in - 900)
-
-        integration.save()
-        log.success(f"Access token refreshed for account {integration.account_id}")
-
-    except Exception as e:
-        log.error(f"Token refresh failed for account {integration.account_id}")
-        log.exception(e)
-        send_notification(
-            "ImPosting",
-            f"Token refresh failed for X account {integration.account_id}: {str(e)}",
-        )
 
 
 @dataclass

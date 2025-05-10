@@ -18,10 +18,24 @@
 
     <script defer src="{% static 'alpinetextareagrow.js' %}"></script>
     <script defer src="{% static 'alpinejs3xx.js' %}"></script>
-    <title>{% block page-title %} I'm Posting - Social Media Scheduling App {% endblock %}</title>
+    <title>ImPosting - {% block page-title %} Social Media Scheduling App {% endblock %}</title>
 </head>
 
 <body class="container-fluid">
+
+
+    <div x-data="{ cookies: localStorage.getItem('cookies') || 'no'}" x-init="$watch('cookies', (val) => localStorage.setItem('cookies', val))">
+
+        <div x-cloak x-show="cookies == 'no'" style="margin-top: 15px; display: flex; justify-items: center;">
+            <p>
+                This website uses cookies. You can read them <a href="#cookies">here</a>. If you don't agree, please leave the website.
+                <a @click="cookies = 'yes'" style="padding: 8px; border-radius: 3px; color: white; background-color: rgb(0, 126, 82);" href="#"><i aria-label="dismiss banner" class="bi bi-x"></i></a>
+            </p>
+        </div>
+
+    </div>
+
+
     <nav style="border-bottom: 1px solid #696868; padding-left: 1rem; padding-right: 1rem;">
         <ul>
             <li>
@@ -46,7 +60,7 @@
             </li>
 
             <li>
-                <a title="logout" href="{% url "logout" %}">
+                <a title="logout" href="{% url 'logout' %}">
                     <i class="bi bi-box-arrow-right"></i>
                 </a>
             </li>

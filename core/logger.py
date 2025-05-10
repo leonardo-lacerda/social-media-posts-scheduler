@@ -1,4 +1,6 @@
 import requests
+from django.contrib import messages
+from django.shortcuts import redirect
 from loguru import logger as log
 from functools import wraps
 from social_django.models import UserSocialAuth
@@ -35,35 +37,35 @@ def send_notification(email: str, message: str):
         log.exception(err)
 
 
-def log_exception(view_func):
-    @wraps(view_func)
-    def wrapper(request, *args, **kwargs):
-        try:
-            return view_func(request, *args, **kwargs)
-        except Exception as err:
-            account_id = "N/A"
-            if hasattr(request, "user"):
-                try:
-                    user_social_auth = UserSocialAuth.objects.filter(
-                        user=request.user
-                    ).first()
-                    account_id = user_social_auth.uid
-                except Exception as serr:
-                    log.error(f"User not logged in. {serr}")
+# def log_exception(view_func):
+#     @wraps(view_func)
+#     def wrapper(request, *args, **kwargs):
+#         try:
+#             return view_func(request, *args, **kwargs)
+#         except Exception as err:
+#             account_id = "N/A"
+#             if hasattr(request, "user"):
+#                 try:
+#                     user_social_auth = UserSocialAuth.objects.filter(
+#                         user=request.user
+#                     ).first()
+#                     account_id = user_social_auth.uid
+#                 except Exception as serr:
+#                     log.error(f"User not logged in. {serr}")
 
-            log.error(f"Account ID: {account_id} got error: {err}")
-            log.exception(err)
-            send_notification(
-                email="ImPosting",
-                message=f"AccountId: {account_id} got error {err}",
-            )
-            # messages.add_message(
-            #     request,
-            #     messages.ERROR,
-            #     "Could not retrieve Instagram accounts associated with the page!",
-            #     extra_tags="🟥 Error!",
-            # )
-            # return redirect("/integrations/")
-            raise
+#             log.error(f"Account ID: {account_id} got error: {err}")
+#             log.exception(err)
+#             send_notification(
+#                 email="ImPosting",
+#                 message=f"AccountId: {account_id} got error {err}",
+#             )
+#             messages.add_message(
+#                 request,
+#                 messages.ERROR,
+#                 "",
+#                 extra_tags="🟥 Error!",
+#             )
+#             log.debug(f"THE REQUEST PATH: {request.path}")
+#             return redirect("/integrations/")
 
-    return wrapper
+#     return wrapper

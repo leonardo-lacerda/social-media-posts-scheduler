@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout
 from django.utils import timezone
-from core.logger import log_exception, log
 from django.db.models import Min, Max
 from social_django.models import UserSocialAuth
 from datetime import datetime, timedelta
@@ -18,7 +17,6 @@ from .schedule_utils import (
 
 
 @login_required
-@log_exception
 def calendar(request):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
     social_uid = user_social_auth.pk
@@ -145,7 +143,6 @@ def calendar(request):
 
 
 @login_required
-@log_exception
 def schedule_form(request, isodate):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
     social_uid = user_social_auth.pk
@@ -180,7 +177,6 @@ def schedule_form(request, isodate):
 
 
 @login_required
-@log_exception
 def schedule_modify(request, post_id):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
     social_uid = user_social_auth.pk
@@ -214,7 +210,6 @@ def schedule_modify(request, post_id):
 
 
 @login_required
-@log_exception
 def schedule_save(request, isodate):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
     social_uid = user_social_auth.pk
@@ -275,12 +270,10 @@ def schedule_save(request, isodate):
             err,
             extra_tags="🟥 Error!",
         )
-        log.error(f"heloooooooooooooooooooooooooooooooooooooo {isodate}")
         return redirect(f"/schedule/{isodate}/")
 
 
 @login_required
-@log_exception
 def schedule_delete(request, post_id):
     user_social_auth = UserSocialAuth.objects.filter(user=request.user).first()
     social_uid = user_social_auth.pk
@@ -302,7 +295,6 @@ def login_user(request):
 
 
 @login_required
-@log_exception
 def logout_user(request):
     logout(request)
     return redirect("login")
