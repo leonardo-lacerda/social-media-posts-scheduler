@@ -35,7 +35,7 @@
       <i class="bi bi-facebook"></i> & <i class="bi bi-instagram"></i>
     </h4>
     {% if facebook_ok %}
-    <p>Token expires at {{ meta_expire }}, but we can refresh the token automatically.</p> 
+    <p>Token expires at {{ facebook_expire }}, but we can refresh the token automatically.</p> 
     {% else %}
     <p>Please click Authorize button to allow this app to publish posts on your behalf.</p>
     {% endif %}

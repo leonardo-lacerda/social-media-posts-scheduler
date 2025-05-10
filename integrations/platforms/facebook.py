@@ -62,6 +62,7 @@ class FacebookPoster:
             "access_token": self.access_token,
         }
         response = requests.post(self.photos_url, json=payload)
+        log.debug(response.json())
         response.raise_for_status()
 
         return self.get_post_url(response.json()["post_id"])

@@ -8,6 +8,7 @@ class Platform(models.TextChoices):
     X_TWITTER = "X", _("X")
     LINKEDIN = "LinkedIn", _("LinkedIn")
     FACEBOOK = "Facebook", _("Facebook")
+    INSTAGRAM = "Instagram", _("Instagram")
 
 
 class IntegrationsModel(models.Model):

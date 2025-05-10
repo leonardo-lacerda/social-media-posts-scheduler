@@ -122,10 +122,18 @@ def post_scheduled_posts():
 
             # INSTAGRAM
             if post.post_on_instagram:
-                if cached_integrations.get(fb_key):
+                ig_key = f"instagram_integration_{post.account_id}"
+                if ig_key not in cached_integrations:
+                    instagram_integration = await get_integration(
+                        post.account_id, Platform.INSTAGRAM.value
+                    )
+                    if instagram_integration:
+                        cached_integrations[ig_key] = instagram_integration
+
+                if cached_integrations.get(ig_key):
                     async_tasks.append(
                         post_on_instagram(
-                            cached_integrations[fb_key], post.id, text, media_url
+                            cached_integrations[ig_key], post.id, text, media_url
                         )
                     )
 

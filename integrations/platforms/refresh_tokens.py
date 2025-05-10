@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime
 from datetime import timedelta
 from core import settings
 from django.utils import timezone
@@ -71,6 +72,19 @@ def refresh_access_token_for_linkedin(integration: IntegrationsModel):
     )
 
 
+def refresh_access_token_for_instagram(
+    account_id: int, access_token: str, access_expire: datetime
+):
+
+    integration = IntegrationsModel.objects.filter(
+        account_id=account_id, platform=Platform.INSTAGRAM.value
+    ).first()
+
+    integration.access_token = access_token
+    integration.access_expire = access_expire
+    integration.save()
+
+
 def refresh_access_token_for_facebook(integration: IntegrationsModel):
     try:
         token_url = "https://graph.facebook.com/v22.0/oauth/access_token"
@@ -90,14 +104,18 @@ def refresh_access_token_for_facebook(integration: IntegrationsModel):
 
         new_token_data = response.json()
         new_access_token = new_token_data.get("access_token")
-        expires_in = new_token_data.get("expires_in")
 
         if not new_access_token:
             raise ValueError("Failed to retrieve new access token.")
 
+        access_expire = timezone.now() + timedelta(days=60)
         integration.access_token = new_access_token
-        integration.access_expire = timezone.now() + timedelta(seconds=expires_in - 900)
+        integration.access_expire = access_expire
         integration.save()
+
+        refresh_access_token_for_instagram(
+            integration.account_id, new_access_token, access_expire
+        )
 
         log.success(f"Facebook token refreshed for account {integration.account_id}")
 
@@ -131,7 +149,8 @@ def refresh_tokens():
 
         for integration in integrations:
             refresh_method = refresh_methods.get(integration.platform)
-            refresh_method(integration)
+            if refresh_method:
+                refresh_method(integration)
 
     except Exception as err:
         log.exception(err)

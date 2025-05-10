@@ -2,6 +2,7 @@ import uuid
 import requests
 from requests_oauthlib import OAuth2Session
 from core import settings
+from core.logger import log
 from datetime import timedelta
 from django.utils import timezone
 from django.contrib import messages
@@ -114,18 +115,17 @@ def linkedin_callback(request):
     user_info = response.json()
     user_id = user_info.get("sub")
 
-    IntegrationsModel.objects.update_or_create(
+    # Save Linkedin
+    IntegrationsModel.objects.filter(
+        account_id=social_uid, platform=Platform.LINKEDIN.value
+    ).delete()
+
+    IntegrationsModel.objects.create(
         account_id=social_uid,
         user_id=user_id,
+        access_token=access_token,
+        access_expire=access_token_expire,
         platform=Platform.LINKEDIN.value,
-        defaults={
-            "account_id": social_uid,
-            "user_id": user_id,
-            "access_token": access_token,
-            "access_expire": access_token_expire,
-            "refresh_expire": None,
-            "platform": Platform.LINKEDIN.value,
-        },
     )
 
     messages.success(
@@ -201,18 +201,18 @@ def x_callback(request):
 
     access_expire = timezone.now() + timedelta(seconds=token["expires_in"] - 900)
 
-    IntegrationsModel.objects.update_or_create(
+    # Save X
+    IntegrationsModel.objects.filter(
+        account_id=social_uid, platform=Platform.X_TWITTER.value
+    ).delete()
+
+    IntegrationsModel.objects.create(
         account_id=social_uid,
         user_id=user_id,
+        access_token=token["access_token"],
+        refresh_token=token["refresh_token"],
+        access_expire=access_expire,
         platform=Platform.X_TWITTER.value,
-        defaults={
-            "account_id": social_uid,
-            "user_id": user_id,
-            "access_token": token["access_token"],
-            "refresh_token": token["refresh_token"],
-            "access_expire": access_expire,
-            "platform": Platform.X_TWITTER.value,
-        },
     )
 
     messages.add_message(
@@ -263,7 +263,7 @@ def facebook_callback(request):
 
     code = request.GET.get("code")
     if not code:
-        raise Exception("Could not get the code from the previous call.")
+        raise Exception("Could not get the code from the previous call")
 
     # Exchange code for access token
     response = requests.post(
@@ -279,48 +279,85 @@ def facebook_callback(request):
     )
     response.raise_for_status()
 
+    short_token = response.json().get("access_token")
+
+    # Exchange short-lived token for long-lived token
+    response = requests.get(
+        url="https://graph.facebook.com/v22.0/oauth/access_token",
+        params={
+            "grant_type": "fb_exchange_token",
+            "client_id": settings.FACEBOOK_CLIENT_ID,
+            "client_secret": settings.FACEBOOK_CLIENT_SECRET,
+            "fb_exchange_token": short_token,
+        },
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+    response.raise_for_status()
+
     token_data = response.json()
     access_token = token_data["access_token"]
-    access_expires_in = token_data["expires_in"]  # 60 days
 
-    if not access_token:
-        messages.add_message(
-            request,
-            messages.ERROR,
-            "Failed to retrieve long-lived access token from Facebook.",
-            extra_tags="🟥 Error!",
-        )
-        return redirect("/integrations/")
-
-    access_token_expire = timezone.now() + timedelta(seconds=access_expires_in - 900)
-
-    # Retrieve user ID
+    # Retrieve user ID using the Graph API directly
     user_info_url = "https://graph.facebook.com/v22.0/me"
     user_info_params = {"access_token": access_token, "fields": "id"}
     user_info_response = requests.get(user_info_url, params=user_info_params)
     user_info_response.raise_for_status()
-
     user_data = user_info_response.json()
     user_id = user_data.get("id")
 
-    # Save Facebook integration (no refresh token, only access renewal)
-    IntegrationsModel.objects.update_or_create(
+    # Retrieve pages associated with the user
+    response_pages = requests.get(
+        url=f"https://graph.facebook.com/v22.0/{user_id}/accounts",
+        params={"access_token": access_token},
+    )
+    response_pages.raise_for_status()
+
+    response_data = response_pages.json()
+    pages_data = response_data["data"]
+    page = pages_data[0]
+    page_id = page["id"]
+    page_access_token = page["access_token"]
+    page_access_token_expire = timezone.now() + timedelta(days=60)
+
+    # Retrieve Instagram accounts linked to the page
+    response_instagram = requests.get(
+        url=f"https://graph.facebook.com/v22.0/{page_id}/instagram_accounts",
+        params={"access_token": page_access_token},
+    )
+    response_instagram.raise_for_status()
+
+    instagram_user_id = response_instagram.json()["data"][0]["id"]
+
+    # Save Facebook
+    IntegrationsModel.objects.filter(
+        account_id=social_uid, platform=Platform.FACEBOOK.value
+    ).delete()
+
+    IntegrationsModel.objects.create(
         account_id=social_uid,
-        user_id=user_id,
+        user_id=page_id,
+        access_token=page_access_token,
+        access_expire=page_access_token_expire,
         platform=Platform.FACEBOOK.value,
-        defaults={
-            "account_id": social_uid,
-            "user_id": user_id,
-            "access_token": access_token,
-            "access_expire": access_token_expire,
-            "platform": Platform.FACEBOOK.value,
-        },
+    )
+
+    # Save Instagram
+    IntegrationsModel.objects.filter(
+        account_id=social_uid, platform=Platform.INSTAGRAM.value
+    ).delete()
+
+    IntegrationsModel.objects.create(
+        account_id=social_uid,
+        user_id=instagram_user_id,
+        access_token=page_access_token,
+        access_expire=page_access_token_expire,
+        platform=Platform.INSTAGRAM.value,
     )
 
     messages.add_message(
         request,
         messages.SUCCESS,
-        "Successfully logged into Facebook!  Now the app can make posts on your behalf.",
+        "Successfully logged into Facebook and Instagram! Now the app can make posts on your behalf.",
         extra_tags="✅ Success!",
     )
 
