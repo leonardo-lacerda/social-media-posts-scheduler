@@ -1,5 +1,18 @@
 from django.urls import path
+from django.urls import reverse
+from django.contrib.sitemaps import Sitemap
 from . import views
+
+
+class LoginSitemap(Sitemap):
+    changefreq = "monthly"
+    priority = 1
+
+    def items(self):
+        return ["login"]
+
+    def location(self, item):
+        return reverse(item)
 
 
 urlpatterns = [
