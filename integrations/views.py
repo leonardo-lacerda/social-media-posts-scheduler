@@ -32,6 +32,11 @@ def integrations_form(request):
     ).first()
     facebook_ok = bool(facebook_integration)
 
+    instagram_integration = IntegrationsModel.objects.filter(
+        account_id=social_uid, platform=Platform.INSTAGRAM.value
+    ).first()
+    instagram_ok = bool(instagram_integration)
+
     x_expire = None
     if x_integration:
         if x_integration.access_expire:
@@ -54,10 +59,10 @@ def integrations_form(request):
             "x_ok": x_ok,
             "linkedin_ok": linkedin_ok,
             "instagram_ok": facebook_ok,
-            "facebook_ok": facebook_ok,
+            "meta_ok": facebook_ok and instagram_ok,
             "x_expire": x_expire,
             "linkedin_expire": linkedin_expire,
-            "facebook_expire": facebook_expire,
+            "meta_expire": facebook_expire
         },
     )
 
