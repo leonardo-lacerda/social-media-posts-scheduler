@@ -46,7 +46,15 @@ X_REDIRECT_URI = APP_URL + "/X/callback/"
 X_UNINSTALL_URI = APP_URL + "/X/uninstall/"
 
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "imposting.localhost", BASE_REDIRECT_URL]
+
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    os.getenv("RAILWAY_STATIC_URL", "social-media-posts-scheduler-production.up.railway.app"),  # pega domínio Railway se setado
+]
+
+# Ou para testes, para liberar geral:
+# ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://social-media-posts-scheduler-production.up.railway.app",
