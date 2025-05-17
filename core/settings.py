@@ -49,10 +49,11 @@ X_UNINSTALL_URI = APP_URL + "/X/uninstall/"
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "imposting.localhost", BASE_REDIRECT_URL]
 
 CSRF_TRUSTED_ORIGINS = [
-    APP_URL,
+    "https://social-media-posts-scheduler-production.up.railway.app",
     "https://imposting.localhost",
     "http://imposting.localhost",
 ]
+
 
 
 # INTERNAL_IPS = []
